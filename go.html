@@ -1,1 +1,2162 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go! point Hargeisa - Dalbo cuntada maqaayadaha ugu fiican</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root {
+            --primary: #00A082; --primary-dark: #00896f; 
+            --secondary: #FFC244; --secondary-dark: #e6ae3d;
+            --orange: #FFC244; --orange-dark: #e67a33; --orange-light: #fff0e6;
+            --dark: #333; --light: #f8f9fa; --gray: #6c757d; --light-gray: #e9ecef;
+            --danger: #e63946; --success: #2a9d8f; --warning: #f4a261;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1); --shadow-lg: 0 8px 25px rgba(0,0,0,0.15);
+            --radius: 12px; --radius-lg: 20px; --transition: all 0.3s ease;
+        }
+        body { background-color: #FFF; color: var(--dark); overflow-x: hidden; line-height: 1.5; }
+        a { text-decoration: none; color: inherit; transition: var(--transition); }
+        a:hover { color: var(--primary); }
+        button { cursor: pointer; border: none; outline: none; font: inherit; }
+        input, select, textarea { font: inherit; padding: 12px 16px; border: 2px solid var(--light-gray); border-radius: var(--radius); transition: var(--transition); }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,160,130,0.15); }
+        .hidden { display: none !important; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .view { padding: 20px 0; }
+        
+        /* ===== REDESIGNED HEADER & NAV ===== */
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0 24px; 
+            background: white; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            box-shadow: var(--shadow);
+            height: 72px;
+        }
+        
+        .logo { 
+            font-size: 24px; 
+            font-weight: 800; 
+            color: var(--primary); 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            cursor: pointer;
+            padding: 8px 0;
+        }
+        .logo i { font-size: 26px; }
+        .logo:hover { opacity: 0.9; }
+        
+        /* Main Navigation */
+        .main-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin: 0 24px;
+        }
+        
+        .nav-link {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+        }
+        
+        .nav-link:hover, 
+        .nav-link.active {
+            background: rgba(0, 160, 130, 0.1);
+            color: var(--primary);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .nav-link i { font-size: 15px; }
+        
+        /* Header Actions */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .location-badge { 
+            background: var(--light); 
+            padding: 8px 14px; 
+            border-radius: 25px; 
+            font-size: 13px; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            cursor: pointer; 
+            transition: var(--transition);
+            border: 1px solid var(--light-gray);
+        }
+        .location-badge:hover { 
+            background: var(--primary); 
+            color: white;
+            border-color: var(--primary);
+        }
+        .location-badge i { font-size: 14px; }
+        
+        .cart-wrapper {
+            position: relative;
+        }
+        
+        .cart-icon { 
+            background: var(--primary); 
+            color: white; 
+            padding: 10px 16px; 
+            border-radius: 25px; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        .cart-icon:hover { 
+            background: var(--primary-dark); 
+            transform: translateY(-1px);
+        }
+        .cart-icon i { font-size: 16px; }
+        
+        .cart-badge { 
+            position: absolute; 
+            top: -6px; 
+            right: -6px; 
+            background: var(--danger); 
+            color: white; 
+            width: 20px; 
+            height: 20px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 11px; 
+            font-weight: 700; 
+            border: 2px solid white;
+        }
+        
+        .mgmt-btn { 
+            background: var(--secondary); 
+            color: var(--dark); 
+            padding: 10px 18px; 
+            border-radius: 25px; 
+            font-weight: 700; 
+            font-size: 14px; 
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .mgmt-btn:hover { 
+            background: var(--secondary-dark);
+            transform: translateY(-1px);
+        }
+        .mgmt-btn i { font-size: 15px; }
+        
+        /* Mobile Menu Toggle */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            font-size: 24px;
+            color: var(--dark);
+            padding: 8px;
+        }
+        
+        /* ===== HERO ===== */
+        .hero { background: linear-gradient(135deg, var(--secondary) 0%, #FFD970 100%); text-align: center; padding: 50px 20px 100px; clip-path: ellipse(150% 100% at 50% 0%); }
+        .hero h1 { font-size: 38px; color: var(--dark); margin-bottom: 12px; font-weight: 800; }
+        .hero p { font-size: 17px; color: #1f0303; margin-bottom: 25px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .search-container { background: white; max-width: 600px; margin: 0 auto; padding: 6px; border-radius: 30px; display: flex; box-shadow: var(--shadow-lg); }
+        .search-container input { flex: 1; border: none; outline: none; padding: 12px 20px; font-size: 15px; border-radius: 30px; }
+        .search-container button { background: var(--primary); border: none; color: white; padding: 12px 28px; border-radius: 25px; font-size: 15px; font-weight: 700; transition: var(--transition); }
+        .search-container button:hover { background: var(--primary-dark); }
+        
+        /* ===== SERVICES ===== */
+        .services-container { max-width: 1100px; margin: -45px auto 40px; padding: 0 20px; text-align: center; }
+        .services-title { font-size: 26px; color: var(--dark); margin-bottom: 25px; font-weight: 700; }
+        .grid { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; margin-bottom: 45px; }
+        .card { background: white; width: 150px; height: 150px; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: var(--shadow); text-decoration: none; color: var(--dark); font-weight: 600; transition: var(--transition); border: 3px solid #f0f0f0; cursor: pointer; }
+        .card:hover { transform: scale(1.08) translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--secondary); }
+        .card .icon { font-size: 42px; margin-bottom: 6px; }
+        .card span:last-child { font-size: 14px; }
+        
+        /* 🆕 NEW INFO SECTION */
+        .info-section { max-width: 1100px; margin: 0 auto 60px; padding: 0 20px; }
+        .info-title { font-size: 28px; color: var(--dark); margin-bottom: 30px; font-weight: 700; text-align: center; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 40px; }
+        .info-card { background: white; border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow); border-top: 4px solid var(--orange); }
+        .info-card h3 { display: flex; align-items: center; gap: 10px; font-size: 18px; color: var(--dark); margin-bottom: 12px; }
+        .info-card h3 i { color: var(--orange); }
+        .info-card p { font-size: 14px; color: var(--gray); line-height: 1.6; margin-bottom: 12px; }
+        .info-card ul { list-style: none; padding-left: 0; }
+        .info-card li { font-size: 13px; color: var(--gray); padding: 4px 0; display: flex; align-items: center; gap: 8px; }
+        .info-card li i { color: var(--success); font-size: 12px; }
+        
+        .restaurants-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+        .restaurant-mini { background: var(--light); border-radius: var(--radius); padding: 16px; text-align: center; border: 2px solid transparent; transition: var(--transition); }
+        .restaurant-mini:hover { border-color: var(--orange); transform: translateY(-2px); }
+        .restaurant-mini .name { font-weight: 600; font-size: 14px; margin-bottom: 4px; color: var(--dark); }
+        .restaurant-mini .rating { color: var(--warning); font-size: 12px; margin-bottom: 6px; }
+        .restaurant-mini .cuisine { font-size: 11px; color: var(--gray); }
+        
+        .delivery-showcase { display: flex; align-items: center; gap: 20px; background: var(--orange-light); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px; }
+        .delivery-showcase .bike-icon { width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--orange); box-shadow: var(--shadow); }
+        .delivery-showcase .text h4 { font-size: 16px; color: var(--dark); margin-bottom: 6px; }
+        .delivery-showcase .text p { font-size: 13px; color: var(--gray); margin: 0; }
+        .delivery-showcase .logo-badge { background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; }
+        .delivery-showcase .logo-badge i { font-size: 10px; }
+        
+        /* ===== BUTTONS ===== */
+        .btn { padding: 12px 24px; border-radius: var(--radius); font-weight: 600; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary { background: var(--secondary); color: var(--dark); }
+        .btn-secondary:hover { background: var(--secondary-dark); }
+        .btn-orange { background: var(--orange); color: white; }
+        .btn-orange:hover { background: var(--orange-dark); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #c1121f; }
+        .btn-success { background: var(--success); color: white; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-sm { padding: 8px 16px; font-size: 14px; border-radius: 8px; }
+        .btn-lg { padding: 14px 32px; font-size: 16px; border-radius: var(--radius-lg); }
+        
+        /* ===== MODALS ===== */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+        .modal-content { background: white; border-radius: var(--radius-lg); width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); animation: modalSlide 0.3s ease; }
+        @keyframes modalSlide { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--light-gray); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 22px; font-weight: 700; color: var(--primary); }
+        .modal-close { background: none; font-size: 24px; color: var(--gray); cursor: pointer; transition: var(--transition); }
+        .modal-close:hover { color: var(--danger); }
+        .modal-body { padding: 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--light-gray); display: flex; gap: 12px; justify-content: flex-end; }
+        
+        /* ===== FORMS ===== */
+        .form-group { margin-bottom: 18px; }
+        .form-label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--dark); font-size: 14px; }
+        .form-label .required { color: var(--danger); margin-left: 2px; }
+        .form-control { width: 100%; padding: 12px 16px; border: 2px solid var(--light-gray); border-radius: var(--radius); transition: var(--transition); font-size: 15px; }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,160,130,0.15); }
+        .form-hint { font-size: 12px; color: var(--gray); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        
+        /* ===== STEP INDICATOR ===== */
+        .step-indicator { display: flex; justify-content: space-between; margin-bottom: 24px; position: relative; }
+        .step-indicator::before { content: ''; position: absolute; top: 20px; left: 10%; right: 10%; height: 3px; background: var(--light-gray); z-index: 1; }
+        .step { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .step-number { width: 32px; height: 32px; border-radius: 50%; background: var(--light-gray); color: var(--gray); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; transition: var(--transition); }
+        .step-label { font-size: 12px; color: var(--gray); font-weight: 500; }
+        .step.active .step-number { background: var(--primary); color: white; }
+        .step.active .step-label { color: var(--primary); font-weight: 600; }
+        .step.completed .step-number { background: var(--success); color: white; }
+        
+        /* ===== ORDER TYPE SELECTION ===== */
+        .order-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        .order-type-card { border: 2px solid var(--light-gray); border-radius: var(--radius-lg); padding: 20px; text-align: center; cursor: pointer; transition: var(--transition); }
+        .order-type-card:hover, .order-type-card.active { border-color: var(--primary); background: rgba(0,160,130,0.05); }
+        .order-type-card i { font-size: 32px; color: var(--primary); margin-bottom: 10px; }
+        .order-type-card .title { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+        .order-type-card .desc { font-size: 13px; color: var(--gray); }
+        
+        /* ===== CATEGORY NAVIGATION ===== */
+        .category-nav { display: flex; gap: 12px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 8px; }
+        .category-btn { padding: 10px 20px; border-radius: 25px; background: var(--light); border: 2px solid transparent; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: var(--transition); white-space: nowrap; }
+        .category-btn:hover { border-color: var(--primary); }
+        .category-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .category-btn i { font-size: 16px; }
+        
+        /* ===== MENU ITEMS ===== */
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .menu-item { background: white; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); transition: var(--transition); }
+        .menu-item:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .menu-item-img { width: 100%; height: 160px; object-fit: cover; cursor: pointer; }
+        .menu-item-body { padding: 16px; }
+        .menu-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .menu-item-name { font-weight: 700; font-size: 16px; }
+        .menu-item-price { font-weight: 700; color: var(--primary); font-size: 18px; }
+        .menu-item-desc { font-size: 14px; color: var(--gray); margin-bottom: 12px; }
+        .menu-item-add { width: 100%; padding: 10px; background: var(--primary); color: white; border-radius: var(--radius); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; transition: var(--transition); }
+        .menu-item-add:hover { background: var(--primary-dark); }
+        
+        /* ===== CART ===== */
+        .cart-window { position: fixed; bottom: 20px; right: 20px; width: 340px; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); z-index: 1500; transform: translateX(400px); transition: transform 0.3s ease; display: flex; flex-direction: column; max-height: 80vh; }
+        .cart-window.visible { transform: translateX(0); }
+        .cart-header { padding: 16px 20px; background: var(--primary); color: white; border-radius: var(--radius-lg) var(--radius-lg) 0 0; display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+        .cart-content { padding: 16px 20px; overflow-y: auto; flex: 1; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--light-gray); }
+        .cart-item-info { flex: 1; }
+        .cart-item-name { font-weight: 600; font-size: 14px; }
+        .cart-item-price { font-size: 13px; color: var(--gray); }
+        .cart-item-qty { display: flex; align-items: center; gap: 8px; margin-left: 12px; }
+        .cart-item-qty-btn { width: 24px; height: 24px; border-radius: 50%; background: var(--light-gray); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; cursor: pointer; transition: var(--transition); }
+        .cart-item-qty-btn:hover { background: var(--primary); color: white; }
+        .cart-summary { border-top: 2px solid var(--light-gray); padding-top: 16px; margin-top: 8px; }
+        .cart-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+        .cart-actions { display: flex; flex-direction: column; gap: 10px; }
+        
+        .cart-toggle-btn { position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: var(--shadow-lg); z-index: 1400; transition: var(--transition); }
+        .cart-toggle-btn:hover { background: var(--primary-dark); transform: scale(1.05); }
+        .cart-toggle-btn .badge { position: absolute; top: -4px; right: -4px; width: 22px; height: 22px; border-radius: 50%; background: var(--danger); color: white; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        
+        /* ===== RESTAURANT LIST ===== */
+        .restaurant-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+        .restaurant-card { background: white; border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); text-align: center; }
+        .restaurant-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border: 2px solid var(--secondary); }
+        .restaurant-logo { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 12px; object-fit: cover; border: 3px solid var(--light-gray); }
+        .restaurant-name { font-weight: 700; font-size: 17px; margin-bottom: 6px; color: var(--primary); }
+        .restaurant-address { font-size: 13px; color: var(--gray); }
+        
+        /* ===== MANAGEMENT DASHBOARD ===== */
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--light-gray); }
+        .dashboard-title { font-size: 24px; font-weight: 700; color: var(--primary); }
+        .dashboard-subtitle { font-size: 14px; color: var(--gray); margin-top: 4px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+        .stat-card { background: white; padding: 20px; border-radius: var(--radius-lg); box-shadow: var(--shadow); display: flex; align-items: center; gap: 16px; }
+        .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .stat-icon.blue { background: rgba(0,160,130,0.15); color: var(--primary); }
+        .stat-icon.green { background: rgba(42,157,143,0.15); color: var(--success); }
+        .stat-icon.amber { background: rgba(244,162,97,0.15); color: var(--warning); }
+        .stat-icon.purple { background: rgba(102,51,153,0.15); color: #663399; }
+        .stat-info .label { font-size: 13px; color: var(--gray); }
+        .stat-info .value { font-size: 22px; font-weight: 700; color: var(--dark); margin-top: 2px; }
+        
+        .mgmt-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
+        .mgmt-action { background: white; padding: 24px 20px; border-radius: var(--radius-lg); box-shadow: var(--shadow); text-align: center; cursor: pointer; transition: var(--transition); }
+        .mgmt-action:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+        .mgmt-action-icon { width: 60px; height: 60px; border-radius: 16px; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .mgmt-action-icon.blue { background: rgba(0,160,130,0.15); color: var(--primary); }
+        .mgmt-action-icon.green { background: rgba(42,157,143,0.15); color: var(--success); }
+        .mgmt-action-icon.purple { background: rgba(102,51,153,0.15); color: #663399; }
+        .mgmt-action-title { font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+        .mgmt-action-desc { font-size: 13px; color: var(--gray); }
+        
+        .orders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .orders-section { background: white; border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow); }
+        .orders-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--light-gray); }
+        .orders-list { max-height: 400px; overflow-y: auto; }
+        .order-item { padding: 14px 0; border-bottom: 1px solid var(--light-gray); }
+        .order-item:last-child { border-bottom: none; }
+        .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .order-id { font-weight: 700; font-size: 15px; }
+        .order-status { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .order-status.pending { background: rgba(244,162,97,0.2); color: var(--warning); }
+        .order-status.completed { background: rgba(42,157,143,0.2); color: var(--success); }
+        .order-customer { font-size: 13px; color: var(--gray); margin-bottom: 8px; }
+        .order-items { font-size: 13px; margin-bottom: 10px; }
+        .order-total { display: flex; justify-content: space-between; font-weight: 700; font-size: 15px; margin-bottom: 10px; }
+        .order-actions { display: flex; gap: 8px; }
+        
+        /* ===== SETTINGS PANELS ===== */
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .settings-card { background: white; border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow); }
+        .settings-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--light-gray); color: var(--primary); }
+        
+        .delivery-zones-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+        .zone-input { text-align: center; }
+        .zone-input input { width: 100%; text-align: center; font-weight: 600; }
+        
+        .delivery-hours-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: end; }
+        
+        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--light-gray); border-radius: 26px; transition: var(--transition); }
+        .toggle-slider::before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: var(--transition); }
+        input:checked + .toggle-slider { background: var(--primary); }
+        input:checked + .toggle-slider::before { transform: translateX(24px); }
+        
+        .toggle-label { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--light-gray); }
+        .toggle-label:last-child { border-bottom: none; }
+        .toggle-info .label { font-weight: 600; font-size: 14px; }
+        .toggle-info .desc { font-size: 12px; color: var(--gray); margin-top: 2px; }
+        
+        /* ===== VEHICLE MANAGEMENT ===== */
+        .vehicle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+        .vehicle-card { background: white; border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow); }
+        .vehicle-header { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+        .vehicle-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .vehicle-icon.bike { background: rgba(0,160,130,0.15); color: var(--primary); }
+        .vehicle-icon.taxi { background: rgba(255,194,68,0.15); color: var(--secondary); }
+        .vehicle-info .driver { font-weight: 700; font-size: 15px; }
+        .vehicle-info .plate { font-size: 13px; color: var(--gray); }
+        .vehicle-status { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .vehicle-status.available { background: rgba(42,157,143,0.2); color: var(--success); }
+        .vehicle-status.delivering { background: rgba(244,162,97,0.2); color: var(--warning); }
+        .vehicle-status.unavailable { background: rgba(230,57,70,0.2); color: var(--danger); }
+        .vehicle-actions { display: flex; gap: 8px; margin-top: 12px; }
+        
+        /* ===== PAYMENT METHODS ===== */
+        .payment-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+        .payment-card { border: 2px solid var(--light-gray); border-radius: var(--radius-lg); padding: 18px 14px; text-align: center; cursor: pointer; transition: var(--transition); }
+        .payment-card:hover, .payment-card.active { border-color: var(--primary); background: rgba(0,160,130,0.05); }
+        .payment-icon { width: 48px; height: 48px; border-radius: 14px; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .payment-icon.zaad { background: rgba(0,123,255,0.15); color: #007bff; }
+        .payment-icon.edahab { background: rgba(40,167,69,0.15); color: #28a745; }
+        .payment-icon.cash { background: rgba(108,117,125,0.15); color: var(--gray); }
+        .payment-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+        .payment-desc { font-size: 11px; color: var(--gray); }
+        
+        /* ===== CLEAN RECEIPT DESIGN (ORIGINAL SIZE) ===== */
+        .bill-modal .modal-content { max-width: 420px; }
+        .bill-header { text-align: center; padding-bottom: 20px; border-bottom: 2px dashed var(--light-gray); margin-bottom: 20px; }
+        .bill-logo { width: 70px; height: 70px; border-radius: 16px; margin: 0 auto 12px; background: var(--primary); display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; font-weight: 800; }
+        .bill-restaurant { font-weight: 700; font-size: 18px; color: var(--primary); margin-bottom: 4px; }
+        .bill-address, .bill-phone { font-size: 13px; color: var(--gray); }
+        .bill-qr { margin: 16px 0; display: flex; justify-content: center; }
+        .bill-qr img { border: 1px solid var(--light-gray); border-radius: 8px; }
+        
+        .bill-meta { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+        .bill-items { margin: 16px 0; border-top: 2px dashed var(--light-gray); border-bottom: 2px dashed var(--light-gray); padding: 16px 0; }
+        .bill-item { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; }
+        .bill-total-row { display: flex; justify-content: space-between; font-size: 20px; font-weight: 700; margin: 16px 0; padding-top: 12px; border-top: 2px solid var(--dark); }
+        
+        /* 🆕 DETAILS SECTION INSIDE CLEAN DESIGN */
+        .bill-details-box { background: var(--light); border-radius: var(--radius); padding: 12px; margin: 16px 0; font-size: 12px; color: var(--gray); }
+        .bill-details-title { font-weight: 700; color: var(--dark); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; font-size: 13px; border-bottom: 1px dashed #ddd; padding-bottom: 4px; }
+        .bill-detail-row { display: flex; justify-content: space-between; margin: 3px 0; }
+        .bill-detail-label { font-weight: 600; color: var(--dark); }
+        
+        .bill-footer { text-align: center; font-size: 12px; color: var(--gray); margin: 20px 0 16px; line-height: 1.6; }
+        .bill-actions { display: flex; gap: 12px; }
+        .bill-actions .btn { flex: 1; }
+        .whatsapp-btn { background: #25D366; color: white; }
+        .whatsapp-btn:hover { background: #128C7E; }
+        
+        /* ===== TAKE AWAY CUSTOMER FORM ===== */
+        .takeaway-form {
+            background: var(--light);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin: 16px 0;
+            border-left: 4px solid var(--orange);
+        }
+        
+        .takeaway-form-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--dark);
+        }
+        
+        .pickup-time-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 12px 0;
+        }
+        
+        .pickup-time-option {
+            border: 2px solid var(--light-gray);
+            border-radius: var(--radius);
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 13px;
+        }
+        
+        .pickup-time-option:hover, 
+        .pickup-time-option.active {
+            border-color: var(--primary);
+            background: rgba(0,160,130,0.05);
+            font-weight: 600;
+        }
+        
+        .pickup-time-option i {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 4px;
+            color: var(--primary);
+        }
+        
+        .custom-time-input {
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .custom-time-input.active {
+            display: block;
+        }
+        
+        .form-note {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* ===== UTILITY CLASSES ===== */
+        .text-center { text-align: center; }
+        .text-primary { color: var(--primary); }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+        .text-warning { color: var(--warning); }
+        .text-orange { color: var(--orange); }
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .mb-4 { margin-bottom: 16px; }
+        .mb-6 { margin-bottom: 24px; }
+        .mt-2 { margin-top: 8px; }
+        .mt-4 { margin-top: 16px; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 8px; }
+        .gap-4 { gap: 16px; }
+        .w-full { width: 100%; }
+        .p-3 { padding: 12px; }
+        .rounded-lg { border-radius: var(--radius-lg); }
+        .bg-light { background: var(--light); }
+        .border-2 { border-width: 2px; }
+        .border-dashed { border-style: dashed; }
+        .border-primary { border-color: var(--primary); }
+        
+        /* ===== ANIMATIONS ===== */
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .animate-pulse { animation: pulse 1.5s infinite; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease; }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .main-nav { display: none; }
+            .mobile-menu-btn { display: block; }
+            header { padding: 0 16px; }
+        }
+        
+        @media (max-width: 768px) {
+            header { padding: 0 12px; height: 64px; }
+            .logo { font-size: 20px; }
+            .logo i { font-size: 22px; }
+            .hero h1 { font-size: 28px; }
+            .hero p { font-size: 15px; }
+            .services-container { margin-top: -35px; }
+            .card { width: 130px; height: 130px; }
+            .card .icon { font-size: 36px; }
+            .form-row, .order-type-grid, .payment-grid, .delivery-zones-grid, .delivery-hours-grid, .settings-grid, .orders-grid { grid-template-columns: 1fr; }
+            .cart-window { width: calc(100% - 40px); right: 20px; bottom: 80px; }
+            .menu-grid, .restaurant-grid, .vehicle-grid { grid-template-columns: 1fr; }
+            .modal-content { margin: 10px; max-width: calc(100% - 20px); }
+            .info-grid { grid-template-columns: 1fr; }
+            .delivery-showcase { flex-direction: column; text-align: center; }
+            .bill-modal .modal-content { max-width: 100%; margin: 5px; }
+            .header-actions { gap: 8px; }
+            .location-badge, .cart-icon, .mgmt-btn { padding: 8px 12px; font-size: 13px; }
+            .cart-icon { padding: 8px 14px; }
+            .pickup-time-options { grid-template-columns: 1fr; }
+        }
+        
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 72px;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 16px;
+            box-shadow: var(--shadow);
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .mobile-menu-overlay.active {
+            display: flex;
+        }
+        
+        .mobile-menu-overlay .nav-link {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mobile-menu-overlay .nav-link.active {
+            background: rgba(0, 160, 130, 0.1);
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
 
+<!-- ===== REDESIGNED HEADER ===== -->
+<header>
+    <!-- Logo -->
+    <div class="logo" onclick="showPage('home')" role="button" tabindex="0">
+        <i class="fas fa-circle"></i> Go! point
+    </div>
+    
+    <!-- Main Navigation (Desktop) -->
+    <nav class="main-nav" aria-label="Main navigation">
+        <a class="nav-link active" data-target="home" href="#home" onclick="showPage('home'); return false;">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a class="nav-link" data-target="restaurants" href="#restaurants" onclick="showPage('restaurants'); return false;">
+            <i class="fas fa-utensils"></i> Restaurants
+        </a>
+        <a class="nav-link" data-target="contact" href="#contact" onclick="showContact(); return false;">
+            <i class="fas fa-envelope"></i> Contact
+        </a>
+        <a class="nav-link" id="nav-mgmt" href="#management" onclick="showManagementLogin(); return false;">
+            <i class="fas fa-user-tie"></i> Management
+        </a>
+    </nav>
+    
+    <!-- Header Actions -->
+    <div class="header-actions">
+        <div class="location-badge" id="loc-badge" onclick="detectLocation()" role="button" tabindex="0" aria-label="Change location">
+            <i class="fas fa-map-marker-alt"></i> 
+            <span id="location-text">Hargeisa</span>
+        </div>
+        
+        <div class="cart-wrapper">
+            <button class="cart-icon" onclick="toggleCart()" aria-label="View cart">
+                <i class="fas fa-shopping-cart"></i> Cart
+                <span class="cart-badge hidden" id="cart-count">0</span>
+            </button>
+        </div>
+        
+        <button class="mgmt-btn" onclick="showManagementLogin()" aria-label="Management login">
+            <i class="fas fa-user-cog"></i> Management
+        </button>
+        
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle menu" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+</header>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" id="mobile-menu">
+    <a class="nav-link active" data-target="home" href="#home" onclick="showPage('home'); toggleMobileMenu(); return false;">
+        <i class="fas fa-home"></i> Home
+    </a>
+    <a class="nav-link" data-target="restaurants" href="#restaurants" onclick="showPage('restaurants'); toggleMobileMenu(); return false;">
+        <i class="fas fa-utensils"></i> Restaurants
+    </a>
+    <a class="nav-link" data-target="contact" href="#contact" onclick="showContact(); toggleMobileMenu(); return false;">
+        <i class="fas fa-envelope"></i> Contact
+    </a>
+    <a class="nav-link" href="#management" onclick="showManagementLogin(); toggleMobileMenu(); return false;">
+        <i class="fas fa-user-tie"></i> Management
+    </a>
+</div>
+
+<!-- ===== HOME PAGE ===== -->
+<div id="home-page" class="view">
+    <section class="hero">
+        <h1>Hargeisa, cuntadaadu way soo socotaa! 🚀</h1>
+        <p>Dalbo cuntada maqaayadaha ugu fiican magaalada, gurigaaga ama xafiiskaaga</p>
+        <div class="search-container">
+            <input type="text" placeholder="Raadi maqaayad, cunto, ama adeeg..." id="search-input">
+            <button onclick="searchRestaurants()"><i class="fas fa-search"></i> Raadi</button>
+        </div>
+    </section>
+
+    <section class="services-container">
+        <h2 class="services-title">Maxaan kuu keeni karnaa maanta?</h2>
+        <div class="grid">
+            <div class="card"><span class="icon">🍔</span><span>Cunto</span></div>
+            <div class="card"><span class="icon">🛒</span><span>Raashin</span></div>
+            <div class="card"><span class="icon">💊</span><span>Dawooyin</span></div>
+            <div class="card"><span class="icon">🎁</span><span>Wax kasta</span></div>
+        </div>
+    </section>
+    
+    <!-- 🆕 NEW INFO SECTION -->
+    <section class="info-section">
+        <h2 class="info-title">🌟 Sidee u shaqeysaa Go! point?</h2>
+        
+        <div class="info-grid">
+            <!-- How It Works -->
+            <div class="info-card">
+                <h3><i class="fas fa-list-ol"></i> Sidee loo isticmaalaa?</h3>
+                <p>Go! point waa hab fudud oo aad ku dalban karto cuntada maqaayadaha ugu fiican Hargeisa:</p>
+                <ul>
+                    <li><i class="fas fa-check"></i> Dooro maqaayada aad jeceshahay</li>
+                    <li><i class="fas fa-check"></i> Ku dar cuntooyinka aad rabto karita</li>
+                    <li><i class="fas fa-check"></i> Dooro qaabka aad rabto (Delivery/Take Away)</li>
+                    <li><i class="fas fa-check"></i> Bixi lacagta (Zaad/E-Dahab/Cash)</li>
+                    <li><i class="fas fa-check"></i> Sug cuntooyinkaaga oo la keenayo!</li>
+                </ul>
+            </div>
+            
+            <!-- Best Restaurants -->
+            <div class="info-card">
+                <h3><i class="fas fa-utensils"></i> Maqaayadaha ugu fiican Hargeisa</h3>
+                <p>Ku biir maqaayadaha ugu caansan magaalada:</p>
+                <div class="restaurants-grid">
+                    <div class="restaurant-mini">
+                        <div class="name">Zimodi CitiCafee</div>
+                        <div class="rating">⭐⭐⭐⭐⭐ 4.9</div>
+                        <div class="cuisine">☕ Coffee & Pastries</div>
+                    </div>
+                    <div class="restaurant-mini">
+                        <div class="name">Hargeisa Brew</div>
+                        <div class="rating">⭐⭐⭐⭐⭐ 4.8</div>
+                        <div class="cuisine">🍽️ Breakfast & Brunch</div>
+                    </div>
+                    <div class="restaurant-mini">
+                        <div class="name">Dalbo Grill</div>
+                        <div class="rating">⭐⭐⭐⭐ 4.6</div>
+                        <div class="cuisine">🍖 Somali Cuisine</div>
+                    </div>
+                    <div class="restaurant-mini">
+                        <div class="name">Shahada Sweets</div>
+                        <div class="rating">⭐⭐⭐⭐⭐ 4.7</div>
+                        <div class="cuisine">🍰 Desserts & Tea</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Delivery System -->
+            <div class="info-card">
+                <h3><i class="fas fa-shipping-fast"></i> Nidaamka Gaadiidka</h3>
+                <p>Go! point waxay kuu keentaa adeeg gaadiid oo tayo sare leh:</p>
+                <ul>
+                    <li><i class="fas fa-check"></i> Gaadiid cusub oo nadiif ah</li>
+                    <li><i class="fas fa-check"></i> Wadayaal tababaran oo khibrad leh</li>
+                    <li><i class="fas fa-check"></i> Raacitaanka GPS ee waqtiga dhabta ah</li>
+                    <li><i class="fas fa-check"></i> Caymis caafimaad oo buuxa</li>
+                    <li><i class="fas fa-check"></i> Taageero 24/7</li>
+                </ul>
+                
+                <!-- 🆕 Delivery Showcase with Logo -->
+                <div class="delivery-showcase">
+                    <div class="bike-icon">
+                        <i class="fas fa-motorcycle"></i>
+                    </div>
+                    <div class="text">
+                        <h4>🚚 Gaadiidka Go! point</h4>
+                        <p>Wadayaashayadu waxay isticmaalaan mootooyin casri ah oo leh calaamadda Go! point si aad u aqoonsato si fudud.</p>
+                        <div class="logo-badge">
+                            <i class="fas fa-circle"></i> Go! point
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- ===== CUSTOMER ORDER FLOW ===== -->
+<div id="customer-order-view" class="container view hidden">
+    <h2 class="page-title text-center mb-6">Place Your Order</h2>
+    <div id="restaurant-selection">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-semibold">Choose a Restaurant</h3>
+            <button class="btn btn-outline btn-sm" onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
+        </div>
+        <div class="restaurant-grid" id="restaurant-list"></div>
+    </div>
+    <div id="menu-view" class="hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-semibold" id="selected-restaurant-name">Restaurant Name</h3>
+            <button class="btn btn-outline btn-sm" onclick="backToRestaurants()"><i class="fas fa-arrow-left"></i> Back</button>
+        </div>
+        <h4 class="font-semibold mb-3">How would you like to order?</h4>
+        <div class="order-type-grid">
+            <div class="order-type-card active" onclick="setOrderType('takeaway')" id="takeaway-btn">
+                <i class="fas fa-shopping-bag"></i><div class="title">Take Away</div><div class="desc">Order for pickup</div>
+            </div>
+            <div class="order-type-card" onclick="setOrderType('delivery')" id="delivery-btn">
+                <i class="fas fa-motorcycle"></i><div class="title">Delivery</div><div class="desc">Deliver to your location</div>
+            </div>
+        </div>
+        <div class="category-nav">
+            <button class="category-btn active" onclick="setCategory('coffee')" id="cat-coffee"><i class="fas fa-coffee"></i> Coffee</button>
+            <button class="category-btn" onclick="setCategory('food')" id="cat-food"><i class="fas fa-utensils"></i> Food</button>
+            <button class="category-btn" onclick="setCategory('dessert')" id="cat-dessert"><i class="fas fa-cake"></i> Dessert</button>
+        </div>
+        <div class="menu-grid" id="menu-items"></div>
+    </div>
+</div>
+
+<!-- ===== DELIVERY FORM MODAL ===== -->
+<div id="delivery-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">🚚 Delivery Information</div>
+            <button class="modal-close" onclick="closeModal('delivery-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="step-indicator">
+                <div class="step completed"><div class="step-number">1</div><div class="step-label">Order</div></div>
+                <div class="step active"><div class="step-number">2</div><div class="step-label">Delivery</div></div>
+                <div class="step"><div class="step-number">3</div><div class="step-label">Payment</div></div>
+            </div>
+            <form id="delivery-form">
+                <div class="form-group">
+                    <label class="form-label">Full Name <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="delivery-name" required placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number <span class="required">*</span></label>
+                    <input type="tel" class="form-control" id="delivery-phone" required placeholder="+252 6X XXX XXXX">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">📍 Detected GPS Location</label>
+                    <div id="location-display" class="p-3 rounded-lg bg-light border-2 border-dashed border-primary text-center mb-2">
+                        <i class="fas fa-spinner fa-spin"></i> Detecting location...
+                    </div>
+                    <button type="button" class="btn btn-outline btn-sm w-full mt-2" onclick="detectLocation()">
+                        <i class="fas fa-sync-alt"></i> Refresh Location
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Full Delivery Address <span class="required">*</span></label>
+                    <textarea class="form-control" id="delivery-address" rows="3" required placeholder="e.g., Near Dalbo Market, Building 5, 2nd Floor"></textarea>
+                    <div class="form-hint"><i class="fas fa-info-circle"></i> GPS area auto-filled. Add street/building details.</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Delivery Method <span class="required">*</span></label>
+                    <div class="order-type-grid">
+                        <div class="order-type-card" onclick="selectDeliveryMethod('bike')" id="method-bike">
+                            <i class="fas fa-motorcycle"></i><div class="title">Motorcycle</div><div class="desc">Fast delivery</div>
+                        </div>
+                        <div class="order-type-card" onclick="selectDeliveryMethod('taxi')" id="method-taxi">
+                            <i class="fas fa-car"></i><div class="title">Taxi</div><div class="desc">Safe delivery</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="delivery-method">
+                </div>
+                <div class="form-group" id="vehicle-section">
+                    <label class="form-label">Assigned Vehicle</label>
+                    <div class="vehicle-card" style="background: #f8f9fa; border: 2px dashed var(--light-gray);">
+                        <div class="vehicle-header">
+                            <div class="vehicle-icon bike" id="vehicle-icon"><i class="fas fa-motorcycle"></i></div>
+                            <div class="vehicle-info">
+                                <div class="driver" id="vehicle-driver">Auto-assigned</div>
+                                <div class="plate" id="vehicle-plate">From available fleet</div>
+                            </div>
+                        </div>
+                        <div class="vehicle-status available" id="vehicle-status"><i class="fas fa-check-circle"></i> Available</div>
+                    </div>
+                    <div class="form-hint"><i class="fas fa-bolt"></i> Vehicle auto-assigned from available fleet</div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('delivery-modal')">Back</button>
+            <button class="btn btn-primary" onclick="proceedToPayment()">Continue to Payment</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TAKE AWAY CUSTOMER FORM MODAL ===== -->
+<div id="takeaway-customer-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">🛍️ Take Away Information</div>
+            <button class="modal-close" onclick="closeModal('takeaway-customer-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="step-indicator">
+                <div class="step completed"><div class="step-number">1</div><div class="step-label">Order</div></div>
+                <div class="step active"><div class="step-number">2</div><div class="step-label">Pickup Info</div></div>
+                <div class="step"><div class="step-number">3</div><div class="step-label">Payment</div></div>
+            </div>
+            
+            <div class="takeaway-form">
+                <div class="takeaway-form-title">
+                    <i class="fas fa-user"></i> Customer Information
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="takeaway-name" required placeholder="Enter your name">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Phone Number <span class="required">*</span></label>
+                    <input type="tel" class="form-control" id="takeaway-phone" required placeholder="+252 6X XXX XXXX">
+                    <div class="form-note"><i class="fas fa-info-circle"></i> For order confirmation & pickup notification</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">⏰ Pickup Time <span class="required">*</span></label>
+                    <div class="pickup-time-options">
+                        <div class="pickup-time-option active" onclick="selectPickupTime('asap')" id="time-asap">
+                            <i class="fas fa-bolt"></i>
+                            <div>ASAP</div>
+                            <div style="font-size:11px;color:var(--gray);">Ready in 15-20 min</div>
+                        </div>
+                        <div class="pickup-time-option" onclick="selectPickupTime('30')" id="time-30">
+                            <i class="fas fa-clock"></i>
+                            <div>30 Minutes</div>
+                            <div style="font-size:11px;color:var(--gray);">Schedule pickup</div>
+                        </div>
+                        <div class="pickup-time-option" onclick="selectPickupTime('60')" id="time-60">
+                            <i class="fas fa-hourglass-half"></i>
+                            <div>1 Hour</div>
+                            <div style="font-size:11px;color:var(--gray);">Schedule pickup</div>
+                        </div>
+                        <div class="pickup-time-option" onclick="selectPickupTime('custom')" id="time-custom">
+                            <i class="fas fa-calendar-check"></i>
+                            <div>Custom Time</div>
+                            <div style="font-size:11px;color:var(--gray);">Choose later</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="selected-pickup-time" value="asap">
+                    
+                    <div class="custom-time-input" id="custom-time-container">
+                        <input type="time" class="form-control" id="custom-time-value">
+                        <div class="form-note"><i class="fas fa-clock"></i> Select your preferred pickup time</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top:16px;padding:12px;background:var(--orange-light);border-radius:var(--radius);font-size:13px;">
+                <strong>💡 Note:</strong> Your order will be prepared fresh. Please arrive within 10 minutes of your selected pickup time.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('takeaway-customer-modal')">Back</button>
+            <button class="btn btn-primary" onclick="proceedToPayment()">Continue to Payment</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PAYMENT FORM MODAL ===== -->
+<div id="payment-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">💳 Payment Method</div>
+            <button class="modal-close" onclick="closeModal('payment-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="step-indicator">
+                <div class="step completed"><div class="step-number">1</div><div class="step-label">Order</div></div>
+                <div class="step completed"><div class="step-number">2</div><div class="step-label">Info</div></div>
+                <div class="step active"><div class="step-number">3</div><div class="step-label">Payment</div></div>
+            </div>
+            <div class="flex justify-between items-center mb-6 p-4" style="background: var(--light); border-radius: var(--radius);">
+                <span class="font-semibold">Total Amount:</span>
+                <span class="font-bold text-primary text-xl" id="payment-total">$0.00</span>
+            </div>
+            <form id="payment-form">
+                <div class="form-group">
+                    <label class="form-label">Payment Method <span class="required">*</span></label>
+                    <div class="payment-grid">
+                        <div class="payment-card" onclick="selectPayment('zaad')" id="pay-zaad">
+                            <div class="payment-icon zaad"><i class="fas fa-mobile-alt"></i></div>
+                            <div class="payment-name">Telesom</div><div class="payment-desc">63 + 7 digits</div>
+                        </div>
+                        <div class="payment-card" onclick="selectPayment('edahab')" id="pay-edahab">
+                            <div class="payment-icon edahab"><i class="fas fa-wallet"></i></div>
+                            <div class="payment-name">E-Dahab</div><div class="payment-desc">65 + 7 digits</div>
+                        </div>
+                        <div class="payment-card" onclick="selectPayment('cash')" id="pay-cash">
+                            <div class="payment-icon cash"><i class="fas fa-money-bill-wave"></i></div>
+                            <div class="payment-name">Cash</div><div class="payment-desc">On Pickup/Delivery</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="payment-method">
+                </div>
+                <div class="form-group" id="payment-phone-group">
+                    <label class="form-label">Phone Number for Payment <span class="required">*</span></label>
+                    <div class="flex gap-2 items-center">
+                        <div id="payment-prefix-badge" style="padding: 12px 14px; background: var(--primary); color: white; border-radius: var(--radius) 0 0 var(--radius); font-weight: 700; white-space: nowrap; min-width: 90px; text-align: center; font-size: 14px;">+252 63</div>
+                        <input type="tel" class="form-control" id="payment-phone" placeholder="XXX XXXX" maxlength="8" style="border-radius: 0 var(--radius) var(--radius) 0; flex: 1; text-align: center; font-weight: 600; font-size: 16px; letter-spacing: 3px;" oninput="validatePaymentPhone(this)">
+                    </div>
+                    <div class="form-hint" id="payment-hint"><i class="fas fa-info-circle"></i> Enter exactly 7 digits (prefix is already set)</div>
+                    <div class="form-hint hidden" id="payment-validation-msg"></div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="backToInfo()">Back</button>
+            <button class="btn btn-primary btn-lg" id="place-order-btn" onclick="placeOrder()">Place Order</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MANAGEMENT LOGIN ===== -->
+<div id="login-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header"><div class="modal-title">Management Login</div><button class="modal-close" onclick="closeModal('login-modal')">&times;</button></div>
+        <div class="modal-body">
+            <form id="management-login-form">
+                <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-control" id="mgmt-username" required placeholder="Enter username"></div>
+                <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-control" id="mgmt-password" required placeholder="Enter password"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('login-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="handleLogin()">Login</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MANAGEMENT DASHBOARD ===== -->
+<div id="management-view" class="container view hidden">
+    <div class="dashboard-header">
+        <div><h1 class="dashboard-title">Management Dashboard</h1><p class="dashboard-subtitle">Manage orders and view sales analytics</p></div>
+        <div class="flex gap-4">
+            <button class="btn btn-outline" onclick="toggleVehicleManagement()"><i class="fas fa-motorcycle"></i> <span id="vehicle-mgmt-btn-text">Vehicles</span></button>
+            <button class="btn btn-outline" onclick="showSettings()"><i class="fas fa-cog"></i> Settings</button>
+            <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </div>
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-receipt"></i></div><div class="stat-info"><div class="label">Total Orders</div><div class="value" id="stat-total-orders">0</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-dollar-sign"></i></div><div class="stat-info"><div class="label">Total Revenue</div><div class="value" id="stat-total-revenue">$0.00</div></div></div>
+        <div class="stat-card"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-info"><div class="label">Pending Orders</div><div class="value" id="stat-pending-orders">0</div></div></div>
+        <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-truck"></i></div><div class="stat-info"><div class="label">Delivery Orders</div><div class="value" id="stat-delivery-orders">0</div></div></div>
+    </div>
+    <div class="mgmt-actions">
+        <div class="mgmt-action" onclick="showAddRestaurant()"><div class="mgmt-action-icon blue"><i class="fas fa-utensils"></i></div><div class="mgmt-action-title">Add Restaurant</div><div class="mgmt-action-desc">Register new restaurant</div></div>
+        <div class="mgmt-action" onclick="showRegisterVehicle()"><div class="mgmt-action-icon green"><i class="fas fa-motorcycle"></i></div><div class="mgmt-action-title">Register Vehicle</div><div class="mgmt-action-desc">Add delivery vehicle</div></div>
+        <div class="mgmt-action" onclick="showVehicleManagement()"><div class="mgmt-action-icon purple"><i class="fas fa-cogs"></i></div><div class="mgmt-action-title">Vehicle Management</div><div class="mgmt-action-desc">Manage fleet status</div></div>
+        <div class="mgmt-action" onclick="showSettings()"><div class="mgmt-action-icon amber"><i class="fas fa-sliders-h"></i></div><div class="mgmt-action-title">Application Settings</div><div class="mgmt-action-desc">Configure system</div></div>
+    </div>
+    <div class="orders-grid">
+        <div class="orders-section"><h3 class="orders-title">Pending Orders</h3><div class="orders-list" id="pending-orders-list"><div class="text-center py-8 text-gray"><i class="fas fa-inbox" style="font-size: 32px; margin-bottom: 12px; opacity: 0.5;"></i><p>No pending orders</p></div></div></div>
+        <div class="orders-section"><h3 class="orders-title">Recent Completed Orders</h3><div class="orders-list" id="completed-orders-list"><div class="text-center py-8 text-gray"><i class="fas fa-check-circle" style="font-size: 32px; margin-bottom: 12px; opacity: 0.5;"></i><p>No completed orders yet</p></div></div></div>
+    </div>
+    <div id="vehicle-management-section" class="hidden mt-6">
+        <div class="dashboard-header"><div><h2 class="dashboard-title">🚗 Vehicle Fleet Management</h2><p class="dashboard-subtitle">Manage delivery vehicles, drivers, and availability</p></div><button class="btn btn-primary" onclick="showRegisterVehicle()"><i class="fas fa-plus"></i> Add New Vehicle</button></div>
+        <div class="stats-grid mb-4">
+            <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-motorcycle"></i></div><div class="stat-info"><div class="label">Motorcycles</div><div class="value" id="stat-bikes">0</div></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i class="fas fa-car"></i></div><div class="stat-info"><div class="label">Taxis</div><div class="value" id="stat-taxis">0</div></div></div>
+            <div class="stat-card"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-info"><div class="label">Available</div><div class="value" id="stat-available">0</div></div></div>
+            <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-route"></i></div><div class="stat-info"><div class="label">On Delivery</div><div class="value" id="stat-delivering">0</div></div></div>
+        </div>
+        <div class="orders-section"><h3 class="orders-title">All Vehicles</h3><div class="vehicle-grid" id="vehicle-list"></div></div>
+    </div>
+</div>
+
+<!-- ===== SETTINGS MODAL ===== -->
+<div id="settings-modal" class="modal hidden">
+    <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-header"><div class="modal-title">⚙️ Application Settings</div><button class="modal-close" onclick="closeModal('settings-modal')">&times;</button></div>
+        <div class="modal-body">
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <h3 class="settings-title">Delivery Management</h3>
+                    <div class="mb-4">
+                        <label class="toggle-label"><div class="toggle-info"><div class="label">Motorcycle Delivery</div><div class="desc">Enable fast motorcycle delivery service</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></label>
+                        <label class="toggle-label"><div class="toggle-info"><div class="label">Taxi Delivery</div><div class="desc">Enable car/taxi delivery service</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></label>
+                    </div>
+                    <h4 class="font-semibold mb-3">Delivery Zones</h4>
+                    <div class="delivery-zones-grid">
+                        <div class="zone-input"><div class="form-label">Max Distance (km)</div><input type="number" class="form-control" value="10"></div>
+                        <div class="zone-input"><div class="form-label">Base Fee ($)</div><input type="number" class="form-control" value="2.50" step="0.01"></div>
+                        <div class="zone-input"><div class="form-label">Per km Fee ($)</div><input type="number" class="form-control" value="0.50" step="0.01"></div>
+                    </div>
+                    <h4 class="font-semibold mb-3">Delivery Hours</h4>
+                    <div class="delivery-hours-grid">
+                        <div><label class="form-label">Start Time</label><input type="time" class="form-control" value="08:00"></div>
+                        <div><label class="form-label">End Time</label><input type="time" class="form-control" value="22:00"></div>
+                    </div>
+                    <button class="btn btn-primary w-full mt-4">Save Delivery Settings</button>
+                </div>
+                <div class="settings-card">
+                    <h3 class="settings-title">General Settings</h3>
+                    <div class="form-group"><label class="form-label">Business Name <span class="required">*</span></label><input type="text" class="form-control" value="Go! point Hargeisa"></div>
+                    <div class="form-group"><label class="form-label">Address <span class="required">*</span></label><input type="text" class="form-control" value="Hargeisa, Somaliland"></div>
+                    <div class="form-group"><label class="form-label">Phone Number <span class="required">*</span></label><input type="tel" class="form-control" value="+252 61 123 4567"></div>
+                    <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-control" value="info@gopoint.so"></div>
+                    <div class="form-group"><label class="form-label">Minimum Order Value ($)</label><input type="number" class="form-control" value="5.00" step="0.01"></div>
+                    <button class="btn btn-primary w-full mt-4">Save System Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== ADD RESTAURANT MODAL ===== -->
+<div id="add-restaurant-modal" class="modal hidden">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header"><div class="modal-title">➕ Add New Restaurant</div><button class="modal-close" onclick="closeModal('add-restaurant-modal')">&times;</button></div>
+        <div class="modal-body">
+            <form id="restaurant-form">
+                <div class="form-group"><label class="form-label">Restaurant Name <span class="required">*</span></label><input type="text" class="form-control" id="rest-name" required></div>
+                <div class="form-group"><label class="form-label">Restaurant Address <span class="required">*</span></label><input type="text" class="form-control" id="rest-address" required></div>
+                <div class="form-group"><label class="form-label">Phone Number <span class="required">*</span></label><input type="tel" class="form-control" id="rest-phone" required></div>
+                <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-control" id="rest-email"></div>
+                <div class="form-group"><label class="form-label">Logo URL (Optional)</label><input type="url" class="form-control" id="rest-logo" placeholder="https://..."></div>
+                <h4 class="font-semibold mb-3 mt-4">Menu Items (Optional)</h4>
+                <div class="mb-4"><label class="form-label">☕ Coffee Items</label><button type="button" class="btn btn-outline btn-sm" onclick="addMenuItem('coffee')"><i class="fas fa-plus"></i> Add Coffee Item</button><div id="coffee-items" class="mt-2"></div></div>
+                <div class="mb-4"><label class="form-label">🍽️ Food Items</label><button type="button" class="btn btn-outline btn-sm" onclick="addMenuItem('food')"><i class="fas fa-plus"></i> Add Food Item</button><div id="food-items" class="mt-2"></div></div>
+                <div class="mb-4"><label class="form-label">🍰 Dessert Items</label><button type="button" class="btn btn-outline btn-sm" onclick="addMenuItem('dessert')"><i class="fas fa-plus"></i> Add Dessert Item</button><div id="dessert-items" class="mt-2"></div></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('add-restaurant-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="registerRestaurant()">Register Restaurant</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== REGISTER VEHICLE MODAL ===== -->
+<div id="register-vehicle-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header"><div class="modal-title">🚗 Register New Vehicle</div><button class="modal-close" onclick="closeModal('register-vehicle-modal')">&times;</button></div>
+        <div class="modal-body">
+            <form id="vehicle-form">
+                <div class="form-group"><label class="form-label">Vehicle Type <span class="required">*</span></label><select class="form-control" id="vehicle-type" required><option value="">Select Type</option><option value="bike">Motorcycle</option><option value="taxi">Taxi</option></select></div>
+                <div class="form-group"><label class="form-label">Plate Number <span class="required">*</span></label><input type="text" class="form-control" id="plate-number" required placeholder="e.g., B-1234"></div>
+                <div class="form-group"><label class="form-label">Driver Name <span class="required">*</span></label><input type="text" class="form-control" id="driver-name" required></div>
+                <div class="form-group"><label class="form-label">Driver Phone Number <span class="required">*</span></label><input type="tel" class="form-control" id="driver-phone" required placeholder="+252 6X XXX XXXX"><div class="form-hint"><i class="fab fa-whatsapp"></i> Used for WhatsApp order notifications</div></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('register-vehicle-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="registerVehicle()">Register Vehicle</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== CART WINDOW ===== -->
+<div class="cart-window" id="cart-window">
+    <div class="cart-header"><span><i class="fas fa-shopping-cart"></i> Your Order</span><button onclick="toggleCart()" style="background:none;color:white;font-size:20px;">&times;</button></div>
+    <div class="cart-content">
+        <div id="cart-items"><div class="text-center py-6 text-gray"><i class="fas fa-coffee" style="font-size:32px;margin-bottom:12px;opacity:0.5;"></i><p>Your cart is empty</p></div></div>
+        <div class="cart-summary hidden" id="cart-summary">
+            <div class="cart-total"><span>Total:</span><span id="cart-total">$0.00</span></div>
+            <div class="cart-actions">
+                <button class="btn btn-primary" id="submit-takeaway-btn" onclick="submitTakeawayOrder()">Submit Order</button>
+                <button class="btn btn-success" id="proceed-delivery-btn" onclick="proceedToDelivery()" style="background:var(--success);display:none;">Proceed to Delivery</button>
+            </div>
+        </div>
+    </div>
+</div>
+<button class="cart-toggle-btn" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i><span class="badge hidden" id="cart-badge-count">0</span></button>
+
+<!-- 🧾 ===== ORIGINAL BILL/RECEIPT MODAL (KEPT AS-IS) ===== -->
+<div id="bill-modal" class="modal bill-modal hidden">
+    <div class="modal-content">
+        <div class="modal-body">
+            <div class="bill-header">
+                <div class="bill-logo">GO!</div>
+                <div class="bill-restaurant">Go! Point Delivery</div>
+                <div class="bill-address" id="bill-address">[Restaurant Address]</div>
+                <div class="bill-phone" id="bill-phone">Phone: [Phone Number]</div>
+                <div class="bill-qr" id="bill-qr"></div>
+            </div>
+            
+            <div class="bill-meta">
+                <span>Order #<span id="bill-order-num">000</span></span>
+                <span id="bill-datetime"></span>
+            </div>
+            <div class="bill-meta">
+                <span id="bill-customer">Customer: Walk-in</span>
+                <span id="bill-type"></span>
+            </div>
+            
+            <!-- 🆕 DETAILS BOX INSIDE CLEAN DESIGN -->
+            <div class="bill-details-box">
+                <div class="bill-details-title"><i class="fas fa-utensils text-primary"></i> Restaurant Details</div>
+                <div class="bill-detail-row"><span class="bill-detail-label">Name:</span> <span id="bill-restaurant-name">Zimodi CitiCafee</span></div>
+                <div class="bill-detail-row"><span class="bill-detail-label">Address:</span> <span id="bill-restaurant-address">Dalbo Cunto</span></div>
+                <div class="bill-detail-row"><span class="bill-detail-label">Phone:</span> <span id="bill-restaurant-phone">+252 61 123 4567</span></div>
+                
+                <div class="bill-details-title" style="margin-top:8px;"><i class="fas fa-receipt text-primary"></i> Order Summary</div>
+                <div class="bill-detail-row"><span class="bill-detail-label">Items:</span> <span id="bill-item-count">3</span></div>
+                <div class="bill-detail-row"><span class="bill-detail-label">Type:</span> <span id="bill-order-type">Delivery</span></div>
+                
+                <!-- Take Away Specific Info -->
+                <div class="bill-details-title hidden" id="bill-takeaway-section" style="margin-top:8px;"><i class="fas fa-shopping-bag text-primary"></i> Take Away Info</div>
+                <div class="bill-detail-row hidden" id="bill-takeaway-name-row">
+                    <span class="bill-detail-label">Customer:</span> 
+                    <span id="bill-takeaway-name">-</span>
+                </div>
+                <div class="bill-detail-row hidden" id="bill-takeaway-phone-row">
+                    <span class="bill-detail-label">Phone:</span> 
+                    <span id="bill-takeaway-phone">-</span>
+                </div>
+                <div class="bill-detail-row hidden" id="bill-pickup-time-row">
+                    <span class="bill-detail-label">Pickup Time:</span> 
+                    <span id="bill-pickup-time">ASAP</span>
+                </div>
+                
+                <!-- Delivery Specific Info -->
+                <div class="bill-details-title hidden" id="bill-delivery-section" style="margin-top:8px;"><i class="fas fa-truck text-primary"></i> Delivery Info</div>
+                <div class="bill-detail-row hidden" id="bill-delivery-address-row">
+                    <span class="bill-detail-label">Address:</span> 
+                    <span id="bill-delivery-address">-</span>
+                </div>
+                <div class="bill-detail-row hidden" id="bill-method-row">
+                    <span class="bill-detail-label">Method:</span> 
+                    <span id="bill-method">Motorcycle</span>
+                </div>
+                <div class="bill-detail-row hidden" id="bill-driver-row">
+                    <span class="bill-detail-label">Driver:</span> 
+                    <span id="bill-driver">Ahmed Ali | B-1234</span>
+                </div>
+                <div class="bill-detail-row hidden" id="bill-driver-phone-row">
+                    <span class="bill-detail-label">Driver Phone:</span> 
+                    <span id="bill-driver-phone">+252 611 234 567</span>
+                </div>
+            </div>
+            
+            <div class="bill-items" id="bill-items">
+                <!-- Items populated by JS -->
+            </div>
+            
+            <div class="bill-total-row">
+                <span>Total:</span>
+                <span id="bill-total">$0.00</span>
+            </div>
+            
+            <div class="bill-footer">
+                <p>Scan QR code to view delivery location on Google Maps</p>
+                <p>Thank you for your visit!</p>
+                <p>Follow us @gopointhargeisa</p>
+            </div>
+            
+            <div class="flex gap-2 mt-2">
+                <button class="btn btn-primary" onclick="printBill()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal('bill-modal')">Close</button>
+            </div>
+            <button class="btn btn-orange w-full mt-2" onclick="generateAndSendBill()" style="background: #25D366;">
+                <i class="fab fa-whatsapp"></i> Generate & Send Bill
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+    let cart = [], orders = [], userLocation = null, currentAddressData = null;
+    let vehicles = [
+        { id: 1, type: 'bike', plate: 'B-1234', driver: 'Ahmed Ali', phone: '+252611234567', status: 'available' },
+        { id: 2, type: 'taxi', plate: 'T-5678', driver: 'Mohamed Hassan', phone: '+252612345678', status: 'available' },
+        { id: 3, type: 'bike', plate: 'B-9012', driver: 'Abdi Karim', phone: '+252613456789', status: 'delivering' }
+    ];
+    let currentRestaurant = null, currentCategory = 'coffee', orderType = 'takeaway';
+    let deliveryMethod = null, paymentMethod = null, selectedVehicle = null, nextOrderId = 1001, paymentPhone = '';
+    let selectedPickupTime = 'asap';
+    
+    const restaurants = {
+        'zimodi': {
+            name: 'Zimodi CitiCafee', address: 'Dalbo Cunto, Hargeisa', phone: '+252 61 123 4567',
+            logo: 'https://placehold.co/100x100/00A082/FFFFFF?text=ZC',
+            menu: {
+                coffee: [{ id: 1, name: 'Espresso', price: 3.50, desc: 'Strong and rich Italian coffee', img: 'https://placehold.co/300x200/2C7BE5/FFFFFF?text=Espresso' }, { id: 2, name: 'Cappuccino', price: 4.25, desc: 'Espresso with steamed milk foam', img: 'https://placehold.co/300x200/1AB759/FFFFFF?text=Cappuccino' }, { id: 3, name: 'Latte', price: 4.75, desc: 'Smooth espresso with lots of milk', img: 'https://placehold.co/300x200/FF6B35/FFFFFF?text=Latte' }],
+                food: [{ id: 4, name: 'Avocado Toast', price: 8.95, desc: 'Fresh avocado on artisan bread', img: 'https://placehold.co/300x200/228B22/FFFFFF?text=Avocado+Toast' }, { id: 5, name: 'Croissant', price: 3.25, desc: 'Buttery French pastry', img: 'https://placehold.co/300x200/DAA520/FFFFFF?text=Croissant' }],
+                dessert: [{ id: 6, name: 'Chocolate Cake', price: 6.50, desc: 'Rich chocolate layer cake', img: 'https://placehold.co/300x200/8B4513/FFFFFF?text=Chocolate+Cake' }, { id: 7, name: 'Tiramisu', price: 7.25, desc: 'Classic Italian dessert', img: 'https://placehold.co/300x200/CD853F/FFFFFF?text=Tiramisu' }]
+            }
+        },
+        'hargeisa-brew': {
+            name: 'Hargeisa Brew', address: 'Shahada Road, Hargeisa', phone: '+252 61 234 5678',
+            logo: 'https://placehold.co/100x100/FF6347/FFFFFF?text=HB',
+            menu: {
+                coffee: [{ id: 101, name: 'Flat White', price: 4.00, desc: 'Smooth ristretto with microfoam', img: 'https://placehold.co/300x200/2C7BE5/FFFFFF?text=Flat+White' }, { id: 102, name: 'Mocha', price: 5.00, desc: 'Espresso with steamed milk and chocolate', img: 'https://placehold.co/300x200/1AB759/FFFFFF?text=Mocha' }],
+                food: [{ id: 103, name: 'Breakfast Platter', price: 10.50, desc: 'Eggs, toast, bacon, and fruit', img: 'https://placehold.co/300x200/228B22/FFFFFF?text=Breakfast' }],
+                dessert: [{ id: 104, name: 'Brownie', price: 5.00, desc: 'Warm chocolate brownie with ice cream', img: 'https://placehold.co/300x200/8B4513/FFFFFF?text=Brownie' }]
+            }
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        renderRestaurants(); renderMenuItems(); updateCartDisplay(); updateStats(); detectLocation();
+        setupEventListeners();
+    });
+    
+    // Setup event listeners for better accessibility
+    function setupEventListeners() {
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const toggleBtn = document.getElementById('mobile-menu-toggle');
+            if (mobileMenu && toggleBtn && mobileMenu.classList.contains('active') && 
+                !mobileMenu.contains(e.target) && 
+                !toggleBtn.contains(e.target)) {
+                mobileMenu.classList.remove('active');
+            }
+        });
+        
+        // Keyboard navigation for nav links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+    }
+    
+    // Toggle mobile menu
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        if (menu) menu.classList.toggle('active');
+    }
+
+    function showPage(page) {
+        document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        
+        // Update active nav state
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (link && link.dataset && link.dataset.target === page) {
+                link.classList.add('active');
+            }
+        });
+        
+        if (page === 'home') { 
+            const homePage = document.getElementById('home-page');
+            if (homePage) homePage.classList.remove('hidden'); 
+        }
+        else if (page === 'restaurants') { 
+            const orderView = document.getElementById('customer-order-view');
+            const restaurantSelection = document.getElementById('restaurant-selection');
+            const menuView = document.getElementById('menu-view');
+            if (orderView) orderView.classList.remove('hidden');
+            if (restaurantSelection) restaurantSelection.classList.remove('hidden');
+            if (menuView) menuView.classList.add('hidden');
+        }
+    }
+    
+    function showManagement() { 
+        const homePage = document.getElementById('home-page');
+        const orderView = document.getElementById('customer-order-view');
+        const mgmtView = document.getElementById('management-view');
+        if (homePage) homePage.classList.add('hidden');
+        if (orderView) orderView.classList.add('hidden');
+        if (mgmtView) mgmtView.classList.remove('hidden');
+    }
+    
+    function showManagementLogin() { 
+        const loginModal = document.getElementById('login-modal');
+        if (loginModal) loginModal.classList.remove('hidden');
+    }
+    
+    function goBack() { showPage('home'); }
+    function backToRestaurants() { 
+        const menuView = document.getElementById('menu-view');
+        const restaurantSelection = document.getElementById('restaurant-selection');
+        if (menuView) menuView.classList.add('hidden');
+        if (restaurantSelection) restaurantSelection.classList.remove('hidden');
+        currentRestaurant = null; 
+    }
+    function showModal(id) { 
+        const modal = document.getElementById(id);
+        if (modal) modal.classList.remove('hidden');
+    }
+    function closeModal(id) { 
+        const modal = document.getElementById(id);
+        if (modal) modal.classList.add('hidden');
+    }
+
+    // ✅ ENHANCED LOCATION DETECTION WITH OPENSTREETMAP NOMINATIM
+    async function detectLocation() {
+        const display = document.getElementById('location-display');
+        const addressInput = document.getElementById('delivery-address');
+        const locText = document.getElementById('location-text');
+        
+        if (display) {
+            display.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting location...';
+            display.style.borderColor = 'var(--primary)';
+            display.style.background = 'var(--light)';
+        }
+        if (locText) locText.textContent = 'Detecting...';
+        
+        if (!navigator.geolocation) {
+            if (display) {
+                display.innerHTML = `<i class="fas fa-times-circle text-danger"></i> <strong>Geolocation not supported</strong>`;
+            }
+            return;
+        }
+
+        try {
+            const pos = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, { 
+                    enableHighAccuracy: true, 
+                    timeout: 15000, 
+                    maximumAge: 0 
+                });
+            });
+
+            userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            const accuracy = Math.round(pos.coords.accuracy);
+            
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.lat}&lon=${userLocation.lng}&zoom=18&addressdetails=1&accept-language=en`;
+            const res = await fetch(url, { 
+                headers: { 'Accept-Language': 'en', 'User-Agent': 'GoPointHargeisa/1.0' } 
+            });
+            
+            if (!res.ok) throw new Error("Geocoding service unavailable");
+            const data = await res.json();
+
+            const placeName = data.display_name?.split(',')[0]?.trim() || 'Unknown location';
+            let areaName = 'Hargeisa';
+            if (data.address) {
+                areaName = data.address.neighbourhood || 
+                          data.address.suburb || 
+                          data.address.city_district || 
+                          data.address.city || 
+                          'Hargeisa';
+            }
+            
+            currentAddressData = {
+                place: placeName,
+                area: areaName,
+                full: data.display_name || `${areaName}, Hargeisa, Somaliland`,
+                coords: `${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}`
+            };
+            
+            if (display) {
+                display.innerHTML = `
+                    <div style="text-align:left">
+                        <div><i class="fas fa-building text-primary"></i> <strong>Place:</strong> ${placeName}</div>
+                        <div style="margin-top:6px"><i class="fas fa-map-marker-alt text-success"></i> <strong>Area:</strong> ${areaName}</div>
+                        <div style="margin-top:6px;font-size:11px;color:var(--gray)"><i class="fas fa-crosshairs"></i> ${currentAddressData.coords} (±${accuracy}m)</div>
+                    </div>
+                `;
+                display.style.borderColor = 'var(--success)';
+                display.style.background = 'rgba(42,157,143,0.05)';
+            }
+            
+            if (addressInput && (!addressInput.value || addressInput.value.includes('Hargeisa, Somaliland'))) {
+                addressInput.value = `${areaName}, Hargeisa, Somaliland, `;
+            }
+            if (locText) locText.textContent = areaName;
+            
+            showNotification(`📍 Location detected: ${areaName}`, 'success');
+            
+        } catch (e) {
+            console.error('Location error:', e);
+            if (display) {
+                display.innerHTML = `<i class="fas fa-exclamation-triangle text-warning"></i> <strong>Hargeisa, Somaliland</strong><br><small style="color:var(--gray);font-size:11px;">GPS unavailable - enter manually</small>`;
+                display.style.borderColor = 'var(--warning)';
+            }
+            if (addressInput) addressInput.value = 'Hargeisa, Somaliland, ';
+            if (locText) locText.textContent = 'Hargeisa';
+        }
+    }
+
+    // ===== RESTAURANTS & MENU =====
+    function renderRestaurants() {
+        const container = document.getElementById('restaurant-list');
+        if (!container) return;
+        container.innerHTML = '';
+        Object.entries(restaurants).forEach(([key, rest]) => {
+            const card = document.createElement('div');
+            card.className = 'restaurant-card';
+            card.innerHTML = `<img src="${rest.logo}" alt="${rest.name}" class="restaurant-logo"><div class="restaurant-name">${rest.name}</div><div class="restaurant-address">${rest.address}</div>`;
+            card.onclick = () => selectRestaurant(key);
+            card.setAttribute('role', 'button');
+            card.setAttribute('tabindex', '0');
+            container.appendChild(card);
+        });
+    }
+    
+    function selectRestaurant(key) {
+        currentRestaurant = key;
+        const rest = restaurants[key];
+        const nameEl = document.getElementById('selected-restaurant-name');
+        if (nameEl) nameEl.textContent = rest.name;
+        const restaurantSelection = document.getElementById('restaurant-selection');
+        const menuView = document.getElementById('menu-view');
+        if (restaurantSelection) restaurantSelection.classList.add('hidden');
+        if (menuView) menuView.classList.remove('hidden');
+        renderMenuItems();
+    }
+    
+    function setCategory(cat) {
+        currentCategory = cat;
+        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+        const catBtn = document.getElementById(`cat-${cat}`);
+        if (catBtn) catBtn.classList.add('active');
+        renderMenuItems();
+    }
+    
+    function renderMenuItems() {
+        const container = document.getElementById('menu-items');
+        if (!container) return;
+        container.innerHTML = '';
+        if (!currentRestaurant || !restaurants[currentRestaurant]) { 
+            container.innerHTML = '<p class="text-center" style="grid-column:1/-1;">Please select a restaurant first.</p>'; 
+            return; 
+        }
+        const menu = restaurants[currentRestaurant].menu[currentCategory];
+        if (!menu || menu.length === 0) { 
+            container.innerHTML = `<p class="text-center" style="grid-column:1/-1;">No ${currentCategory} items available.</p>`; 
+            return; 
+        }
+        menu.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'menu-item';
+            card.innerHTML = `<img src="${item.img}" alt="${item.name}" class="menu-item-img" onclick="addToCart(${item.id})"><div class="menu-item-body"><div class="menu-item-header"><div class="menu-item-name">${item.name}</div><div class="menu-item-price">$${item.price.toFixed(2)}</div></div><div class="menu-item-desc">${item.desc}</div><button class="menu-item-add" onclick="addToCart(${item.id})"><i class="fas fa-plus"></i> Add to Order</button></div>`;
+            container.appendChild(card);
+        });
+    }
+
+    // ===== ORDER & CART =====
+    function setOrderType(type) {
+        orderType = type;
+        const takeawayBtn = document.getElementById('takeaway-btn');
+        const deliveryBtn = document.getElementById('delivery-btn');
+        const takeawayBtnEl = document.getElementById('submit-takeaway-btn');
+        const deliveryBtnEl = document.getElementById('proceed-delivery-btn');
+        
+        if (takeawayBtn) takeawayBtn.classList.toggle('active', type === 'takeaway');
+        if (deliveryBtn) deliveryBtn.classList.toggle('active', type === 'delivery');
+        if (takeawayBtnEl) takeawayBtnEl.style.display = type === 'takeaway' ? 'flex' : 'none';
+        if (deliveryBtnEl) deliveryBtnEl.style.display = type === 'delivery' ? 'flex' : 'none';
+    }
+    
+    function addToCart(itemId) {
+        if (!currentRestaurant) { alert('Please select a restaurant first'); return; }
+        const menu = restaurants[currentRestaurant].menu;
+        let item = null;
+        for (const cat in menu) { const found = menu[cat].find(i => i.id === itemId); if (found) { item = found; break; } }
+        if (!item) return;
+        const existing = cart.find(c => c.id === itemId);
+        if (existing) { existing.qty++; } else { cart.push({ ...item, qty: 1, restaurant: currentRestaurant }); }
+        updateCartDisplay(); showNotification('Added to cart!', 'success');
+    }
+    
+    function updateCartQty(itemId, change) {
+        const item = cart.find(c => c.id === itemId);
+        if (!item) return;
+        item.qty += change;
+        if (item.qty <= 0) cart = cart.filter(c => c.id !== itemId);
+        updateCartDisplay();
+    }
+    
+    function updateCartDisplay() {
+        const container = document.getElementById('cart-items'), summary = document.getElementById('cart-summary');
+        const totalEl = document.getElementById('cart-total'), badge = document.getElementById('cart-badge-count'), countEl = document.getElementById('cart-count');
+        const totalItems = cart.reduce((sum, i) => sum + i.qty, 0), totalAmount = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+        
+        if (badge) badge.textContent = totalItems;
+        if (countEl) countEl.textContent = totalItems;
+        if (badge) badge.classList.toggle('hidden', totalItems === 0);
+        
+        if (!container) return;
+        
+        if (cart.length === 0) { 
+            container.innerHTML = `<div class="text-center py-6 text-gray"><i class="fas fa-coffee" style="font-size:32px;margin-bottom:12px;opacity:0.5;"></i><p>Your cart is empty</p></div>`; 
+            if (summary) summary.classList.add('hidden'); 
+            return; 
+        }
+        container.innerHTML = cart.map(item => `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-name">${item.name}</div><div class="cart-item-price">$${item.price.toFixed(2)}</div></div><div class="cart-item-qty"><div class="cart-item-qty-btn" onclick="updateCartQty(${item.id}, -1)">−</div><span>${item.qty}</span><div class="cart-item-qty-btn" onclick="updateCartQty(${item.id}, 1)">+</div></div></div>`).join('');
+        if (totalEl) totalEl.textContent = `$${totalAmount.toFixed(2)}`;
+        if (summary) summary.classList.remove('hidden');
+    }
+    
+    function toggleCart() { 
+        const cartWindow = document.getElementById('cart-window');
+        if (cartWindow) cartWindow.classList.toggle('visible'); 
+    }
+
+    function validatePaymentPhone(input) {
+        let clean = input.value.replace(/\D/g, '');
+        clean = clean.slice(0, 7);
+        input.value = clean.length > 3 ? clean.slice(0, 3) + ' ' + clean.slice(3) : clean;
+        
+        const hint = document.getElementById('payment-validation-msg');
+        if (clean.length === 0) {
+            if (hint) hint.classList.add('hidden');
+            input.style.borderColor = 'var(--light-gray)';
+        } else if (clean.length < 7) {
+            if (hint) {
+                hint.textContent = `${7 - clean.length} digits remaining...`;
+                hint.className = 'form-hint text-warning';
+            }
+            input.style.borderColor = 'var(--warning)';
+        } else {
+            const prefixBadge = document.getElementById('payment-prefix-badge');
+            const prefix = prefixBadge ? prefixBadge.textContent.replace(/\s/g,'') : '+25263';
+            if (hint) {
+                hint.textContent = `✅ Valid: ${prefix}${clean}`;
+                hint.className = 'form-hint text-success';
+            }
+            input.style.borderColor = 'var(--success)';
+        }
+    }
+
+    // ===== PICKUP TIME SELECTION (FOR TAKE AWAY) =====
+    function selectPickupTime(time) {
+        selectedPickupTime = time;
+        document.querySelectorAll('.pickup-time-option').forEach(opt => opt.classList.remove('active'));
+        const selectedOpt = document.getElementById(`time-${time}`);
+        if (selectedOpt) selectedOpt.classList.add('active');
+        
+        const customContainer = document.getElementById('custom-time-container');
+        const timeValue = document.getElementById('custom-time-value');
+        
+        if (time === 'custom') {
+            if (customContainer) customContainer.classList.add('active');
+            if (timeValue) timeValue.focus();
+        } else {
+            if (customContainer) customContainer.classList.remove('active');
+        }
+        
+        // Update hidden input value
+        const hiddenInput = document.getElementById('selected-pickup-time');
+        if (hiddenInput) {
+            hiddenInput.value = time === 'custom' && timeValue?.value ? timeValue.value : time;
+        }
+    }
+
+    // ===== DELIVERY FLOW =====
+    function proceedToDelivery() {
+        if (cart.length === 0) { alert('Please add items to your order'); return; }
+        if (orderType !== 'delivery') setOrderType('delivery');
+        if (!deliveryMethod) selectDeliveryMethod('bike');
+        else selectDeliveryMethod(deliveryMethod);
+        showModal('delivery-modal');
+    }
+    
+    function selectDeliveryMethod(method) {
+        deliveryMethod = method;
+        const methodBike = document.getElementById('method-bike');
+        const methodTaxi = document.getElementById('method-taxi');
+        if (methodBike) methodBike.classList.toggle('active', method === 'bike');
+        if (methodTaxi) methodTaxi.classList.toggle('active', method === 'taxi');
+        const methodInput = document.getElementById('delivery-method');
+        if (methodInput) methodInput.value = method;
+        
+        const availableVehicles = vehicles.filter(v => v.type === method && v.status === 'available');
+        const vehicleIcon = document.getElementById('vehicle-icon'), vehicleDriver = document.getElementById('vehicle-driver');
+        const vehiclePlate = document.getElementById('vehicle-plate'), vehicleStatus = document.getElementById('vehicle-status');
+        
+        if (availableVehicles.length > 0) {
+            selectedVehicle = availableVehicles[0];
+            if (vehicleIcon) {
+                vehicleIcon.className = `vehicle-icon ${method}`;
+                vehicleIcon.innerHTML = `<i class="fas fa-${method === 'bike' ? 'motorcycle' : 'car'}"></i>`;
+            }
+            if (vehicleDriver) vehicleDriver.textContent = selectedVehicle.driver;
+            if (vehiclePlate) vehiclePlate.textContent = `Plate: ${selectedVehicle.plate}`;
+            if (vehicleStatus) {
+                vehicleStatus.className = 'vehicle-status available';
+                vehicleStatus.innerHTML = `<i class="fas fa-check-circle"></i> Available & Assigned`;
+            }
+            showNotification(`🚀 ${method === 'bike' ? 'Motorcycle' : 'Taxi'} assigned: ${selectedVehicle.driver}`, 'success');
+        } else {
+            selectedVehicle = null;
+            if (vehicleIcon) {
+                vehicleIcon.className = `vehicle-icon ${method}`;
+                vehicleIcon.innerHTML = `<i class="fas fa-${method === 'bike' ? 'motorcycle' : 'car'}"></i>`;
+            }
+            if (vehicleDriver) vehicleDriver.textContent = `No ${method === 'bike' ? 'motorcycle' : 'taxi'} available`;
+            if (vehiclePlate) vehiclePlate.textContent = 'Please try another method';
+            if (vehicleStatus) {
+                vehicleStatus.className = 'vehicle-status unavailable';
+                vehicleStatus.innerHTML = `<i class="fas fa-times-circle"></i> Unavailable`;
+            }
+            showNotification(`⚠️ No ${method === 'bike' ? 'motorcycles' : 'taxis'} available right now`, 'warning');
+        }
+    }
+    
+    function proceedToPayment() {
+        // For Take Away: validate customer info first
+        if (orderType === 'takeaway') {
+            const name = document.getElementById('takeaway-name')?.value.trim();
+            const phone = document.getElementById('takeaway-phone')?.value.trim();
+            const pickupTime = document.getElementById('selected-pickup-time')?.value;
+            
+            if (!name || !phone || !pickupTime) {
+                alert('Please fill all customer information and select a pickup time');
+                return;
+            }
+            
+            // If custom time selected, validate it has a value
+            if (pickupTime === 'custom') {
+                const customTime = document.getElementById('custom-time-value')?.value;
+                if (!customTime) {
+                    alert('Please select a custom pickup time');
+                    return;
+                }
+            }
+        }
+        
+        // For Delivery: validate delivery info first
+        if (orderType === 'delivery') {
+            const name = document.getElementById('delivery-name')?.value.trim(), 
+                  phone = document.getElementById('delivery-phone')?.value.trim(), 
+                  address = document.getElementById('delivery-address')?.value.trim();
+            if (!name || !phone || !address || !deliveryMethod) { 
+                alert('Please fill all required delivery information'); 
+                return; 
+            }
+        }
+        
+        const paymentTotal = document.getElementById('payment-total');
+        if (paymentTotal) {
+            paymentTotal.textContent = `$${cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toFixed(2)}`;
+        }
+        
+        // Close previous modals and show payment
+        closeModal('delivery-modal');
+        closeModal('takeaway-customer-modal');
+        showModal('payment-modal');
+    }
+    
+    function backToInfo() { 
+        closeModal('payment-modal');
+        if (orderType === 'takeaway') {
+            showModal('takeaway-customer-modal');
+        } else {
+            showModal('delivery-modal');
+        }
+    }
+
+    function selectPayment(method) {
+        paymentMethod = method;
+        const payZaad = document.getElementById('pay-zaad');
+        const payEdahab = document.getElementById('pay-edahab');
+        const payCash = document.getElementById('pay-cash');
+        if (payZaad) payZaad.classList.toggle('active', method === 'zaad');
+        if (payEdahab) payEdahab.classList.toggle('active', method === 'edahab');
+        if (payCash) payCash.classList.toggle('active', method === 'cash');
+        const methodInput = document.getElementById('payment-method');
+        if (methodInput) methodInput.value = method;
+        
+        const phoneGroup = document.getElementById('payment-phone-group'), prefix = document.getElementById('payment-prefix-badge');
+        const hint = document.getElementById('payment-hint'), phoneInput = document.getElementById('payment-phone');
+        
+        if (method === 'cash') {
+            if (phoneGroup) phoneGroup.style.display = 'none';
+        } else {
+            if (phoneGroup) phoneGroup.style.display = 'block';
+            if (prefix) prefix.textContent = method === 'zaad' ? '+252 63' : '+252 65';
+            if (phoneInput) {
+                phoneInput.placeholder = 'XXX XXXX';
+                phoneInput.maxLength = 8;
+            }
+            if (hint) hint.innerHTML = `<i class="fas fa-check-circle"></i> ${method === 'zaad' ? 'Telesom Zaad' : 'E-Dahab'}: Enter exactly 7 digits`;
+            if (phoneInput) {
+                phoneInput.value = '';
+                validatePaymentPhone(phoneInput);
+            }
+        }
+    }
+    
+    function placeOrder() {
+        if (!paymentMethod) { alert('Please select a payment method'); return; }
+        if (paymentMethod !== 'cash') {
+            const phoneInput = document.getElementById('payment-phone');
+            if (phoneInput) {
+                const raw = phoneInput.value.replace(/\D/g, '');
+                if (raw.length !== 7) {
+                    alert('Please enter exactly 7 digits for the mobile money number.');
+                    phoneInput.focus();
+                    return;
+                }
+                paymentPhone = (paymentMethod === 'zaad' ? '25263' : '25265') + raw;
+            }
+        }
+        
+        // Get customer info based on order type
+        let customerInfo = {};
+        if (orderType === 'takeaway') {
+            const pickupTime = document.getElementById('selected-pickup-time')?.value;
+            const customTime = document.getElementById('custom-time-value')?.value;
+            const formattedTime = pickupTime === 'custom' && customTime ? customTime : formatPickupTime(pickupTime);
+            
+            customerInfo = { 
+                name: document.getElementById('takeaway-name')?.value || 'Take Away Customer',
+                phone: document.getElementById('takeaway-phone')?.value || '',
+                pickupTime: formattedTime
+            };
+        } else {
+            customerInfo = { 
+                name: document.getElementById('delivery-name')?.value || '', 
+                phone: document.getElementById('delivery-phone')?.value || '', 
+                address: document.getElementById('delivery-address')?.value || '', 
+                method: deliveryMethod, 
+                vehicle: selectedVehicle 
+            };
+        }
+        
+        const order = {
+            id: nextOrderId++, items: [...cart],
+            total: cart.reduce((s, i) => s + i.price * i.qty, 0),
+            type: orderType,
+            customer: customerInfo,
+            payment: { method: paymentMethod, phone: paymentMethod === 'cash' ? 'Cash on Pickup/Delivery' : paymentPhone },
+            restaurant: currentRestaurant, status: 'pending', timestamp: new Date(), location: userLocation
+        };
+        
+        orders.push(order);
+        if (orderType === 'delivery' && selectedVehicle) {
+            const v = vehicles.find(v => v.id === selectedVehicle.id);
+            if (v) v.status = 'delivering';
+        }
+        
+        cart = []; updateCartDisplay(); closeModal('payment-modal'); showBill(order); updateStats();
+        showNotification(`Order #${order.id} placed successfully! 🎉`, 'success');
+    }
+    
+    function submitTakeawayOrder() {
+        if (cart.length === 0) { alert('Please add items to your order'); return; }
+        
+        // Show takeaway customer info modal
+        showModal('takeaway-customer-modal');
+    }
+    
+    function formatPickupTime(time) {
+        if (time === 'asap') return 'ASAP (15-20 min)';
+        if (time === '30') return '30 minutes';
+        if (time === '60') return '1 hour';
+        if (time.includes(':')) return time; // Custom time like "14:30"
+        return time;
+    }
+
+    // 🧾 ===== ORIGINAL BILL/RECEIPT FUNCTION (KEPT AS-IS) =====
+    function showBill(order) {
+        const rest = restaurants[order.restaurant];
+        
+        // Header
+        document.getElementById('bill-order-num').textContent = order.id;
+        document.getElementById('bill-datetime').textContent = order.timestamp.toLocaleString();
+        document.getElementById('bill-address').textContent = rest?.address || 'Hargeisa, Somaliland';
+        document.getElementById('bill-phone').textContent = `Phone: ${rest?.phone || '+252 61 123 4567'}`;
+        document.getElementById('bill-customer').textContent = order.type === 'delivery' ? `Customer: ${order.customer.name}` : 'Customer: Walk-in';
+        document.getElementById('bill-type').textContent = order.type === 'delivery' ? '(Delivery)' : '(Take Away)';
+        document.getElementById('bill-total').textContent = `$${order.total.toFixed(2)}`;
+        document.getElementById('bill-item-count').textContent = order.items.reduce((sum, i) => sum + i.qty, 0);
+        document.getElementById('bill-order-type').textContent = order.type === 'delivery' ? 'Delivery' : 'Take Away';
+        
+        // Restaurant Details
+        document.getElementById('bill-restaurant-name').textContent = rest?.name || 'Unknown';
+        document.getElementById('bill-restaurant-address').textContent = rest?.address || 'Hargeisa, Somaliland';
+        document.getElementById('bill-restaurant-phone').textContent = rest?.phone || '+252 61 123 4567';
+        
+        // Toggle Take Away / Delivery sections
+        const takeawaySection = document.getElementById('bill-takeaway-section');
+        const takeawayNameRow = document.getElementById('bill-takeaway-name-row');
+        const takeawayPhoneRow = document.getElementById('bill-takeaway-phone-row');
+        const pickupTimeRow = document.getElementById('bill-pickup-time-row');
+        const deliverySection = document.getElementById('bill-delivery-section');
+        const deliveryAddressRow = document.getElementById('bill-delivery-address-row');
+        const methodRow = document.getElementById('bill-method-row');
+        const driverRow = document.getElementById('bill-driver-row');
+        const driverPhoneRow = document.getElementById('bill-driver-phone-row');
+        
+        if (order.type === 'takeaway') {
+            // Show Take Away info
+            if (takeawaySection) takeawaySection.classList.remove('hidden');
+            if (takeawayNameRow) {
+                takeawayNameRow.classList.remove('hidden');
+                document.getElementById('bill-takeaway-name').textContent = order.customer.name || '-';
+            }
+            if (takeawayPhoneRow) {
+                takeawayPhoneRow.classList.remove('hidden');
+                document.getElementById('bill-takeaway-phone').textContent = order.customer.phone || '-';
+            }
+            if (pickupTimeRow) {
+                pickupTimeRow.classList.remove('hidden');
+                document.getElementById('bill-pickup-time').textContent = order.customer.pickupTime || 'ASAP';
+            }
+            
+            // Hide Delivery info
+            if (deliverySection) deliverySection.classList.add('hidden');
+            if (deliveryAddressRow) deliveryAddressRow.classList.add('hidden');
+            if (methodRow) methodRow.classList.add('hidden');
+            if (driverRow) driverRow.classList.add('hidden');
+            if (driverPhoneRow) driverPhoneRow.classList.add('hidden');
+        } else {
+            // Hide Take Away info
+            if (takeawaySection) takeawaySection.classList.add('hidden');
+            if (takeawayNameRow) takeawayNameRow.classList.add('hidden');
+            if (takeawayPhoneRow) takeawayPhoneRow.classList.add('hidden');
+            if (pickupTimeRow) pickupTimeRow.classList.add('hidden');
+            
+            // Show Delivery info
+            if (deliverySection) deliverySection.classList.remove('hidden');
+            if (deliveryAddressRow) {
+                deliveryAddressRow.classList.remove('hidden');
+                document.getElementById('bill-delivery-address').textContent = order.customer.address?.substring(0, 30) || '-';
+            }
+            if (methodRow) {
+                methodRow.classList.remove('hidden');
+                document.getElementById('bill-method').textContent = order.customer.method === 'bike' ? 'Motorcycle' : 'Taxi';
+            }
+            if (driverRow && order.customer.vehicle) {
+                driverRow.classList.remove('hidden');
+                document.getElementById('bill-driver').textContent = `${order.customer.vehicle.driver} | ${order.customer.vehicle.plate}`;
+            }
+            if (driverPhoneRow && order.customer.vehicle) {
+                driverPhoneRow.classList.remove('hidden');
+                document.getElementById('bill-driver-phone').textContent = order.customer.vehicle.phone;
+            }
+        }
+        
+        // Items
+        document.getElementById('bill-items').innerHTML = order.items.map(i => 
+            `<div class="bill-item"><span>${i.name} × ${i.qty}</span><span>$${(i.price * i.qty).toFixed(2)}</span></div>`
+        ).join('');
+        
+        // QR Code
+        const qrContainer = document.getElementById('bill-qr');
+        qrContainer.innerHTML = '';
+        if (order.location && typeof QRCode !== 'undefined') {
+            new QRCode(qrContainer, { text: `https://www.google.com/maps?q=${order.location.lat},${order.location.lng}`, width: 100, height: 100, correctLevel: QRCode.CorrectLevel.H });
+        } else {
+            qrContainer.innerHTML = '<div style="color:var(--gray);font-size:12px;">No location data</div>';
+        }
+        
+        showModal('bill-modal');
+    }
+    
+    function printBill() { window.print(); }
+    
+    function generateAndSendBill() {
+        const order = orders[orders.length - 1];
+        if (!order) { alert('No order to send!'); return; }
+        
+        const rest = restaurants[order.restaurant];
+        const itemsText = order.items.map(i => `${i.name} × ${i.qty} = $${(i.price * i.qty).toFixed(2)}`).join('\n');
+        
+        // Format order details based on type
+        let orderDetails = '';
+        if (order.type === 'takeaway') {
+            orderDetails = `🛍️ *Take Away Order*\n⏰ Pickup: ${order.customer.pickupTime || 'ASAP'}\n👤 ${order.customer.name}\n📱 ${order.customer.phone}`;
+        } else {
+            orderDetails = `🚚 *Delivery Order*\n📍 ${order.customer.address?.substring(0, 40) || 'Hargeisa'}\n🏍️ ${order.customer.method === 'bike' ? 'Motorcycle' : 'Taxi'}\n👨‍✈️ ${order.customer.vehicle?.driver || ''}`;
+        }
+        
+        const receiptText = `
+🟢 *GO! POINT RECEIPT* 🟢
+━━━━━━━━━━━━━━
+📅 ${order.timestamp.toLocaleString()}
+📦 Order #${order.id} | ${order.type.toUpperCase()}
+
+🍽️ *${rest.name}*
+📍 ${rest.address}
+📞 ${rest.phone}
+
+${orderDetails}
+
+🧾 *Items*
+${itemsText}
+━━━━━━━━━━━━━━
+💰 *Total: $${order.total.toFixed(2)}*
+💳 Payment: ${order.payment.method === 'zaad' ? 'Telesom Zaad' : order.payment.method === 'edahab' ? 'E-Dahab' : 'Cash'}
+
+✅ Scan QR for location on Maps
+🌟 Follow us @gopointhargeisa
+Thank you for choosing Go! point! 🟢`.trim();
+
+        // Open WhatsApp to Customer
+        const customerPhone = order.customer.phone?.replace(/\D/g, '') || '';
+        if (customerPhone && customerPhone.length >= 10) {
+            const customerUrl = `https://wa.me/${customerPhone}?text=${encodeURIComponent(receiptText)}`;
+            window.open(customerUrl, '_blank');
+            
+            // For delivery orders, also send to driver
+            if (order.type === 'delivery' && order.customer.vehicle?.phone) {
+                const driverMsg = `🚚 *NEW DELIVERY ORDER #${order.id}*\n\n📍 ${order.customer.address}\n📦 Items:\n${itemsText}\n💰 Total: $${order.total.toFixed(2)}\n\nCustomer: ${order.customer.name}\n📱 ${order.customer.phone}\n\nPlease proceed to pickup.`;
+                setTimeout(() => {
+                    const driverUrl = `https://wa.me/${order.customer.vehicle.phone.replace(/\D/g,'')}?text=${encodeURIComponent(driverMsg)}`;
+                    window.open(driverUrl, '_blank');
+                }, 1000);
+            }
+            showNotification('✅ Bill generated & sent via WhatsApp!', 'success');
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(receiptText).then(() => {
+                showNotification('📋 Receipt copied! Paste in WhatsApp manually', 'success');
+            });
+        }
+    }
+
+    // ===== MANAGEMENT =====
+    function handleLogin() {
+        const user = document.getElementById('mgmt-username')?.value, pass = document.getElementById('mgmt-password')?.value;
+        if (user === 'admin' && pass === 'admin123') { 
+            closeModal('login-modal'); 
+            showManagement(); 
+            const loginForm = document.getElementById('management-login-form');
+            if (loginForm) loginForm.reset();
+            // Update nav active state
+            document.querySelectorAll('.nav-link').forEach(n => {
+                if (n) n.classList.remove('active');
+            });
+            const navMgmt = document.getElementById('nav-mgmt');
+            if (navMgmt) navMgmt.classList.add('active');
+        }
+        else alert('Invalid credentials. Try: admin / admin123');
+    }
+    function logout() { 
+        const mgmtView = document.getElementById('management-view');
+        if (mgmtView) mgmtView.classList.add('hidden');
+        showPage('home'); 
+    }
+    
+    function updateStats() {
+        const totalOrdersEl = document.getElementById('stat-total-orders');
+        const totalRevenueEl = document.getElementById('stat-total-revenue');
+        const pendingOrdersEl = document.getElementById('stat-pending-orders');
+        const deliveryOrdersEl = document.getElementById('stat-delivery-orders');
+        
+        if (totalOrdersEl) totalOrdersEl.textContent = orders.length;
+        if (totalRevenueEl) totalRevenueEl.textContent = `$${orders.reduce((s,o)=>s+o.total,0).toFixed(2)}`;
+        if (pendingOrdersEl) pendingOrdersEl.textContent = orders.filter(o=>o.status==='pending').length;
+        if (deliveryOrdersEl) deliveryOrdersEl.textContent = orders.filter(o=>o.type==='delivery').length;
+        
+        const vehicleSection = document.getElementById('vehicle-management-section');
+        if (vehicleSection && !vehicleSection.classList.contains('hidden')) { 
+            updateVehicleStats(); 
+            renderVehicleList(); 
+        }
+        renderOrders();
+    }
+    
+    function renderOrders() {
+        const pending = orders.filter(o => o.status === 'pending'), completed = orders.filter(o => o.status === 'completed').slice(-5).reverse();
+        const pendingList = document.getElementById('pending-orders-list');
+        if (pendingList) {
+            pendingList.innerHTML = pending.length === 0 ? `<div class="text-center py-8 text-gray"><i class="fas fa-inbox" style="font-size:32px;margin-bottom:12px;opacity:0.5;"></i><p>No pending orders</p></div>` : pending.map(o => {
+                const rest = restaurants[o.restaurant];
+                return `<div class="order-item"><div class="order-header"><div class="order-id">Order #${o.id} ${rest?.name ? `(${rest.name})` : ''}</div><span class="order-status pending">Pending</span></div><div class="order-customer">${o.type === 'delivery' ? `🚚 ${o.customer.name}` : '🛍️ Walk-in'}</div><div class="order-items">${o.items.map(i=>`${i.name}×${i.qty}`).join(', ')}</div><div class="order-total"><span>Total:</span><span>$${o.total.toFixed(2)}</span></div><div class="order-actions"><button class="btn btn-success btn-sm" onclick="completeOrder(${o.id})">Accept & Generate Bill</button></div></div>`;
+            }).join('');
+        }
+        
+        const completedList = document.getElementById('completed-orders-list');
+        if (completedList) {
+            completedList.innerHTML = completed.length === 0 ? `<div class="text-center py-8 text-gray"><i class="fas fa-check-circle" style="font-size:32px;margin-bottom:12px;opacity:0.5;"></i><p>No completed orders yet</p></div>` : completed.map(o => `<div class="order-item"><div class="order-header"><div class="order-id">Order #${o.id}</div><span class="order-status completed">Completed</span></div><div class="order-customer">${o.timestamp.toLocaleTimeString()}</div><div class="order-total"><span>$${o.total.toFixed(2)}</span></div><button class="btn btn-outline btn-sm w-full" onclick="showBillById(${o.id})">View Bill</button></div>`).join('');
+        }
+    }
+    
+    function completeOrder(id) {
+        const order = orders.find(o => o.id === id);
+        if (!order) return;
+        order.status = 'completed';
+        if (order.type === 'delivery' && order.customer?.vehicle?.id) {
+            const vehicle = vehicles.find(v => v.id === order.customer.vehicle.id);
+            if (vehicle && vehicle.status === 'delivering') vehicle.status = 'available';
+        }
+        updateStats(); showBill(order);
+        showNotification(`✅ Order #${order.id} completed! Vehicle released.`, 'success');
+    }
+    
+    function showSettings() { showModal('settings-modal'); }
+    function showAddRestaurant() { showModal('add-restaurant-modal'); }
+    function showRegisterVehicle() { showModal('register-vehicle-modal'); }
+    function showVehicleManagement() { toggleVehicleManagement(); }
+    
+    function toggleVehicleManagement() {
+        const section = document.getElementById('vehicle-management-section'), btnText = document.getElementById('vehicle-mgmt-btn-text');
+        if (section && btnText) {
+            if (section.classList.contains('hidden')) { 
+                section.classList.remove('hidden'); 
+                btnText.textContent = 'Back to Dashboard'; 
+                renderVehicleList(); 
+                updateVehicleStats(); 
+            }
+            else { 
+                section.classList.add('hidden'); 
+                btnText.textContent = 'Vehicles'; 
+            }
+        }
+    }
+    
+    function updateVehicleStats() {
+        const bikesEl = document.getElementById('stat-bikes');
+        const taxisEl = document.getElementById('stat-taxis');
+        const availableEl = document.getElementById('stat-available');
+        const deliveringEl = document.getElementById('stat-delivering');
+        
+        if (bikesEl) bikesEl.textContent = vehicles.filter(v => v.type === 'bike').length;
+        if (taxisEl) taxisEl.textContent = vehicles.filter(v => v.type === 'taxi').length;
+        if (availableEl) availableEl.textContent = vehicles.filter(v => v.status === 'available').length;
+        if (deliveringEl) deliveringEl.textContent = vehicles.filter(v => v.status === 'delivering').length;
+    }
+    
+    function renderVehicleList() {
+        const container = document.getElementById('vehicle-list');
+        if (!container) return;
+        container.innerHTML = vehicles.length === 0 ? `<div class="text-center py-8 text-gray" style="grid-column: 1/-1;"><i class="fas fa-ghost" style="font-size: 48px; margin-bottom: 12px; opacity: 0.5;"></i><p>No vehicles registered yet</p><button class="btn btn-primary mt-4" onclick="showRegisterVehicle()"><i class="fas fa-plus"></i> Add First Vehicle</button></div>` : vehicles.map(v => `
+            <div class="vehicle-card"><div class="vehicle-header"><div class="vehicle-icon ${v.type}"><i class="fas fa-${v.type === 'bike' ? 'motorcycle' : 'car'}"></i></div><div class="vehicle-info"><div class="driver">${v.driver}</div><div class="plate">${v.plate}</div></div></div><div class="vehicle-status ${v.status}"><i class="fas fa-${v.status === 'available' ? 'check-circle' : v.status === 'delivering' ? 'route' : 'times-circle'}"></i> ${v.status.charAt(0).toUpperCase() + v.status.slice(1)}</div><div style="font-size: 12px; color: var(--gray); margin: 8px 0;"><i class="fas fa-phone"></i> ${v.phone}</div><div class="vehicle-actions"><button class="btn btn-outline btn-sm" onclick="toggleVehicleStatus(${v.id})">${v.status === 'available' ? '⏸️ Set Busy' : '✅ Set Available'}</button><button class="btn btn-danger btn-sm" onclick="deleteVehicle(${v.id})"><i class="fas fa-trash"></i></button></div></div>
+        `).join('');
+    }
+    
+    function toggleVehicleStatus(id) {
+        const vehicle = vehicles.find(v => v.id === id);
+        if (!vehicle) return;
+        if (orders.find(o => o.status === 'pending' && o.type === 'delivery' && o.customer?.vehicle?.id === id)) { alert('⚠️ Cannot change status: Vehicle is assigned to active order'); return; }
+        vehicle.status = vehicle.status === 'available' ? 'unavailable' : 'available';
+        renderVehicleList(); updateVehicleStats(); showNotification(`🚗 ${vehicle.driver}'s vehicle status updated`, 'success');
+    }
+    
+    function deleteVehicle(id) {
+        if (!confirm('Are you sure you want to remove this vehicle from the fleet?')) return;
+        if (orders.find(o => o.status === 'pending' && o.type === 'delivery' && o.customer?.vehicle?.id === id)) { alert('⚠️ Cannot delete: Vehicle is assigned to pending order'); return; }
+        vehicles.splice(vehicles.findIndex(v => v.id === id), 1);
+        renderVehicleList(); updateVehicleStats(); showNotification('🗑️ Vehicle removed successfully', 'success');
+    }
+    
+    function registerVehicle() {
+        const type = document.getElementById('vehicle-type')?.value, plate = document.getElementById('plate-number')?.value.trim().toUpperCase();
+        const driver = document.getElementById('driver-name')?.value.trim(), phone = document.getElementById('driver-phone')?.value.trim();
+        if (!type || !plate || !driver || !phone) { alert('Please fill all required fields'); return; }
+        if (vehicles.some(v => v.plate === plate)) { alert('⚠️ A vehicle with this plate number already exists!'); return; }
+        vehicles.push({ id: Date.now(), type, plate, driver, phone: phone.replace(/\D/g, ''), status: 'available' });
+        alert(`✅ Vehicle ${plate} registered successfully!\nDriver: ${driver}`);
+        closeModal('register-vehicle-modal'); 
+        const vehicleForm = document.getElementById('vehicle-form');
+        if (vehicleForm) vehicleForm.reset();
+        if (!document.getElementById('vehicle-management-section')?.classList.contains('hidden')) { renderVehicleList(); updateVehicleStats(); }
+        showNotification('🚗 New vehicle added to fleet', 'success');
+    }
+    
+    function registerRestaurant() { const name = document.getElementById('rest-name')?.value.trim(); if (!name) { alert('Restaurant name is required'); return; } alert(`Restaurant "${name}" registered successfully!`); closeModal('add-restaurant-modal'); const restForm = document.getElementById('restaurant-form'); if (restForm) restForm.reset(); renderRestaurants(); }
+    function addMenuItem(category) { const container = document.getElementById(`${category}-items`); if (!container) return; const div = document.createElement('div'); div.style.cssText = 'padding:10px;background:var(--light);border-radius:8px;margin-bottom:8px;'; div.innerHTML = `<input type="text" placeholder="Item name" class="form-control mb-2" style="padding:8px;"><input type="number" placeholder="Price ($)" step="0.01" class="form-control mb-2" style="padding:8px;"><input type="text" placeholder="Description" class="form-control" style="padding:8px;"><button type="button" class="btn btn-danger btn-sm mt-2" onclick="this.parentElement.remove()">Remove</button>`; container.appendChild(div); }
+    function searchRestaurants() { const q = document.getElementById('search-input')?.value.toLowerCase().trim(); if (!q) return; showPage('restaurants'); document.querySelectorAll('.restaurant-card').forEach(c => { if (!c) return; const nameEl = c.querySelector('.restaurant-name'), addrEl = c.querySelector('.restaurant-address'); if (!nameEl || !addrEl) return; const n = nameEl.textContent.toLowerCase(), a = addrEl.textContent.toLowerCase(); c.style.display = (n.includes(q) || a.includes(q)) ? 'block' : 'none'; }); }
+    function showContact() { alert('📞 Contact Go! point Hargeisa:\n\n📱 Phone: +252 61 123 4567\n📧 Email: info@gopoint.so\n📍 Address: Dalbo, Hargeisa, Somaliland\n\nFollow us: @gopointhargeisa'); }
+    function showNotification(msg, type = 'info') { 
+        const colors = { success: 'var(--success)', error: 'var(--danger)', info: 'var(--primary)', warning: 'var(--warning)' }; 
+        const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle', warning: 'fa-exclamation-triangle' }; 
+        const notif = document.createElement('div'); 
+        notif.style.cssText = `position:fixed;top:20px;right:20px;background:${colors[type]};color:white;padding:14px 20px;border-radius:12px;box-shadow:var(--shadow-lg);z-index:3000;display:flex;align-items:center;gap:10px;animation:fadeIn 0.3s ease;`; 
+        notif.innerHTML = `<i class="fas ${icons[type]}"></i> ${msg}`; 
+        document.body.appendChild(notif); 
+        setTimeout(() => { 
+            notif.style.opacity = '0'; 
+            notif.style.transform = 'translateY(-10px)'; 
+            setTimeout(() => notif.remove(), 300); 
+        }, 3000); 
+    }
+    function showBillById(id) { const order = orders.find(o => o.id === id); if (order) showBill(order); }
+</script>
+</body>
+</html>
