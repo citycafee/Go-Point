@@ -1,4 +1,0 @@
-permissions:
-  contents: read
-  pages: write      # Required to deploy to Pages
-  id-token: write   # Required to request the OIDC token
