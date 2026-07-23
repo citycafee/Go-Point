@@ -249,23 +249,6 @@
             Project
           </h3>
           <form class="space-y-6" id="project-form" novalidate="">
-            <div>
-              <label
-                class="block text-gray-700 font-semibold mb-1"
-                for="action-type"
-              >
-                <span class="text-red-600">Select*</span>
-              </label>
-              <select
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                id="action-type"
-                name="actionType"
-                required=""
-              >
-                <option selected="" value="register">Register New Project</option>
-                <option value="update">Update Existing Project</option>
-              </select>
-            </div>
             <div class="hidden" id="update-project-select-container">
               <label
                 class="block text-gray-700 font-semibold mb-1"
@@ -2235,7 +2218,7 @@
     updateStats();
 
     const form = document.getElementById("project-form");
-    const actionTypeSelect = document.getElementById("action-type");
+    let currentActionType = "register"; // Track current action: "register" or "update"
     const updateProjectSelectContainer = document.getElementById(
       "update-project-select-container"
     );
@@ -2345,14 +2328,6 @@
       ).innerHTML = `<i class="fas fa-edit text-yellow-400"></i> Update Existing Project`;
     }
 
-    actionTypeSelect.addEventListener("change", () => {
-      if (actionTypeSelect.value === "update") {
-        switchToUpdateMode();
-      } else {
-        switchToRegisterMode();
-      }
-    });
-
     existingProjectSelect.addEventListener("change", () => {
       const val = existingProjectSelect.value;
       if (!val) {
@@ -2367,7 +2342,7 @@
       e.preventDefault();
 
       const formData = new FormData(form);
-      const actionType = formData.get("actionType");
+      const actionType = currentActionType;
       const projectName = formData.get("projectName").trim();
       const region = formData.get("region");
       const district = formData.get("district");
@@ -2563,14 +2538,14 @@
     // Menu items - open modals and close dropdown
     menuRegisterNew.addEventListener("click", () => {
       loginDropdown.classList.add("hidden");
-      actionTypeSelect.value = "register";
+      currentActionType = "register";
       switchToRegisterMode();
       openRegisterModal();
     });
 
     menuUpdateExisting.addEventListener("click", () => {
       loginDropdown.classList.add("hidden");
-      actionTypeSelect.value = "update";
+      currentActionType = "update";
       switchToUpdateMode();
       openRegisterModal();
     });
