@@ -1,0 +1,3199 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <title>
+    Ministry of Planning &amp; National Development - Somaliland Projects Dashboard with Project Registration &amp; M&amp;E
+  </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      font-family: "Inter", sans-serif;
+    }
+    /* Scrollbar styling for region details and reports */
+    #region-details::-webkit-scrollbar,
+    #evaluation-reports::-webkit-scrollbar,
+    #register-modal .overflow-y-auto::-webkit-scrollbar,
+    #me-modal .overflow-y-auto::-webkit-scrollbar,
+    #status-projects-popup .overflow-y-auto::-webkit-scrollbar {
+      width: 8px;
+    }
+    #region-details::-webkit-scrollbar-thumb,
+    #evaluation-reports::-webkit-scrollbar-thumb,
+    #register-modal .overflow-y-auto::-webkit-scrollbar-thumb,
+    #me-modal .overflow-y-auto::-webkit-scrollbar-thumb,
+    #status-projects-popup .overflow-y-auto::-webkit-scrollbar-thumb {
+      background-color: rgba(26, 58, 95, 0.5);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body
+  class="bg-gradient-to-br from-[#a3f1a3] to-[#2c5a8a] min-h-screen p-5 text-gray-900 font-sans"
+>
+  <div
+    class="max-w-[1400px] mx-auto bg-white bg-opacity-95 rounded-2xl shadow-2xl overflow-hidden flex flex-col relative"
+  >
+    <header
+      class="bg-gradient-to-r from-[#009a00] to-[#2c5a8a] text-white px-6 sm:px-10 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between border-b-8 border-yellow-400 gap-4 sm:gap-0"
+    >
+      <div class="flex items-center gap-5 justify-center sm:justify-start">
+        <div
+          class="w-40 h-40 bg-green-400 rounded-full border-4 border-white flex items-center justify-center text-[#1a3a5f] text-5xl"
+        >
+          <img
+            alt="Official emblem of Somaliland with green, white, and red colors and a black star in the center"
+            class="object-contain"
+            height="250"
+            src="https://storage.googleapis.com/a1aa/image/307d2ea8-a0ec-440d-783e-21b9ba885c64.jpg"
+            width="250"
+          />
+        </div>
+        <div class="text-center sm:text-left">
+          <h1 class="text-2xl sm:text-3xl font-extrabold leading-tight">
+            Ministry of Planning &amp; National Development
+          </h1>
+          <h2 class="text-lg sm:text-xl font-normal opacity-90">
+            Somaliland Regional Projects Dashboard
+          </h2>
+        </div>
+      </div>
+      <div
+        aria-atomic="true"
+        aria-live="polite"
+        class="text-center sm:text-right text-lg font-semibold"
+        id="current-date"
+      >
+        Tuesday, July 1, 2025
+      </div>
+    </header>
+
+    <!-- Login Bar -->
+    <div id="login-bar" class="bg-[#1a3a5f] text-white px-6 sm:px-10 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-user-circle text-2xl text-yellow-400"></i>
+        <span id="login-status" class="text-sm font-semibold">Not logged in</span>
+      </div>
+      <div id="login-form-area" class="flex flex-wrap items-center gap-3">
+        <input
+          type="text"
+          id="login-username"
+          placeholder="Username"
+          class="px-3 py-1.5 rounded-md text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+        />
+        <input
+          type="password"
+          id="login-password"
+          placeholder="Password"
+          class="px-3 py-1.5 rounded-md text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+        />
+        <button
+          id="login-btn"
+          class="bg-yellow-400 hover:bg-yellow-500 text-[#1a3a5f] font-bold py-1.5 px-4 rounded-md text-sm transition-colors"
+        >
+          <i class="fas fa-sign-in-alt mr-1"></i> Login
+        </button>
+      </div>
+      <div id="logged-in-area" class="hidden flex items-center gap-3">
+        <span class="text-sm">Welcome, <strong id="logged-in-user"></strong></span>
+        <button
+          id="logout-btn"
+          class="bg-red-500 hover:bg-red-600 text-white font-bold py-1.5 px-4 rounded-md text-sm transition-colors"
+        >
+          <i class="fas fa-sign-out-alt mr-1"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Top Toolbar with Register Project and M&E Report buttons -->
+    <div class="bg-[#e9f2fa] border-b-2 border-[#d0e0f0] px-6 sm:px-10 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-4">
+        <button
+          id="open-register-btn"
+          aria-haspopup="dialog"
+          class="bg-yellow-400 hover:bg-yellow-500 text-[#1a3a5f] font-bold py-2 px-5 rounded-lg shadow-md flex items-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400"
+        >
+          <i class="fas fa-plus-circle"></i> Register a Project
+        </button>
+        <button
+          id="open-me-btn"
+          aria-controls="me-modal"
+          aria-expanded="false"
+          aria-haspopup="dialog"
+          class="bg-[#1a3a5f] hover:bg-[#2c5a8a] text-white font-bold py-2 px-5 rounded-lg shadow-md flex items-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-[#2c5a8a]"
+        >
+          <i class="fas fa-chart-line"></i> Add M&amp;E Report
+        </button>
+      </div>
+      <div class="text-sm text-[#1a3a5f] font-semibold">
+        <i class="fas fa-calendar-alt mr-1"></i> <span id="toolbar-date"></span>
+      </div>
+    </div>
+
+    <!-- Register Project Choice Modal -->
+    <div
+      id="project-choice-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden"
+    >
+      <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-8 relative">
+        <button
+          id="close-project-choice"
+          class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+        >
+          <i class="fas fa-times text-xl"></i>
+        </button>
+        <h3 class="text-2xl font-bold text-[#1a3a5f] mb-6 text-center">
+          <i class="fas fa-folder-plus text-yellow-400 mr-2"></i> Register a Project
+        </h3>
+        <p class="text-gray-600 text-center mb-6">What would you like to do?</p>
+        <div class="space-y-4">
+          <button
+            id="choice-register-new"
+            class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-lg shadow-md flex items-center gap-4 transition-colors text-left"
+          >
+            <div class="bg-white bg-opacity-20 p-3 rounded-full">
+              <i class="fas fa-plus-circle text-2xl"></i>
+            </div>
+            <div>
+              <div class="text-lg">Register New Project</div>
+              <div class="text-sm opacity-90">Create a brand new project entry</div>
+            </div>
+          </button>
+          <button
+            id="choice-update-existing"
+            class="w-full bg-[#2c5a8a] hover:bg-[#1a3a5f] text-white font-bold py-4 px-6 rounded-lg shadow-md flex items-center gap-4 transition-colors text-left"
+          >
+            <div class="bg-white bg-opacity-20 p-3 rounded-full">
+              <i class="fas fa-edit text-2xl"></i>
+            </div>
+            <div>
+              <div class="text-lg">Update Existing Project</div>
+              <div class="text-sm opacity-90">Modify an already registered project</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <section
+      class="bg-[#e9f2fa] flex flex-wrap justify-around border-b-2 border-[#d0e0f0] py-4 px-4 sm:px-6 gap-4"
+    >
+      <div
+        aria-label="View all projects"
+        class="text-center flex-1 min-w-[120px] max-w-[180px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded"
+        id="total-investment-container"
+        role="button"
+        tabindex="0"
+      >
+        <div class="text-4xl font-extrabold text-[#1a3a5f]" id="total-investment">
+          $323.8M
+        </div>
+        <div class="text-lg text-[#2c5a8a]">Total Investment</div>
+      </div>
+      <div
+        aria-label="View ongoing projects"
+        class="text-center flex-1 min-w-[120px] max-w-[180px] relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded"
+        id="ongoing-projects-container"
+        role="button"
+        tabindex="0"
+      >
+        <div
+          class="text-4xl font-extrabold text-[#1a3a5f] cursor-pointer select-none"
+          id="ongoing-projects"
+        >
+          20
+        </div>
+        <div class="text-lg text-[#2c5a8a]">Ongoing Projects</div>
+      </div>
+      <div
+        aria-label="View planning projects"
+        class="text-center flex-1 min-w-[120px] max-w-[180px] relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded"
+        id="planning-projects-container"
+        role="button"
+        tabindex="0"
+      >
+        <div
+          class="text-4xl font-extrabold text-[#1a3a5f] cursor-pointer select-none"
+          id="planning-projects"
+        >
+          5
+        </div>
+        <div class="text-lg text-[#2c5a8a]">Planned Projects</div>
+      </div>
+      <div
+        aria-label="View completed projects"
+        class="text-center flex-1 min-w-[120px] max-w-[180px] relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded"
+        id="completed-projects-container"
+        role="button"
+        tabindex="0"
+      >
+        <div
+          class="text-4xl font-extrabold text-[#1a3a5f] cursor-pointer select-none"
+          id="completed-projects"
+        >
+          5
+        </div>
+        <div class="text-lg text-[#2c5a8a]">Completed Projects</div>
+      </div>
+      <div
+        aria-label="View evaluated projects"
+        class="text-center flex-1 min-w-[120px] max-w-[180px] relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded"
+        id="evaluated-projects-container"
+        role="button"
+        tabindex="0"
+      >
+        <div
+          class="text-4xl font-extrabold text-[#1a3a5f] cursor-pointer select-none"
+          id="evaluated-projects"
+        >
+          5
+        </div>
+        <div class="text-lg text-[#2c5a8a]">Evaluated Projects</div>
+      </div>
+    </section>
+    <main
+      class="flex flex-col lg:flex-row gap-8 p-6 sm:p-8 relative min-h-[700px]"
+    >
+      <div
+        aria-hidden="true"
+        aria-labelledby="register-modal-title"
+        aria-modal="true"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
+        id="register-modal"
+        role="dialog"
+      >
+        <div
+          class="bg-white rounded-xl shadow-lg max-w-5xl w-full p-6 relative max-h-[90vh] overflow-y-auto"
+          tabindex="0"
+        >
+          <button
+            aria-label="Close register project form"
+            class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+            id="close-register-btn"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+          <h3
+            class="flex items-center gap-3 text-[#1a3a5f] text-2xl font-semibold border-b-4 border-yellow-400 pb-3 mb-6"
+            id="register-modal-title"
+          >
+            <i class="fas fa-plus-circle text-yellow-400"></i> Register or Update
+            Project
+          </h3>
+          <form class="space-y-6" id="project-form" novalidate="">
+            <div>
+              <label
+                class="block text-gray-700 font-semibold mb-1"
+                for="action-type"
+              >
+                <span class="text-red-600">Select*</span>
+              </label>
+              <select
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                id="action-type"
+                name="actionType"
+                required=""
+              >
+                <option selected="" value="register">Register New Project</option>
+                <option value="update">Update Existing Project</option>
+              </select>
+            </div>
+            <div class="hidden" id="update-project-select-container">
+              <label
+                class="block text-gray-700 font-semibold mb-1"
+                for="existing-project-select"
+              >
+                Select Project to Update <span class="text-red-600">*</span>
+              </label>
+              <select
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                id="existing-project-select"
+                name="existingProject"
+              >
+                <option disabled="" selected="" value="">
+                  Select a project
+                </option>
+              </select>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="project-name"
+                >
+                  Project Name <span class="text-red-600">*</span>
+                </label>
+                <input
+                  autocomplete="off"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="project-name"
+                  name="projectName"
+                  placeholder="Enter project name"
+                  required=""
+                  type="text"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="region"
+                >
+                  Region <span class="text-red-600">*</span>
+                </label>
+                <select
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="region"
+                  name="region"
+                  required=""
+                >
+                  <option disabled="" selected="" value="">
+                    Select a region
+                  </option>
+                  <option value="Awdal">Awdal</option>
+                  <option value="Maroodi Jeex">Maroodi Jeex</option>
+                  <option value="Sahil">Sahil</option>
+                  <option value="Togdheer">Togdheer</option>
+                  <option value="Sanaag">Sanaag</option>
+                  <option value="Sool">Sool</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="district"
+                >
+                  District <span class="text-red-600">*</span>
+                </label>
+                <select
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  disabled=""
+                  id="district"
+                  name="district"
+                  required=""
+                >
+                  <option disabled="" selected="" value="">
+                    Select a district
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="ndp3-alignment"
+                >
+                  NDP3 Alignment <span class="text-red-600">*</span>
+                </label>
+                <select
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="ndp3-alignment"
+                  name="ndp3Alignment"
+                  required=""
+                >
+                  <option disabled="" selected="" value="">
+                    Select alignment
+                  </option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="sector"
+                >
+                  Sector <span class="text-red-600">*</span>
+                </label>
+                <select
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="sector"
+                  name="sector"
+                  required=""
+                >
+                  <option disabled="" selected="" value="">
+                    Select a sector
+                  </option>
+                  <option value="Water">Water</option>
+                  <option value="Infrastructure">Infrastructure</option>
+                  <option value="Healthcare">Healthcare</option>
+                  <option value="Agriculture">Agriculture</option>
+                  <option value="Environment">Environment</option>
+                  <option value="Transport">Transport</option>
+                  <option value="Economic">Economic</option>
+                  <option value="Education">Education</option>
+                  <option value="Energy">Energy</option>
+                  <option value="Security">Security</option>
+                </select>
+              </div>
+              <div class="sm:col-span-2">
+                Source of Founding
+                <input
+                  autocomplete="off"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="donor-name"
+                  name="donorName"
+                  placeholder="Enter donor name"
+                  type="text"
+                />
+              </div>
+              <div class="sm:col-span-2">
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="implementer-name"
+                >
+                  Implementer Name
+                </label>
+                <input
+                  autocomplete="off"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="implementer-name"
+                  name="implementerName"
+                  placeholder="Enter implementer name"
+                  type="text"
+                />
+              </div>
+              <div class="sm:col-span-2">
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="partner-name"
+                >
+                  Partner Name
+                </label>
+                <input
+                  autocomplete="off"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="partner-name"
+                  name="partnerName"
+                  placeholder="Enter partner name"
+                  type="text"
+                />
+              </div>
+              <div class="sm:col-span-2">
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="description"
+                >
+                  Description
+                </label>
+                <textarea
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="description"
+                  name="description"
+                  placeholder="Enter project description"
+                  rows="3"
+                ></textarea>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-gray-700 font-semibold mb-1">
+                  Project Duration <span class="text-red-600">*</span>
+                </label>
+                <div class="flex gap-2">
+                  <input
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    id="project-duration-value"
+                    min="1"
+                    name="projectDurationValue"
+                    placeholder="Duration value"
+                    required=""
+                    type="number"
+                  />
+                  <select
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    id="project-duration-unit"
+                    name="projectDurationUnit"
+                    required=""
+                  >
+                    <option value="months">Months</option>
+                    <option value="years">Years</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="start-date"
+                >
+                  Starting Date <span class="text-red-600">*</span>
+                </label>
+                <input
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="start-date"
+                  name="startDate"
+                  required=""
+                  type="date"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="completion-date"
+                >
+                  Completion Date <span class="text-red-600">*</span>
+                </label>
+                <input
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="completion-date"
+                  name="completionDate"
+                  required=""
+                  type="date"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="budget"
+                >
+                  Budget (USD) <span class="text-red-600">*</span>
+                </label>
+                <input
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="budget"
+                  min="0"
+                  name="budget"
+                  placeholder="e.g. 5,000,000"
+                  required=""
+                  step="0.01"
+                  type="number"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="status"
+                >
+                  Status <span class="text-red-600">*</span>
+                </label>
+                <select
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="status"
+                  name="status"
+                  required=""
+                >
+                  <option disabled="" selected="" value="">
+                    Select status
+                  </option>
+                  <option value="Planning">Planning</option>
+                  <option value="Ongoing">Ongoing</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Submitted">Submitted</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="date-approval"
+                >
+                  Date of Approval <span class="text-red-600">*</span>
+                </label>
+                <input
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="date-approval"
+                  name="dateApproval"
+                  required=""
+                  type="date"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="date-effectiveness"
+                >
+                  Date of Effectiveness <span class="text-red-600">*</span>
+                </label>
+                <input
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="date-effectiveness"
+                  name="dateEffectiveness"
+                  required=""
+                  type="date"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="date-first-disbursement"
+                >
+                  Date of First Disbursement <span class="text-red-600">*</span>
+                </label>
+                <input
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="date-first-disbursement"
+                  name="dateFirstDisbursement"
+                  required=""
+                  type="date"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="current-disbursement-level"
+                >
+                  Current Disbursement Level (USD) <span class="text-red-600">*</span>
+                </label>
+                <input
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  id="current-disbursement-level"
+                  min="0"
+                  name="currentDisbursementLevel"
+                  placeholder="e.g. 1,000,000"
+                  required=""
+                  step="0.01"
+                  type="number"
+                />
+              </div>
+            </div>
+            <div class="text-right">
+              <button
+                class="bg-yellow-400 hover:bg-yellow-500 text-[#1a3a5f] font-bold py-2 px-6 rounded-lg shadow-md transition-colors flex items-center justify-center gap-2"
+                id="submit-project-btn"
+                type="submit"
+              >
+                <i class="fas fa-paper-plane"></i> Submit Project
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div
+        aria-hidden="true"
+        aria-labelledby="me-modal-title"
+        aria-modal="true"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 hidden"
+        id="me-modal"
+        role="dialog"
+      >
+        <div
+          class="bg-white rounded-xl shadow-lg max-w-lg w-full p-6 relative max-h-[90vh] overflow-y-auto"
+        >
+          <button
+            aria-label="Close M&amp;E report form"
+            class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+            id="close-me-btn"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+          <h3
+            class="flex items-center gap-3 text-[#1a3a5f] text-2xl font-semibold border-b-4 border-[#1a3a5f] pb-3 mb-6"
+            id="me-modal-title"
+          >
+            <i class="fas fa-chart-line text-[#1a3a5f]"></i> Add Monitoring &amp;
+            Evaluation Report
+          </h3>
+          <form class="space-y-6" id="me-form">
+            <div>
+              <label
+                class="block text-gray-700 font-semibold mb-1"
+                for="me-project"
+              >
+                Project <span class="text-red-600">*</span>
+              </label>
+              <select
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1a3a5f]"
+                id="me-project"
+                name="project"
+                required=""
+              >
+                <option disabled="" selected="" value="">
+                  Select a project
+                </option>
+                <option value="Borama Water Supply System">
+                  Borama Water Supply System (Awdal)
+                </option>
+                <option value="Lughaya Road Construction">
+                  Lughaya Road Construction (Awdal)
+                </option>
+                <option value="Regional Hospital Expansion">
+                  Regional Hospital Expansion (Awdal)
+                </option>
+                <option value="Agricultural Training Center">
+                  Agricultural Training Center (Awdal)
+                </option>
+                <option value="Hargeisa Urban Road Network">
+                  Hargeisa Urban Road Network (Maroodi Jeex)
+                </option>
+                <option value="Hargeisa Airport Expansion">
+                  Hargeisa Airport Expansion (Maroodi Jeex)
+                </option>
+                <option value="Central Market Modernization">
+                  Central Market Modernization (Maroodi Jeex)
+                </option>
+                <option value="University STEM Complex">
+                  University STEM Complex (Maroodi Jeex)
+                </option>
+                <option value="Waste Management System">
+                  Waste Management System (Maroodi Jeex)
+                </option>
+                <option value="Biyoole">Biyoole (Maroodi Jeex)</option>
+                <option value="Berbera Port Expansion">
+                  Berbera Port Expansion (Sahil)
+                </option>
+                <option value="Berbera Water Treatment Plant">
+                  Berbera Water Treatment Plant (Sahil)
+                </option>
+                <option value="Coastal Highway Rehabilitation">
+                  Coastal Highway Rehabilitation (Sahil)
+                </option>
+                <option value="Fisheries Development Program">
+                  Fisheries Development Program (Sahil)
+                </option>
+                <option value="Burao Water Reservoir">
+                  Burao Water Reservoir (Togdheer)
+                </option>
+                <option value="Regional Livestock Market">
+                  Regional Livestock Market (Togdheer)
+                </option>
+                <option value="Vocational Training Center">
+                  Vocational Training Center (Togdheer)
+                </option>
+                <option value="Road to Ethiopian Border">
+                  Road to Ethiopian Border (Togdheer)
+                </option>
+                <option value="Drought Resilience Program">
+                  Drought Resilience Program (Togdheer)
+                </option>
+                <option value="Erigavo Hospital Modernization">
+                  Erigavo Hospital Modernization (Sanaag)
+                </option>
+                <option value="Mountain Road Rehabilitation">
+                  Mountain Road Rehabilitation (Sanaag)
+                </option>
+                <option value="Las Anod Water Pipeline">
+                  Las Anod Water Pipeline (Sool)
+                </option>
+                <option value="Regional Security Infrastructure">
+                  Regional Security Infrastructure (Sool)
+                </option>
+                <option value="Pastoralist Support Program">
+                  Pastoralist Support Program (Sool)
+                </option>
+                <option value="Border Trade Facilitation">
+                  Border Trade Facilitation (Sool)
+                </option>
+              </select>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="evaluation-date"
+                >
+                  Evaluation Date <span class="text-red-600">*</span>
+                </label>
+                <input
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1a3a5f]"
+                  id="evaluation-date"
+                  name="evaluationDate"
+                  required=""
+                  type="date"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="progress-percentage"
+                >
+                  Progress (%) <span class="text-red-600">*</span>
+                </label>
+                <input
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1a3a5f]"
+                  id="progress-percentage"
+                  max="100"
+                  min="0"
+                  name="progress"
+                  placeholder="e.g. 75"
+                  required=""
+                  step="1"
+                  type="number"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="budget-utilization"
+                >
+                  Budget Utilization (%)
+                </label>
+                <input
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1a3a5f]"
+                  id="budget-utilization"
+                  max="100"
+                  min="0"
+                  name="budgetUtilization"
+                  placeholder="e.g. 60"
+                  step="1"
+                  type="number"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-gray-700 font-semibold mb-1"
+                  for="evaluation-score"
+                >
+                  Evaluation Score
+                </label>
+                <select
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1a3a5f]"
+                  id="evaluation-score"
+                  name="score"
+                >
+                  <option selected="" value="">Select score</option>
+                  <option value="Very Poor">1 - Very Poor</option>
+                  <option value="poor">2 - Poor</option>
+                  <option value=" Average">3 - Average</option>
+                  <option value="Good">4 - Good</option>
+                  <option value="Excellent">5 - Excellent</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label
+                class="block text-gray-700 font-semibold mb-1"
+                for="key-findings"
+              >
+                Key Findings
+              </label>
+              <textarea
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1a3a5f]"
+                id="key-findings"
+                name="findings"
+                placeholder="Summarize key findings..."
+                rows="3"
+              ></textarea>
+            </div>
+            <div>
+              <label
+                class="block text-gray-700 font-semibold mb-1"
+                for="recommendations"
+              >
+                Recommendations
+              </label>
+              <textarea
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1a3a5f]"
+                id="recommendations"
+                name="recommendations"
+                placeholder="Provide recommendations..."
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="text-right">
+              <button
+                class="bg-[#1a3a5f] hover:bg-[#2c5a8a] text-white font-bold py-2 px-6 rounded-lg shadow-md transition-colors"
+                type="submit"
+              >
+                <i class="fas fa-paper-plane mr-2"></i> Submit Report
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <section
+        class="flex-1 bg-white rounded-xl shadow-md border border-gray-200 flex flex-col min-w-0"
+      >
+        <h3
+          class="flex items-center gap-3 text-[#1a3a5f] text-2xl font-semibold border-b-4 border-yellow-400 px-6 py-4 select-none"
+        >
+          <i class="fas fa-chart-pie"></i> Somaliland Development Projects by Region
+        </h3>
+        <div
+          class="flex-grow w-full flex items-center justify-center p-6"
+          id="circle-diagram"
+          style="min-height: 500px"
+        ></div>
+        <div
+          class="flex flex-wrap justify-center gap-6 mt-4 px-6 pb-6 select-none"
+        >
+          <div class="flex items-center gap-2 text-sm text-gray-700">
+            <div class="w-5 h-5 rounded-sm bg-[#1a3a5f]"></div>
+            <span>1-3 Projects</span>
+          </div>
+          <div class="flex items-center gap-2 text-sm text-gray-700">
+            <div class="w-5 h-5 rounded-sm bg-[#2c5a8a]"></div>
+            <span>4-6 Projects</span>
+          </div>
+          <div class="flex items-center gap-2 text-sm text-gray-700">
+            <div class="w-5 h-5 rounded-sm bg-[#4189DD]"></div>
+            <span>7-9 Projects</span>
+          </div>
+          <div class="flex items-center gap-2 text-sm text-gray-700">
+            <div class="w-5 h-5 rounded-sm bg-[#5CAF4E]"></div>
+            <span>10+ Projects</span>
+          </div>
+        </div>
+      </section>
+      <section class="flex-1 flex flex-col gap-8 min-w-0">
+        <article
+          class="bg-white rounded-xl shadow-md border border-gray-200 p-6 flex flex-col min-h-[400px] overflow-auto"
+          id="region-info-article"
+          tabindex="0"
+        >
+          <h3
+            class="flex items-center gap-3 text-[#1a3a5f] text-2xl font-semibold border-b-4 border-yellow-400 pb-3 mb-4 select-none"
+          >
+            <i class="fas fa-info-circle text-yellow-400"></i> Region Information
+          </h3>
+          <div class="flex-grow" id="region-details">
+            <div class="flex items-center gap-4 mb-4">
+              <div
+                aria-label="Flag of Sahil"
+                class="w-20 h-12 relative rounded-md border border-gray-300 overflow-hidden"
+                role="img"
+              >
+                <img
+                  alt="Flag with blue and green gradient background and white ancient script symbol in center representing Sahil region"
+                  class="w-full h-full object-cover"
+                  height="50"
+                  src="https://storage.googleapis.com/a1aa/image/307d2ea8-a0ec-440d-783e-21b9ba885c64.jpg"
+                  width="80"
+                />
+              </div>
+              <div>
+                <h4 class="text-3xl font-extrabold text-[#1a3a5f]">Sahil</h4>
+                <div
+                  class="inline-block mt-1 bg-yellow-400 text-[#1a3a5f] font-semibold rounded-full px-4 py-1 text-lg"
+                >
+                  5 Projects
+                </div>
+              </div>
+            </div>
+            <p class="mb-4 text-lg">
+              <strong>Capital:</strong> Berbera
+            </p>
+            <div
+              class="overflow-y-auto max-h-[300px] pr-2"
+              id="projects-list-container"
+            ></div>
+          </div>
+        </article>
+        <article
+          class="bg-white rounded-xl shadow-md border border-gray-200 p-6 flex flex-col min-h-[300px]"
+        >
+          <h3
+            class="flex items-center gap-3 text-[#1a3a5f] text-2xl font-semibold border-b-4 border-yellow-400 pb-3 mb-4 select-none"
+          >
+            <i class="fas fa-tasks text-yellow-400"></i> Key Development Indicators
+          </h3>
+          <div class="text-gray-700 text-base leading-relaxed" id="indicators">
+            <h4 class="text-xl font-semibold mb-4">Key Regional Indicators</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[#1a3a5f]">
+              <div class="bg-[#f0f7ff] p-4 rounded-lg font-semibold">
+                Population:
+                <span class="font-normal">350,000</span>
+              </div>
+              <div class="bg-[#f0f7ff] p-4 rounded-lg font-semibold">
+                Area:
+                <span class="font-normal">54,231 km²</span>
+              </div>
+              <div class="bg-[#f0f7ff] p-4 rounded-lg font-semibold">
+                Poverty Rate:
+                <span class="font-normal">38%</span>
+              </div>
+              <div class="bg-[#f0f7ff] p-4 rounded-lg font-semibold">
+                Literacy Rate:
+                <span class="font-normal">58%</span>
+              </div>
+              <div class="bg-[#f0f7ff] p-4 rounded-lg font-semibold sm:col-span-2">
+                Main Economic Sectors:
+                <span class="font-normal">Fishing, Port Services, Trade</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <section class="p-6 sm:p-8 border-t border-gray-200">
+      <h3
+        class="flex items-center gap-3 text-[#1a3a5f] text-2xl font-semibold border-b-4 border-[#1a3a5f] pb-3 mb-6 select-none"
+      >
+        <i class="fas fa-chart-line text-[#1a3a5f]"></i> Monitoring &amp;
+        Evaluation
+      </h3>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div
+          class="bg-white rounded-xl shadow-md border border-gray-200 p-6 flex flex-col"
+        >
+          <h4 class="text-xl font-semibold text-[#1a3a5f] mb-4 select-none">
+            Project Performance Overview
+          </h4>
+          <div class="h-64">
+            <canvas
+              aria-label="Bar chart showing regional project performance"
+              height="256"
+              id="performance-chart"
+              role="img"
+              style="display: block; box-sizing: border-box; height: 256px; width: 557px"
+              width="557"
+            ></canvas>
+          </div>
+        </div>
+        <div
+          class="bg-white rounded-xl shadow-md border border-gray-200 p-6 flex flex-col"
+        >
+          <div class="flex justify-between items-center mb-4">
+            <h4 class="text-xl font-semibold text-[#1a3a5f] select-none">
+              Recent Submitted Reports
+            </h4>
+            <button
+              aria-label="Export reports"
+              class="text-sm text-[#1a3a5f] hover:text-[#2c5a8a] font-medium focus:outline-none focus:ring-2 focus:ring-[#1a3a5f]"
+            >
+              <i class="fas fa-download mr-1"></i> Export Reports
+            </button>
+          </div>
+          <div
+            aria-atomic="true"
+            aria-live="polite"
+            class="overflow-y-auto max-h-64 pr-2"
+            id="evaluation-reports"
+            tabindex="0"
+          >
+            <div class="flex flex-col space-y-4" id="reports-list">
+              <div
+                class="bg-[#f0f7ff] p-4 rounded-lg border-l-4 border-[#1a3a5f] mb-4"
+              >
+                <div class="flex justify-between items-start">
+                  <div>
+                    <div class="font-bold text-[#1a3a5f]">
+                      Hargeisa Urban Road Network
+                    </div>
+                    <div class="text-sm text-gray-600">Evaluated: June 5, 2025</div>
+                  </div>
+                  <div
+                    class="bg-yellow-400 text-[#1a3a5f] font-semibold rounded-full px-3 py-1 text-sm"
+                  >
+                    Progress: 65%
+                  </div>
+                </div>
+                <div class="mt-2 text-sm">
+                  <span class="font-medium">Key Finding:</span> Phase 1 completed
+                  on schedule, but land acquisition delays affecting Phase 2.
+                </div>
+              </div>
+              <div
+                class="bg-[#f0f7ff] p-4 rounded-lg border-l-4 border-[#1a3a5f] mb-4"
+              >
+                <div class="flex justify-between items-start">
+                  <div>
+                    <div class="font-bold text-[#1a3a5f]">
+                      Berbera Water Treatment Plant
+                    </div>
+                    <div class="text-sm text-gray-600">Evaluated: May 28, 2025</div>
+                  </div>
+                  <div
+                    class="bg-green-400 text-white font-semibold rounded-full px-3 py-1 text-sm"
+                  >
+                    Progress: 92%
+                  </div>
+                </div>
+                <div class="mt-2 text-sm">
+                  <span class="font-medium">Key Finding:</span> Project exceeding
+                  expectations, expected to complete 2 months ahead of schedule.
+                </div>
+              </div>
+              <div
+                class="bg-[#f0f7ff] p-4 rounded-lg border-l-4 border-[#1a3a5f] mb-4"
+              >
+                <div class="flex justify-between items-start">
+                  <div>
+                    <div class="font-bold text-[#1a3a5f]">
+                      Regional Livestock Market
+                    </div>
+                    <div class="text-sm text-gray-600">Evaluated: May 20, 2025</div>
+                  </div>
+                  <div
+                    class="bg-green-500 text-white font-semibold rounded-full px-3 py-1 text-sm"
+                  >
+                    Completed
+                  </div>
+                </div>
+                <div class="mt-2 text-sm">
+                  <span class="font-medium">Key Finding:</span> Project completed
+                  successfully with significant economic impact on local farmers.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="bg-white rounded-xl shadow-md border border-gray-200 p-6 lg:col-span-2"
+        >
+          <h4 class="text-xl font-semibold text-[#1a3a5f] mb-4 select-none">
+            Monitoring &amp; Evaluation Indicators
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div
+              aria-label="Average Project Progress"
+              class="bg-gradient-to-r from-[#1a3a5f] to-[#2c5a8a] text-white p-5 rounded-lg shadow-lg select-none"
+              role="region"
+            >
+              <div class="text-3xl font-bold mb-1" id="avg-progress">84%</div>
+              <div class="text-lg">Average Project Progress</div>
+              <div class="text-xs opacity-80 mt-2">+5% since last quarter</div>
+            </div>
+            <div
+              aria-label="On-Schedule Projects"
+              class="bg-gradient-to-r from-[#009a00] to-[#2c5a8a] text-white p-5 rounded-lg shadow-lg select-none"
+              role="region"
+            >
+              <div class="text-3xl font-bold mb-1" id="on-schedule-projects">80%</div>
+              <div class="text-lg">On-Schedule Projects</div>
+              <div class="text-xs opacity-80 mt-2">+8% since last quarter</div>
+            </div>
+            <div
+              aria-label="Average Evaluation Score"
+              class="bg-gradient-to-r from-[#1a3a5f] to-[#4189DD] text-white p-5 rounded-lg shadow-lg select-none"
+              role="region"
+            >
+              <div class="text-3xl font-bold mb-1" id="avg-eval-score">4.0/5</div>
+              <div class="text-lg">Average Evaluation Score</div>
+              <div class="text-xs opacity-80 mt-2">Stable from last quarter</div>
+            </div>
+            <div
+              aria-label="Budget Utilization"
+              class="bg-gradient-to-r from-[#2c5a8a] to-[#5CAF4E] text-white p-5 rounded-lg shadow-lg select-none"
+              role="region"
+            >
+              <div class="text-3xl font-bold mb-1" id="budget-utilization">92%</div>
+              <div class="text-lg">Budget Utilization</div>
+              <div class="text-xs opacity-80 mt-2">+3% since last quarter</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <footer
+      class="bg-[#1a3a5f] text-white text-center py-5 border-t-4 border-yellow-400 text-sm sm:text-base select-none"
+    >
+      <p>
+        © 2025 Ministry of Planning &amp; National Development, Republic of
+        Somaliland | Data updated: June 8, 2025
+      </p>
+      <p class="mt-2">
+        <a
+          href="https://github.com/citycafee/Go-Point"
+          target="_blank"
+          class="text-yellow-400 hover:text-yellow-300 underline transition-colors"
+        >
+          <i class="fab fa-github mr-1"></i> View on GitHub Repository
+        </a>
+      </p>
+    </footer>
+  </div>
+  <div
+    aria-hidden="true"
+    aria-labelledby="status-popup-title"
+    aria-modal="true"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
+    id="status-projects-popup"
+    role="dialog"
+    tabindex="-1"
+  >
+    <div
+      class="bg-white rounded-xl shadow-lg max-w-[90vw] w-full max-h-[90vh] overflow-y-auto p-8 relative"
+    >
+      <button
+        aria-label="Close projects popup"
+        class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+        id="close-status-popup"
+      >
+        <i class="fas fa-times text-xl"></i>
+      </button>
+      <h3 class="text-3xl font-semibold text-[#1a3a5f] mb-6" id="status-popup-title"></h3>
+      <div class="space-y-6" id="status-popup-content" tabindex="0"></div>
+    </div>
+  </div>
+  <script>
+    // Districts for each region in Somaliland
+    const districtsByRegion = {
+      Awdal: ["Borama", "Lughaya", "Dilla", "Baki", "Borama"],
+      "Maroodi Jeex": ["Hargeisa", "Gabiley", "Baligubadle", "Salahlay", "Dacar Budhuq"],
+      Sahil: ["Berbera", "Habo", "Lughaya", "Sheikh"],
+      Togdheer: ["Burao", "Oodweyne", "Wajaale", "Balidhiig", "Qorilugud"],
+      Sanaag: ["Erigavo", "Ceerigaabo", "Haday", "Yubbe", "Garadag"],
+      Sool: ["Las Anod", "Taleh", "Hudun", "Togar", "Widhwidh"],
+    };
+
+    // Update district dropdown based on selected region
+    const regionSelect = document.getElementById("region");
+    const districtSelect = document.getElementById("district");
+
+    regionSelect.addEventListener("change", () => {
+      const selectedRegion = regionSelect.value;
+      districtSelect.innerHTML =
+        '<option disabled selected value="">Select a district</option>';
+      if (selectedRegion && districtsByRegion[selectedRegion]) {
+        districtsByRegion[selectedRegion].forEach((district) => {
+          const option = document.createElement("option");
+          option.value = district;
+          option.textContent = district;
+          districtSelect.appendChild(option);
+        });
+        districtSelect.disabled = false;
+      } else {
+        districtSelect.disabled = true;
+      }
+    });
+
+    // Projects data and M&E reports
+    const projectsData = {
+      Awdal: {
+        count: 5,
+        projects: [
+          {
+            name: "Borama Water Supply System",
+            sector: "Water",
+            budget: "$4.2M",
+            status: "Ongoing",
+            completion: "Dec 2025",
+            district: "Borama",
+            ndp3Alignment: "Yes",
+            donorName: "Donor A",
+            implementerName: "Implementer A",
+            partnerName: "Partner A",
+            description: "Water supply system in Borama.",
+            projectDurationValue: 24,
+            projectDurationUnit: "months",
+            startDate: "2023-01-01",
+            dateApproval: "2022-12-01",
+            dateEffectiveness: "2023-01-15",
+            dateFirstDisbursement: "2023-02-01",
+            currentDisbursementLevel: 2000000,
+            region: "Awdal",
+          },
+          {
+            name: "Lughaya Road Construction",
+            sector: "Infrastructure",
+            budget: "$6.8M",
+            status: "Ongoing",
+            completion: "Sep 2026",
+            district: "Lughaya",
+            ndp3Alignment: "Yes",
+            donorName: "Donor B",
+            implementerName: "Implementer B",
+            partnerName: "Partner B",
+            description: "Road construction in Lughaya.",
+            projectDurationValue: 36,
+            projectDurationUnit: "months",
+            startDate: "2024-01-01",
+            dateApproval: "2023-12-01",
+            dateEffectiveness: "2024-01-15",
+            dateFirstDisbursement: "2024-02-01",
+            currentDisbursementLevel: 3000000,
+            region: "Awdal",
+          },
+          {
+            name: "Regional Hospital Expansion",
+            sector: "Healthcare",
+            budget: "$3.5M",
+            status: "Completed",
+            completion: "Mar 2025",
+            district: "Baki",
+            ndp3Alignment: "Yes",
+            donorName: "Donor C",
+            implementerName: "Implementer C",
+            partnerName: "Partner C",
+            description: "Hospital expansion in Baki.",
+            projectDurationValue: 18,
+            projectDurationUnit: "months",
+            startDate: "2022-09-01",
+            dateApproval: "2022-08-01",
+            dateEffectiveness: "2022-09-15",
+            dateFirstDisbursement: "2022-10-01",
+            currentDisbursementLevel: 3500000,
+            region: "Awdal",
+          },
+          {
+            name: "Agricultural Training Center",
+            sector: "Agriculture",
+            budget: "$1.2M",
+            status: "Ongoing",
+            completion: "Feb 2025",
+            district: "Dilla",
+            ndp3Alignment: "Yes",
+            donorName: "Donor D",
+            implementerName: "Implementer D",
+            partnerName: "Partner D",
+            description: "Training center for agriculture.",
+            projectDurationValue: 12,
+            projectDurationUnit: "months",
+            startDate: "2023-02-01",
+            dateApproval: "2023-01-01",
+            dateEffectiveness: "2023-02-15",
+            dateFirstDisbursement: "2023-03-01",
+            currentDisbursementLevel: 1200000,
+            region: "Awdal",
+          },
+          {
+            name: "Coastal Protection Project",
+            sector: "Environment",
+            budget: "$2.1M",
+            status: "Planning",
+            completion: "TBD",
+            district: "Baki",
+            ndp3Alignment: "No",
+            donorName: "Donor E",
+            implementerName: "Implementer E",
+            partnerName: "Partner E",
+            description: "Protecting coastal areas.",
+            projectDurationValue: 0,
+            projectDurationUnit: "months",
+            startDate: "",
+            dateApproval: "",
+            dateEffectiveness: "",
+            dateFirstDisbursement: "",
+            currentDisbursementLevel: 0,
+            region: "Awdal",
+          },
+        ],
+        indicators: {
+          population: "673,000",
+          area: "21,374 km²",
+          povertyRate: "32%",
+          literacyRate: "65%",
+          mainSectors: "Agriculture, Trade, Livestock",
+        },
+      },
+      "Maroodi Jeex": {
+        count: 6,
+        projects: [
+          {
+            name: "Hargeisa Urban Road Network",
+            sector: "Infrastructure",
+            budget: "$15M",
+            status: "Ongoing",
+            completion: "Dec 2026",
+            district: "Hargeisa",
+            ndp3Alignment: "Yes",
+            donorName: "Donor F",
+            implementerName: "Implementer F",
+            partnerName: "Partner F",
+            description: "Urban road network upgrade.",
+            projectDurationValue: 36,
+            projectDurationUnit: "months",
+            startDate: "2024-01-01",
+            dateApproval: "2023-12-01",
+            dateEffectiveness: "2024-01-15",
+            dateFirstDisbursement: "2024-02-01",
+            currentDisbursementLevel: 10000000,
+            region: "Maroodi Jeex",
+          },
+          {
+            name: "Hargeisa Airport Expansion",
+            sector: "Transport",
+            budget: "$22M",
+            status: "Ongoing",
+            completion: "2027",
+            district: "Hargeisa",
+            ndp3Alignment: "Yes",
+            donorName: "Donor G",
+            implementerName: "Implementer G",
+            partnerName: "Partner G",
+            description: "Airport expansion and modernization.",
+            projectDurationValue: 48,
+            projectDurationUnit: "months",
+            startDate: "2023-06-01",
+            dateApproval: "2023-05-01",
+            dateEffectiveness: "2023-06-15",
+            dateFirstDisbursement: "2023-07-01",
+            currentDisbursementLevel: 15000000,
+            region: "Maroodi Jeex",
+          },
+          {
+            name: "Central Market Modernization",
+            sector: "Economic",
+            budget: "$5.4M",
+            status: "Completed",
+            completion: "Jan 2025",
+            district: "Gabiley",
+            ndp3Alignment: "Yes",
+            donorName: "Donor H",
+            implementerName: "Implementer H",
+            partnerName: "Partner H",
+            description: "Modernizing central market facilities.",
+            projectDurationValue: 24,
+            projectDurationUnit: "months",
+            startDate: "2022-01-01",
+            dateApproval: "2021-12-01",
+            dateEffectiveness: "2022-01-15",
+            dateFirstDisbursement: "2022-02-01",
+            currentDisbursementLevel: 5400000,
+            region: "Maroodi Jeex",
+          },
+          {
+            name: "University STEM Complex",
+            sector: "Education",
+            budget: "$8.7M",
+            status: "Ongoing",
+            completion: "Aug 2025",
+            district: "Hargeisa",
+            ndp3Alignment: "Yes",
+            donorName: "Donor I",
+            implementerName: "Implementer I",
+            partnerName: "Partner I",
+            description: "STEM education complex development.",
+            projectDurationValue: 30,
+            projectDurationUnit: "months",
+            startDate: "2023-02-01",
+            dateApproval: "2023-01-01",
+            dateEffectiveness: "2023-02-15",
+            dateFirstDisbursement: "2023-03-01",
+            currentDisbursementLevel: 5000000,
+            region: "Maroodi Jeex",
+          },
+          {
+            name: "Solar Power Plant",
+            sector: "Energy",
+            budget: "$12M",
+            status: "Planning",
+            completion: "2028",
+            district: "Hargeisa",
+            ndp3Alignment: "Yes",
+            donorName: "Donor J",
+            implementerName: "Implementer J",
+            partnerName: "Partner J",
+            description: "Renewable energy project.",
+            projectDurationValue: 0,
+            projectDurationUnit: "months",
+            startDate: "",
+            dateApproval: "",
+            dateEffectiveness: "",
+            dateFirstDisbursement: "",
+            currentDisbursementLevel: 0,
+            region: "Maroodi Jeex",
+          },
+          {
+            name: "Waste Management System",
+            sector: "Environment",
+            budget: "$3.2M",
+            status: "Ongoing",
+            completion: "Mar 2026",
+            district: "Gabiley",
+            ndp3Alignment: "Yes",
+            donorName: "Donor K",
+            implementerName: "Implementer K",
+            partnerName: "Partner K",
+            description: "Sustainable waste collection and recycling.",
+            projectDurationValue: 24,
+            projectDurationUnit: "months",
+            startDate: "2024-03-01",
+            dateApproval: "2024-02-01",
+            dateEffectiveness: "2024-03-15",
+            dateFirstDisbursement: "2024-04-01",
+            currentDisbursementLevel: 1500000,
+            region: "Maroodi Jeex",
+          },
+        ],
+        indicators: {
+          population: "1.2M",
+          area: "14,836 km²",
+          povertyRate: "28%",
+          literacyRate: "75%",
+          mainSectors: "Services, Government, Trade",
+        },
+      },
+      Sahil: {
+        count: 4,
+        projects: [
+          {
+            name: "Berbera Port Expansion",
+            sector: "Transport",
+            budget: "$120M",
+            status: "Ongoing",
+            completion: "2030",
+            district: "Berbera",
+            ndp3Alignment: "Yes",
+            donorName: "Donor L",
+            implementerName: "Implementer L",
+            partnerName: "Partner L",
+            description: "Expansion of Berbera Port.",
+            projectDurationValue: 72,
+            projectDurationUnit: "months",
+            startDate: "2023-01-01",
+            dateApproval: "2022-12-01",
+            dateEffectiveness: "2023-01-15",
+            dateFirstDisbursement: "2023-02-01",
+            currentDisbursementLevel: 60000000,
+            region: "Sahil",
+          },
+          {
+            name: "Berbera Water Treatment Plant",
+            sector: "Water",
+            budget: "$8.5M",
+            status: "Ongoing",
+            completion: "2025",
+            district: "Berbera",
+            ndp3Alignment: "Yes",
+            donorName: "Donor M",
+            implementerName: "Implementer M",
+            partnerName: "Partner M",
+            description: "Water treatment plant in Berbera.",
+            projectDurationValue: 36,
+            projectDurationUnit: "months",
+            startDate: "2022-06-01",
+            dateApproval: "2022-05-01",
+            dateEffectiveness: "2022-06-15",
+            dateFirstDisbursement: "2022-07-01",
+            currentDisbursementLevel: 4000000,
+            region: "Sahil",
+          },
+          {
+            name: "Coastal Highway Rehabilitation",
+            sector: "Infrastructure",
+            budget: "$18M",
+            status: "Completed",
+            completion: "Feb 2025",
+            district: "Berbera",
+            ndp3Alignment: "Yes",
+            donorName: "Donor N",
+            implementerName: "Implementer N",
+            partnerName: "Partner N",
+            description: "Rehabilitation of coastal highway.",
+            projectDurationValue: 24,
+            projectDurationUnit: "months",
+            startDate: "2022-02-01",
+            dateApproval: "2022-01-01",
+            dateEffectiveness: "2022-02-15",
+            dateFirstDisbursement: "2022-03-01",
+            currentDisbursementLevel: 18000000,
+            region: "Sahil",
+          },
+          {
+            name: "Fisheries Development Program",
+            sector: "Economic",
+            budget: "$3.8M",
+            status: "Ongoing",
+            completion: "Dec 2024",
+            district: "Berbera",
+            ndp3Alignment: "No",
+            donorName: "Donor O",
+            implementerName: "Implementer O",
+            partnerName: "Partner O",
+            description: "Development program for fisheries.",
+            projectDurationValue: 18,
+            projectDurationUnit: "months",
+            startDate: "2023-06-01",
+            dateApproval: "2023-05-01",
+            dateEffectiveness: "2023-06-15",
+            dateFirstDisbursement: "2023-07-01",
+            currentDisbursementLevel: 2000000,
+            region: "Sahil",
+          },
+        ],
+        indicators: {
+          population: "350,000",
+          area: "54,231 km²",
+          povertyRate: "38%",
+          literacyRate: "58%",
+          mainSectors: "Fishing, Port Services, Trade",
+        },
+      },
+      Togdheer: {
+        count: 7,
+        projects: [
+          {
+            name: "Burao Water Reservoir",
+            sector: "Water",
+            budget: "$4.8M",
+            status: "Ongoing",
+            completion: "Jun 2025",
+            district: "Burao",
+            ndp3Alignment: "Yes",
+            donorName: "Donor P",
+            implementerName: "Implementer P",
+            partnerName: "Partner P",
+            description: "Water reservoir in Burao.",
+            projectDurationValue: 24,
+            projectDurationUnit: "months",
+            startDate: "2023-01-01",
+            dateApproval: "2022-12-01",
+            dateEffectiveness: "2023-01-15",
+            dateFirstDisbursement: "2023-02-01",
+            currentDisbursementLevel: 2400000,
+            region: "Togdheer",
+          },
+          {
+            name: "Regional Livestock Market",
+            sector: "Agriculture",
+            budget: "$3.2M",
+            status: "Completed",
+            completion: "Apr 2025",
+            district: "Burao",
+            ndp3Alignment: "Yes",
+            donorName: "Donor Q",
+            implementerName: "Implementer Q",
+            partnerName: "Partner Q",
+            description: "Livestock market in Burao.",
+            projectDurationValue: 18,
+            projectDurationUnit: "months",
+            startDate: "2022-10-01",
+            dateApproval: "2022-09-01",
+            dateEffectiveness: "2022-10-15",
+            dateFirstDisbursement: "2022-11-01",
+            currentDisbursementLevel: 3200000,
+            region: "Togdheer",
+          },
+          {
+            name: "Vocational Training Center",
+            sector: "Education",
+            budget: "$2.1M",
+            status: "Ongoing",
+            completion: "Sep 2025",
+            district: "Oodweyne",
+            ndp3Alignment: "Yes",
+            donorName: "Donor R",
+            implementerName: "Implementer R",
+            partnerName: "Partner R",
+            description: "Vocational training center.",
+            projectDurationValue: 24,
+            projectDurationUnit: "months",
+            startDate: "2023-03-01",
+            dateApproval: "2023-02-01",
+            dateEffectiveness: "2023-03-15",
+            dateFirstDisbursement: "2023-04-01",
+            currentDisbursementLevel: 2100000,
+            region: "Togdheer",
+          },
+          {
+            name: "Road to Ethiopian Border",
+            sector: "Infrastructure",
+            budget: "$25M",
+            status: "Ongoing",
+            completion: "2027",
+            district: "Wajaale",
+            ndp3Alignment: "Yes",
+            donorName: "Donor S",
+            implementerName: "Implementer S",
+            partnerName: "Partner S",
+            description: "Road construction to Ethiopian border.",
+            projectDurationValue: 48,
+            projectDurationUnit: "months",
+            startDate: "2023-01-01",
+            dateApproval: "2022-12-01",
+            dateEffectiveness: "2023-01-15",
+            dateFirstDisbursement: "2023-02-01",
+            currentDisbursementLevel: 10000000,
+            region: "Togdheer",
+          },
+          {
+            name: "Drought Resilience Program",
+            sector: "Environment",
+            budget: "$7.5M",
+            status: "Ongoing",
+            completion: "Dec 2026",
+            district: "Balidhiig",
+            ndp3Alignment: "No",
+            donorName: "Donor T",
+            implementerName: "Implementer T",
+            partnerName: "Partner T",
+            description: "Drought resilience program.",
+            projectDurationValue: 36,
+            projectDurationUnit: "months",
+            startDate: "2024-01-01",
+            dateApproval: "2023-12-01",
+            dateEffectiveness: "2024-01-15",
+            dateFirstDisbursement: "2024-02-01",
+            currentDisbursementLevel: 3000000,
+            region: "Togdheer",
+          },
+        ],
+        indicators: {
+          population: "720,000",
+          area: "38,663 km²",
+          povertyRate: "41%",
+          literacyRate: "60%",
+          mainSectors: "Livestock, Agriculture, Trade",
+        },
+      },
+      Sanaag: {
+        count: 3,
+        projects: [
+          {
+            name: "Erigavo Hospital Modernization",
+            sector: "Healthcare",
+            budget: "$4.5M",
+            status: "Ongoing",
+            completion: "2025",
+            district: "Erigavo",
+            ndp3Alignment: "Yes",
+            donorName: "Donor U",
+            implementerName: "Implementer U",
+            partnerName: "Partner U",
+            description: "Hospital modernization in Erigavo.",
+            projectDurationValue: 24,
+            projectDurationUnit: "months",
+            startDate: "2023-01-01",
+            dateApproval: "2022-12-01",
+            dateEffectiveness: "2023-01-15",
+            dateFirstDisbursement: "2023-02-01",
+            currentDisbursementLevel: 4500000,
+            region: "Sanaag",
+          },
+          {
+            name: "Mountain Road Rehabilitation",
+            sector: "Infrastructure",
+            budget: "$14M",
+            status: "Ongoing",
+            completion: "2026",
+            district: "Ceerigaabo",
+            ndp3Alignment: "Yes",
+            donorName: "Donor V",
+            implementerName: "Implementer V",
+            partnerName: "Partner V",
+            description: "Road rehabilitation in mountainous areas.",
+            projectDurationValue: 36,
+            projectDurationUnit: "months",
+            startDate: "2023-06-01",
+            dateApproval: "2023-05-01",
+            dateEffectiveness: "2023-06-15",
+            dateFirstDisbursement: "2023-07-01",
+            currentDisbursementLevel: 14000000,
+            region: "Sanaag",
+          },
+          {
+            name: "Frankincense Production Initiative",
+            sector: "Agriculture",
+            budget: "$1.8M",
+            status: "Planning",
+            completion: "TBD",
+            district: "Garadag",
+            ndp3Alignment: "No",
+            donorName: "Donor W",
+            implementerName: "Implementer W",
+            partnerName: "Partner W",
+            description: "Initiative to boost frankincense production.",
+            projectDurationValue: 0,
+            projectDurationUnit: "months",
+            startDate: "",
+            dateApproval: "",
+            dateEffectiveness: "",
+            dateFirstDisbursement: "",
+            currentDisbursementLevel: 0,
+            region: "Sanaag",
+          },
+        ],
+        indicators: {
+          population: "270,000",
+          area: "53,374 km²",
+          povertyRate: "48%",
+          literacyRate: "52%",
+          mainSectors: "Livestock, Frankincense, Fishing",
+        },
+      },
+      Sool: {
+        count: 6,
+        projects: [
+          {
+            name: "Las Anod Water Pipeline",
+            sector: "Water",
+            budget: "$6.3M",
+            status: "Ongoing",
+            completion: "Mar 2026",
+            district: "Las Anod",
+            ndp3Alignment: "Yes",
+            donorName: "Donor X",
+            implementerName: "Implementer X",
+            partnerName: "Partner X",
+            description: "Water pipeline in Las Anod.",
+            projectDurationValue: 36,
+            projectDurationUnit: "months",
+            startDate: "2023-01-01",
+            dateApproval: "2022-12-01",
+            dateEffectiveness: "2023-01-15",
+            dateFirstDisbursement: "2023-02-01",
+            currentDisbursementLevel: 6300000,
+            region: "Sool",
+          },
+          {
+            name: "Regional Security Infrastructure",
+            sector: "Security",
+            budget: "$8.9M",
+            status: "Completed",
+            completion: "Jan 2025",
+            district: "Taleh",
+            ndp3Alignment: "Yes",
+            donorName: "Donor Y",
+            implementerName: "Implementer Y",
+            partnerName: "Partner Y",
+            description: "Security infrastructure development.",
+            projectDurationValue: 24,
+            projectDurationUnit: "months",
+            startDate: "2022-01-01",
+            dateApproval: "2021-12-01",
+            dateEffectiveness: "2022-01-15",
+            dateFirstDisbursement: "2022-02-01",
+            currentDisbursementLevel: 8900000,
+            region: "Sool",
+          },
+          {
+            name: "Pastoralist Support Program",
+            sector: "Agriculture",
+            budget: "$4.2M",
+            status: "Ongoing",
+            completion: "Dec 2025",
+            district: "Hudun",
+            ndp3Alignment: "No",
+            donorName: "Donor Z",
+            implementerName: "Implementer Z",
+            partnerName: "Partner Z",
+            description: "Support program for pastoralists.",
+            projectDurationValue: 24,
+            projectDurationUnit: "months",
+            startDate: "2023-01-01",
+            dateApproval: "2022-12-01",
+            dateEffectiveness: "2023-01-15",
+            dateFirstDisbursement: "2023-02-01",
+            currentDisbursementLevel: 4200000,
+            region: "Sool",
+          },
+          {
+            name: "Border Trade Facilitation",
+            sector: "Economic",
+            budget: "$3.7M",
+            status: "Ongoing",
+            completion: "Oct 2025",
+            district: "Widhwidh",
+            ndp3Alignment: "No",
+            donorName: "Donor AA",
+            implementerName: "Implementer AA",
+            partnerName: "Partner AA",
+            description: "Facilitation of border trade.",
+            projectDurationValue: 18,
+            projectDurationUnit: "months",
+            startDate: "2023-04-01",
+            dateApproval: "2023-03-01",
+            dateEffectiveness: "2023-04-15",
+            dateFirstDisbursement: "2023-05-01",
+            currentDisbursementLevel: 3700000,
+            region: "Sool",
+          },
+          {
+            name: "Secondary School Construction",
+            sector: "Education",
+            budget: "$2.4M",
+            status: "Planning",
+            completion: "2026",
+            district: "Las Anod",
+            ndp3Alignment: "Yes",
+            donorName: "Donor AB",
+            implementerName: "Implementer AB",
+            partnerName: "Partner AB",
+            description: "Construction of secondary school.",
+            projectDurationValue: 0,
+            projectDurationUnit: "months",
+            startDate: "",
+            dateApproval: "",
+            dateEffectiveness: "",
+            dateFirstDisbursement: "",
+            currentDisbursementLevel: 0,
+            region: "Sool",
+          },
+        ],
+        indicators: {
+          population: "327,000",
+          area: "25,036 km²",
+          povertyRate: "45%",
+          literacyRate: "55%",
+          mainSectors: "Livestock, Border Trade",
+        },
+      },
+    };
+
+    let meReports = [
+      {
+        project: "Hargeisa Urban Road Network",
+        region: "Maroodi Jeex",
+        date: "2025-06-05",
+        progress: 65,
+        budgetUtilization: 58,
+        score: 4,
+        findings:
+          "Phase 1 completed on schedule, but land acquisition delays affecting Phase 2.",
+        recommendations: "Expedite land acquisition process through government intervention.",
+      },
+      {
+        project: "Berbera Water Treatment Plant",
+        region: "Sahil",
+        date: "2025-05-28",
+        progress: 92,
+        budgetUtilization: 87,
+        score: 5,
+        findings:
+          "Project exceeding expectations, expected to complete 2 months ahead of schedule.",
+        recommendations: "Maintain current pace and quality standards.",
+      },
+      {
+        project: "Regional Livestock Market",
+        region: "Togdheer",
+        date: "2025-05-20",
+        progress: 100,
+        budgetUtilization: 95,
+        score: 4,
+        findings:
+          "Project completed successfully with significant economic impact on local farmers.",
+        recommendations: "Develop maintenance plan to ensure long-term sustainability.",
+      },
+      {
+        project: "Burao Water Reservoir",
+        region: "Togdheer",
+        date: "2025-05-15",
+        progress: 78,
+        budgetUtilization: 65,
+        score: 3,
+        findings: "Technical challenges with water filtration system causing delays.",
+        recommendations: "Engage international water engineering experts for consultation.",
+      },
+      {
+        project: "Pastoralist Support Program",
+        region: "Sool",
+        date: "2025-05-10",
+        progress: 85,
+        budgetUtilization: 82,
+        score: 4,
+        findings:
+          "Strong community engagement but distribution challenges in remote areas.",
+        recommendations: "Establish additional distribution centers in remote regions.",
+      },
+    ];
+
+    // Pie chart and dashboard code
+    function getRegionColor(count) {
+      if (count <= 3) return "#1a3a5f";
+      if (count <= 6) return "#2c5a8a";
+      if (count <= 9) return "#4189DD";
+      return "#5CAF4E";
+    }
+
+    const width = 600;
+    const height = 500;
+    const radius = Math.min(width, height) / 2 - 60;
+
+    const svg = d3
+      .select("#circle-diagram")
+      .append("svg")
+      .attr("width", "100%")
+      .attr("height", "100%")
+      .attr("viewBox", `0 0 ${width} ${height}`)
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .append("g")
+      .attr("transform", `translate(${width / 2},${height / 2})`);
+
+    const pie = d3.pie().value((d) => d.count).sort(null);
+
+    let data_ready = pie(
+      Object.entries(projectsData).map(([key, val]) => ({
+        region: key,
+        count: val.count,
+      }))
+    );
+
+    const arc = d3.arc().innerRadius(radius * 0.4).outerRadius(radius);
+
+    const arcHover = d3.arc().innerRadius(radius * 0.5).outerRadius(radius + 8);
+
+    function colorByCount(count) {
+      return getRegionColor(count);
+    }
+
+    function drawArcs() {
+      svg.selectAll("*").remove();
+
+      const arcs = svg
+        .selectAll("arc")
+        .data(data_ready)
+        .enter()
+        .append("g")
+        .attr("class", "arc cursor-pointer");
+
+      arcs
+        .append("path")
+        .attr("d", arc)
+        .attr("fill", (d) => colorByCount(d.data.count))
+        .attr("stroke", "white")
+        .attr("stroke-width", 2)
+        .on("mouseover", function (event, d) {
+          d3.select(this).transition().duration(200).attr("d", arcHover);
+        })
+        .on("mouseout", function (event, d) {
+          d3.select(this).transition().duration(200).attr("d", arc);
+        })
+        .on("click", function (event, d) {
+          showRegionDetails(d.data.region);
+        });
+
+      arcs
+        .append("text")
+        .attr("transform", (d) => `translate(${arc.centroid(d)})`)
+        .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "middle")
+        .attr("fill", "white")
+        .attr("font-weight", "bold")
+        .attr("font-size", 14)
+        .style("pointer-events", "none")
+        .text((d) => d.data.region);
+
+      arcs
+        .append("text")
+        .attr("class", "project-count cursor-pointer select-none")
+        .attr("transform", (d) => {
+          const [x, y] = arc.centroid(d);
+          return `translate(${x},${y + 18})`;
+        })
+        .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "middle")
+        .attr("fill", "white")
+        .attr("font-size", 12)
+        .text((d) => `${d.data.count} Projects`)
+        .on("click", function (event, d) {
+          event.stopPropagation();
+          showProjectsByStatusPopup(d.data.region);
+        });
+    }
+
+    drawArcs();
+
+    function showRegionDetails(regionId) {
+      const regionData = projectsData[regionId];
+      const regionInfo = {
+        Awdal: { capital: "Borama" },
+        "Maroodi Jeex": { capital: "Hargeisa" },
+        Sahil: { capital: "Berbera" },
+        Togdheer: { capital: "Burao" },
+        Sanaag: { capital: "Erigavo" },
+        Sool: { capital: "Las Anod" },
+      }[regionId];
+
+      const regionDetails = document.getElementById("region-details");
+      regionDetails.innerHTML = `
+        <div class="flex items-center gap-4 mb-4">
+          <div class="w-20 h-12 relative rounded-md border border-gray-300 overflow-hidden" aria-label="Flag of ${regionId}" role="img">
+            <img src="https://placehold.co/80x50/4189DD-5CAF4E?text=𐒖" alt="Flag with blue and green gradient background and white ancient script symbol in center representing ${regionId} region" class="w-full h-full object-cover" />
+          </div>
+          <div>
+            <h4 class="text-3xl font-extrabold text-[#1a3a5f]">${regionId}</h4>
+            <div class="inline-block mt-1 bg-yellow-400 text-[#1a3a5f] font-semibold rounded-full px-4 py-1 text-lg">${regionData.count} Projects</div>
+          </div>
+        </div>
+        <p class="mb-4 text-lg"><strong>Capital:</strong> ${regionInfo.capital}</p>
+        <div class="overflow-y-auto max-h-[300px] pr-2" id="projects-list-container">
+          ${regionData.projects
+            .map(
+              (project) => `
+            <div class="mb-4 p-4 rounded-lg border-l-4 cursor-pointer transition-transform transform hover:-translate-y-1 ${
+              project.status.toLowerCase() === "submitted"
+                ? "border-yellow-400 bg-yellow-50 shadow-md"
+                : "border-[#2c5a8a] bg-[#f8fafd]"
+            }" data-project-name="${project.name}">
+              <div class="text-xl font-bold text-[#1a3a5f] mb-1 flex items-center justify-between">
+                <span class="project-name-link underline cursor-pointer">${project.name}</span>
+                ${
+                  project.status.toLowerCase() === "submitted"
+                    ? `<span class="inline-block bg-yellow-400 text-[#1a3a5f] font-semibold rounded-full px-3 py-1 text-sm select-none">Submitted</span>`
+                    : ""
+                }
+              </div>
+              <div class="flex flex-wrap justify-between text-gray-600 text-sm mb-1 gap-2">
+                <span><strong>Sector:</strong> <span class="inline-block bg-[#e1ecf7] text-[#2c5a8a] px-3 py-0.5 rounded-full font-semibold">${project.sector}</span></span>
+                <span><strong>Status:</strong> ${project.status}</span>
+                <span><strong>District:</strong> ${project.district || 'N/A'}</span>
+                <span><strong>NDP3 Alignment:</strong> ${project.ndp3Alignment || 'N/A'}</span>
+              </div>
+              <div class="flex flex-wrap justify-between text-gray-600 text-sm gap-2">
+                <span><strong>Budget:</strong> ${project.budget}</span>
+                <span><strong>Completion:</strong> ${project.completion}</span>
+                <span><strong>Start Date:</strong> ${project.startDate ? new Date(project.startDate).toLocaleDateString() : 'N/A'}</span>
+                <span><strong>Duration:</strong> ${project.projectDurationValue ? project.projectDurationValue + ' ' + project.projectDurationUnit : 'N/A'}</span>
+              </div>
+              <div class="mt-2 text-gray-700 text-sm">
+                <strong>Donor:</strong> ${project.donorName || 'N/A'}<br/>
+                <strong>Implementer:</strong> ${project.implementerName || 'N/A'}<br/>
+                <strong>Partner:</strong> ${project.partnerName || 'N/A'}<br/>
+                <strong>Description:</strong> ${project.description || 'N/A'}
+              </div>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+      `;
+
+      const indicators = document.getElementById("indicators");
+      indicators.innerHTML = `
+        <h4 class="text-xl font-semibold mb-4">Key Regional Indicators</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[#1a3a5f]">
+          <div class="bg-[#f0f7ff] p-4 rounded-lg font-semibold">Population: <span class="font-normal">${regionData.indicators.population}</span></div>
+          <div class="bg-[#f0f7ff] p-4 rounded-lg font-semibold">Area: <span class="font-normal">${regionData.indicators.area}</span></div>
+          <div class="bg-[#f0f7ff] p-4 rounded-lg font-semibold">Poverty Rate: <span class="font-normal">${regionData.indicators.povertyRate}</span></div>
+          <div class="bg-[#f0f7ff] p-4 rounded-lg font-semibold">Literacy Rate: <span class="font-normal">${regionData.indicators.literacyRate}</span></div>
+          <div class="bg-[#f0f7ff] p-4 rounded-lg font-semibold sm:col-span-2">Main Economic Sectors: <span class="font-normal">${regionData.indicators.mainSectors}</span></div>
+        </div>
+      `;
+
+      // Add event listeners for project name clicks to show details popup
+      const projectsListContainer = document.getElementById("projects-list-container");
+      projectsListContainer.querySelectorAll(".project-name-link").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const projectName = e.target.textContent;
+          const project = regionData.projects.find((p) => p.name === projectName);
+          if (!project) return;
+
+          showProjectDetailsPopup(project);
+        });
+      });
+    }
+
+    function showProjectDetailsPopup(project) {
+      let popup = document.getElementById("project-details-popup");
+      if (!popup) {
+        popup = document.createElement("div");
+        popup.id = "project-details-popup";
+        popup.setAttribute("aria-modal", "true");
+        popup.setAttribute("role", "dialog");
+        popup.setAttribute("tabindex", "-1");
+        popup.className =
+          "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden";
+        popup.innerHTML = `
+          <div class="bg-white rounded-xl shadow-lg max-w-lg w-full p-6 relative max-h-[90vh] overflow-y-auto">
+            <button aria-label="Close project details" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 focus:outline-none" id="close-project-details-btn">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+            <h3 class="text-2xl font-semibold text-[#1a3a5f] mb-4" id="project-details-title"></h3>
+            <table class="w-full text-left border-collapse">
+              <tbody id="project-details-table" class="text-gray-700 text-sm"></tbody>
+            </table>
+          </div>
+        `;
+        document.body.appendChild(popup);
+
+        popup
+          .querySelector("#close-project-details-btn")
+          .addEventListener("click", () => {
+            popup.classList.add("hidden");
+            popup.setAttribute("aria-hidden", "true");
+          });
+
+        popup.addEventListener("click", (e) => {
+          if (e.target === popup) {
+            popup.classList.add("hidden");
+            popup.setAttribute("aria-hidden", "true");
+          }
+        });
+      }
+
+      const popupTitle = popup.querySelector("#project-details-title");
+      const popupTable = popup.querySelector("#project-details-table");
+
+      popupTitle.textContent = project.name;
+
+      // Format dates for display
+      const dateApproval = project.dateApproval
+        ? new Date(project.dateApproval).toLocaleDateString()
+        : "N/A";
+      const dateEffectiveness = project.dateEffectiveness
+        ? new Date(project.dateEffectiveness).toLocaleDateString()
+        : "N/A";
+      const dateFirstDisbursement = project.dateFirstDisbursement
+        ? new Date(project.dateFirstDisbursement).toLocaleDateString()
+        : "N/A";
+      const currentDisbursementLevel =
+        project.currentDisbursementLevel != null
+          ? `$${Number(project.currentDisbursementLevel).toLocaleString()}`
+          : "N/A";
+
+      popupTable.innerHTML = `
+        <tr class="bg-yellow-50"><th class="py-2 px-3 font-semibold border border-gray-300 w-1/2">Project Name</th><td class="py-2 px-3 border border-gray-300">${project.name}</td></tr>
+        <tr class="bg-green-50"><th class="py-2 px-3 font-semibold border border-gray-300">Date of Approval</th><td class="py-2 px-3 border border-gray-300">${dateApproval}</td></tr>
+        <tr class="bg-blue-50"><th class="py-2 px-3 font-semibold border border-gray-300">Date of Effectiveness</th><td class="py-2 px-3 border border-gray-300">${dateEffectiveness}</td></tr>
+        <tr class="bg-purple-50"><th class="py-2 px-3 font-semibold border border-gray-300">Date of First Disbursement</th><td class="py-2 px-3 border border-gray-300">${dateFirstDisbursement}</td></tr>
+        <tr class="bg-pink-50"><th class="py-2 px-3 font-semibold border border-gray-300">Current Disbursement Level</th><td class="py-2 px-3 border border-gray-300">${currentDisbursementLevel}</td></tr>
+        <tr><th class="py-2 px-3 font-semibold border border-gray-300">Region</th><td class="py-2 px-3 border border-gray-300">${project.region || "N/A"}</td></tr>
+        <tr><th class="py-2 px-3 font-semibold border border-gray-300">District</th><td class="py-2 px-3 border border-gray-300">${project.district || "N/A"}</td></tr>
+        <tr><th class="py-2 px-3 font-semibold border border-gray-300">Sector</th><td class="py-2 px-3 border border-gray-300">${project.sector || "N/A"}</td></tr>
+        <tr><th class="py-2 px-3 font-semibold border border-gray-300">Budget</th><td class="py-2 px-3 border border-gray-300">${project.budget || "N/A"}</td></tr>
+        <tr><th class="py-2 px-3 font-semibold border border-gray-300">Status</th><td class="py-2 px-3 border border-gray-300">${project.status || "N/A"}</td></tr>
+        <tr><th class="py-2 px-3 font-semibold border border-gray-300">NDP3 Alignment</th><td class="py-2 px-3 border border-gray-300">${project.ndp3Alignment || "N/A"}</td></tr>
+        <tr><th class="py-2 px-3 font-semibold border border-gray-300">Donor</th><td class="py-2 px-3 border border-gray-300">${project.donorName || "N/A"}</td></tr>
+        <tr><th class="py-2 px-3 font-semibold border border-gray-300">Implementer</th><td class="py-2 px-3 border border-gray-300">${project.implementerName || "N/A"}</td></tr>
+        <tr><th class="py-2 px-3 font-semibold border border-gray-300">Partner</th><td class="py-2 px-3 border border-gray-300">${project.partnerName || "N/A"}</td></tr>
+        <tr><th class="py-2 px-3 font-semibold border border-gray-300">Description</th><td class="py-2 px-3 border border-gray-300">${project.description || "N/A"}</td></tr>
+        <tr><th class="py-2 px-3 font-semibold border border-gray-300">Project Duration</th><td class="py-2 px-3 border border-gray-300">${project.projectDurationValue ? project.projectDurationValue + ' ' + project.projectDurationUnit : 'N/A'}</td></tr>
+        <tr><th class="py-2 px-3 font-semibold border border-gray-300">Start Date</th><td class="py-2 px-3 border border-gray-300">${project.startDate ? new Date(project.startDate).toLocaleDateString() : 'N/A'}</td></tr>
+        <tr><th class="py-2 px-3 font-semibold border border-gray-300">Completion Date</th><td class="py-2 px-3 border border-gray-300">${project.completion || 'N/A'}</td></tr>
+      `;
+
+      popup.classList.remove("hidden");
+      popup.setAttribute("aria-hidden", "false");
+      popup.focus();
+    }
+
+    function updateStats() {
+      let totalProjects = 0;
+      let totalInvestment = 0;
+      let ongoingProjects = 0;
+      let completedProjects = 0;
+      let planningProjects = 0;
+      let evaluatedProjects = meReports.length;
+
+      for (const regionKey in projectsData) {
+        const region = projectsData[regionKey];
+        totalProjects += region.count;
+        region.projects.forEach((p) => {
+          let budgetNum = 0;
+          if (typeof p.budget === "string") {
+            let b = p.budget.replace(/\$|,/g, "");
+            if (b.toUpperCase().endsWith("M")) {
+              budgetNum = parseFloat(b.slice(0, -1)) * 1_000_000;
+            } else {
+              budgetNum = parseFloat(b);
+            }
+          } else if (typeof p.budget === "number") {
+            budgetNum = p.budget;
+          }
+          totalInvestment += budgetNum;
+
+          if (p.status.toLowerCase() === "ongoing") ongoingProjects++;
+          else if (p.status.toLowerCase() === "completed") completedProjects++;
+          else if (p.status.toLowerCase() === "planning") planningProjects++;
+        });
+      }
+
+      document.getElementById("total-investment").textContent = `$${(
+        totalInvestment / 1_000_000
+      ).toFixed(1)}M`;
+      document.getElementById("ongoing-projects").textContent = ongoingProjects;
+      document.getElementById("completed-projects").textContent = completedProjects;
+      document.getElementById("planning-projects").textContent = planningProjects;
+      document.getElementById("evaluated-projects").textContent = evaluatedProjects;
+    }
+
+    updateStats();
+
+    const form = document.getElementById("project-form");
+    const actionTypeSelect = document.getElementById("action-type");
+    const updateProjectSelectContainer = document.getElementById(
+      "update-project-select-container"
+    );
+    const existingProjectSelect = document.getElementById("existing-project-select");
+    const submitProjectBtn = document.getElementById("submit-project-btn");
+
+    // Populate existing projects dropdown
+    function populateExistingProjectsDropdown() {
+      existingProjectSelect.innerHTML =
+        '<option value="" disabled selected>Select a project</option>';
+      for (const regionKey in projectsData) {
+        const region = projectsData[regionKey];
+        region.projects.forEach((project) => {
+          const option = document.createElement("option");
+          option.value = `${regionKey}||${project.name}`;
+          option.textContent = `${project.name} (${regionKey})`;
+          existingProjectSelect.appendChild(option);
+        });
+      }
+    }
+
+    // Clear form fields
+    function clearFormFields() {
+      form.reset();
+      districtSelect.disabled = true;
+      // Reset district options to default
+      districtSelect.innerHTML =
+        '<option disabled selected value="">Select a district</option>';
+    }
+
+    // Fill form fields with project data
+    function fillFormFields(regionKey, projectName) {
+      const region = projectsData[regionKey];
+      if (!region) return;
+      const project = region.projects.find((p) => p.name === projectName);
+      if (!project) return;
+
+      document.getElementById("project-name").value = project.name || "";
+      document.getElementById("region").value = regionKey || "";
+      // Trigger change to populate districts
+      const event = new Event("change");
+      regionSelect.dispatchEvent(event);
+
+      // Wait a tick to populate districts before setting district value
+      setTimeout(() => {
+        districtSelect.value = project.district || "";
+        districtSelect.disabled = false;
+      }, 0);
+
+      document.getElementById("ndp3-alignment").value = project.ndp3Alignment || "";
+      document.getElementById("sector").value = project.sector || "";
+      document.getElementById("donor-name").value = project.donorName || "";
+      document.getElementById("implementer-name").value = project.implementerName || "";
+      document.getElementById("partner-name").value = project.partnerName || "";
+      document.getElementById("description").value = project.description || "";
+      document.getElementById("project-duration-value").value =
+        project.projectDurationValue || "";
+      document.getElementById("project-duration-unit").value =
+        project.projectDurationUnit || "months";
+      document.getElementById("start-date").value = project.startDate || "";
+      // For completion date, convert from "MMM YYYY" or "TBD" to yyyy-mm-dd if possible
+      if (project.completion && project.completion !== "TBD") {
+        const parts = project.completion.split(" ");
+        if (parts.length === 2) {
+          const month = new Date(Date.parse(parts[0] + " 1, 2000")).getMonth() + 1;
+          const year = parts[1];
+          const day = "01";
+          const monthStr = month < 10 ? "0" + month : month;
+          document.getElementById("completion-date").value = `${year}-${monthStr}-${day}`;
+        } else {
+          document.getElementById("completion-date").value = "";
+        }
+      } else {
+        document.getElementById("completion-date").value = "";
+      }
+      document.getElementById("budget").value = project.budget
+        ? parseFloat(project.budget.replace(/\$|M/g, "")) *
+          (project.budget.includes("M") ? 1000000 : 1)
+        : "";
+      document.getElementById("status").value = project.status || "";
+      document.getElementById("date-approval").value = project.dateApproval || "";
+      document.getElementById("date-effectiveness").value = project.dateEffectiveness || "";
+      document.getElementById("date-first-disbursement").value =
+        project.dateFirstDisbursement || "";
+      document.getElementById("current-disbursement-level").value =
+        project.currentDisbursementLevel || "";
+    }
+
+    // Clear form and hide update project select container
+    function switchToRegisterMode() {
+      updateProjectSelectContainer.classList.add("hidden");
+      clearFormFields();
+      submitProjectBtn.textContent = "Submit Project";
+      document.getElementById(
+        "register-modal-title"
+      ).innerHTML = `<i class="fas fa-plus-circle text-yellow-400"></i> Register New Project`;
+    }
+
+    // Show update project select container
+    function switchToUpdateMode() {
+      updateProjectSelectContainer.classList.remove("hidden");
+      populateExistingProjectsDropdown();
+      clearFormFields();
+      submitProjectBtn.textContent = "Update Project";
+      document.getElementById(
+        "register-modal-title"
+      ).innerHTML = `<i class="fas fa-edit text-yellow-400"></i> Update Existing Project`;
+    }
+
+    actionTypeSelect.addEventListener("change", () => {
+      if (actionTypeSelect.value === "update") {
+        switchToUpdateMode();
+      } else {
+        switchToRegisterMode();
+      }
+    });
+
+    existingProjectSelect.addEventListener("change", () => {
+      const val = existingProjectSelect.value;
+      if (!val) {
+        clearFormFields();
+        return;
+      }
+      const [regionKey, projectName] = val.split("||");
+      fillFormFields(regionKey, projectName);
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const actionType = formData.get("actionType");
+      const projectName = formData.get("projectName").trim();
+      const region = formData.get("region");
+      const district = formData.get("district");
+      const sector = formData.get("sector");
+      const budgetRaw = formData.get("budget");
+      const status = formData.get("status");
+      const completionRaw = formData.get("completionDate");
+      const ndp3Alignment = formData.get("ndp3Alignment");
+      const donorName = formData.get("donorName").trim();
+      const implementerName = formData.get("implementerName").trim();
+      const partnerName = formData.get("partnerName").trim();
+      const description = formData.get("description").trim();
+      const projectDurationValue = formData.get("projectDurationValue");
+      const projectDurationUnit = formData.get("projectDurationUnit");
+      const startDate = formData.get("startDate");
+      const dateApproval = formData.get("dateApproval");
+      const dateEffectiveness = formData.get("dateEffectiveness");
+      const dateFirstDisbursement = formData.get("dateFirstDisbursement");
+      const currentDisbursementLevelRaw = formData.get("currentDisbursementLevel");
+
+      if (
+        !projectName ||
+        !region ||
+        !district ||
+        !sector ||
+        !budgetRaw ||
+        !status ||
+        !ndp3Alignment ||
+        !projectDurationValue ||
+        !projectDurationUnit ||
+        !startDate ||
+        !completionRaw ||
+        !dateApproval ||
+        !dateEffectiveness ||
+        !dateFirstDisbursement ||
+        !currentDisbursementLevelRaw
+      ) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+
+      let budgetNum = parseFloat(budgetRaw);
+      if (isNaN(budgetNum) || budgetNum < 0) {
+        alert("Please enter a valid budget.");
+        return;
+      }
+      let budgetStr = "";
+      if (budgetNum >= 1_000_000) {
+        budgetStr = `$${(budgetNum / 1_000_000).toFixed(1)}M`;
+      } else {
+        budgetStr = `$${budgetNum.toLocaleString()}`;
+      }
+
+      let completion = "TBD";
+      if (completionRaw) {
+        const [year, month] = completionRaw.split("-");
+        if (year && month) {
+          const monthName = new Date(year, month - 1).toLocaleString("en-US", {
+            month: "short",
+          });
+          completion = `${monthName} ${year}`;
+        }
+      }
+
+      let currentDisbursementLevel = parseFloat(currentDisbursementLevelRaw);
+      if (isNaN(currentDisbursementLevel) || currentDisbursementLevel < 0) {
+        alert("Please enter a valid current disbursement level.");
+        return;
+      }
+
+      if (!projectsData[region]) {
+        alert("Selected region is invalid.");
+        return;
+      }
+
+      const newProject = {
+        name: projectName,
+        sector,
+        budget: budgetStr,
+        status,
+        completion,
+        district,
+        ndp3Alignment,
+        donorName,
+        implementerName,
+        partnerName,
+        description,
+        projectDurationValue,
+        projectDurationUnit,
+        startDate,
+        dateApproval,
+        dateEffectiveness,
+        dateFirstDisbursement,
+        currentDisbursementLevel,
+        region,
+      };
+
+      if (actionType === "register") {
+        // Check if project with same name exists in region
+        const exists = projectsData[region].projects.some(
+          (p) => p.name.toLowerCase() === projectName.toLowerCase()
+        );
+        if (exists) {
+          alert(
+            "A project with this name already exists in the selected region. Please choose a different name or update the existing project."
+          );
+          return;
+        }
+        projectsData[region].projects.push(newProject);
+        projectsData[region].count++;
+        alert("Project registered successfully!");
+      } else if (actionType === "update") {
+        const existingVal = existingProjectSelect.value;
+        if (!existingVal) {
+          alert("Please select a project to update.");
+          return;
+        }
+        const [oldRegion, oldProjectName] = existingVal.split("||");
+        const oldRegionData = projectsData[oldRegion];
+        if (!oldRegionData) {
+          alert("Original project region not found.");
+          return;
+        }
+        const projectIndex = oldRegionData.projects.findIndex(
+          (p) => p.name === oldProjectName
+        );
+        if (projectIndex === -1) {
+          alert("Original project not found.");
+          return;
+        }
+        // Remove old project
+        oldRegionData.projects.splice(projectIndex, 1);
+        oldRegionData.count--;
+
+        // Add updated project to possibly new region
+        if (!projectsData[region]) {
+          projectsData[region] = { count: 0, projects: [], indicators: {} };
+        }
+        projectsData[region].projects.push(newProject);
+        projectsData[region].count++;
+
+        alert("Project updated successfully!");
+      }
+
+      data_ready = pie(
+        Object.entries(projectsData).map(([key, val]) => ({
+          region: key,
+          count: val.count,
+        }))
+      );
+      drawArcs();
+
+      updateStats();
+
+      // Show region details for the updated/registered project region
+      showRegionDetails(region);
+
+      // Show projects by status popup for the updated/registered project region
+      showProjectsByStatusPopup(region);
+
+      clearFormFields();
+      districtSelect.disabled = true;
+
+      closeRegisterModal();
+    });
+
+    // --- Login functionality ---
+    const loginBar = document.getElementById("login-bar");
+    const loginFormArea = document.getElementById("login-form-area");
+    const loggedInArea = document.getElementById("logged-in-area");
+    const loginStatus = document.getElementById("login-status");
+    const loggedInUser = document.getElementById("logged-in-user");
+    const loginUsername = document.getElementById("login-username");
+    const loginPassword = document.getElementById("login-password");
+    const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    loginBtn.addEventListener("click", () => {
+      const username = loginUsername.value.trim();
+      const password = loginPassword.value.trim();
+      if (!username || !password) {
+        alert("Please enter username and password.");
+        return;
+      }
+      // Simple demo login (accepts any non-empty credentials)
+      loginFormArea.classList.add("hidden");
+      loggedInArea.classList.remove("hidden");
+      loginStatus.innerHTML = '<i class="fas fa-check-circle text-green-400 mr-1"></i> Logged in';
+      loggedInUser.textContent = username;
+      loginUsername.value = "";
+      loginPassword.value = "";
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      loggedInArea.classList.add("hidden");
+      loginFormArea.classList.remove("hidden");
+      loginStatus.innerHTML = 'Not logged in';
+    });
+
+    // --- Toolbar date ---
+    document.getElementById("toolbar-date").textContent = new Date().toLocaleDateString(
+      "en-US",
+      { weekday: "long", year: "numeric", month: "long", day: "numeric" }
+    );
+
+    // --- Project Choice Modal ---
+    const projectChoiceModal = document.getElementById("project-choice-modal");
+    const closeProjectChoice = document.getElementById("close-project-choice");
+    const choiceRegisterNew = document.getElementById("choice-register-new");
+    const choiceUpdateExisting = document.getElementById("choice-update-existing");
+
+    function openProjectChoiceModal() {
+      projectChoiceModal.classList.remove("hidden");
+    }
+
+    function closeProjectChoiceModal() {
+      projectChoiceModal.classList.add("hidden");
+    }
+
+    closeProjectChoice.addEventListener("click", closeProjectChoiceModal);
+    projectChoiceModal.addEventListener("click", (e) => {
+      if (e.target === projectChoiceModal) closeProjectChoiceModal();
+    });
+
+    choiceRegisterNew.addEventListener("click", () => {
+      closeProjectChoiceModal();
+      actionTypeSelect.value = "register";
+      switchToRegisterMode();
+      openRegisterModal();
+    });
+
+    choiceUpdateExisting.addEventListener("click", () => {
+      closeProjectChoiceModal();
+      actionTypeSelect.value = "update";
+      switchToUpdateMode();
+      openRegisterModal();
+    });
+
+    const openBtn = document.getElementById("open-register-btn");
+    const closeBtn = document.getElementById("close-register-btn");
+    const modal = document.getElementById("register-modal");
+
+    const openMeBtn = document.getElementById("open-me-btn");
+    const closeMeBtn = document.getElementById("close-me-btn");
+    const meModal = document.getElementById("me-modal");
+    const meForm = document.getElementById("me-form");
+
+    function openRegisterModal() {
+      modal.classList.remove("hidden");
+      modal.setAttribute("aria-hidden", "false");
+      openBtn.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+      modal.querySelector("input, select, textarea, button").focus();
+    }
+
+    function closeRegisterModal() {
+      modal.classList.add("hidden");
+      modal.setAttribute("aria-hidden", "true");
+      openBtn.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+      openBtn.focus();
+    }
+
+    function openMeModal() {
+      populateProjectDropdown();
+      meModal.classList.remove("hidden");
+      meModal.setAttribute("aria-hidden", "false");
+      openMeBtn.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+      meModal.querySelector("input, select, textarea, button").focus();
+    }
+
+    function closeMeModal() {
+      meModal.classList.add("hidden");
+      meModal.setAttribute("aria-hidden", "true");
+      openMeBtn.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+      openMeBtn.focus();
+    }
+
+    openBtn.addEventListener("click", openProjectChoiceModal);
+    closeBtn.addEventListener("click", closeRegisterModal);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeRegisterModal();
+    });
+
+    openMeBtn.addEventListener("click", openMeModal);
+    closeMeBtn.addEventListener("click", closeMeModal);
+    meModal.addEventListener("click", (e) => {
+      if (e.target === meModal) closeMeModal();
+    });
+
+    function populateProjectDropdown() {
+      const projectSelect = document.getElementById("me-project");
+      projectSelect.innerHTML =
+        '<option value="" disabled selected>Select a project</option>';
+
+      for (const regionKey in projectsData) {
+        const region = projectsData[regionKey];
+        region.projects.forEach((project) => {
+          if (project.status.toLowerCase() !== "planning") {
+            const option = document.createElement("option");
+            option.value = project.name;
+            option.textContent = `${project.name} (${regionKey})`;
+            projectSelect.appendChild(option);
+          }
+        });
+      }
+    }
+
+    meForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(meForm);
+      const project = formData.get("project");
+      const evaluationDate = formData.get("evaluationDate");
+      const progress = formData.get("progress");
+      const budgetUtilization = formData.get("budgetUtilization");
+      const score = formData.get("score");
+      const findings = formData.get("findings");
+      const recommendations = formData.get("recommendations");
+
+      if (!project || !evaluationDate || !progress) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+
+      let region = "";
+      for (const regionKey in projectsData) {
+        if (projectsData[regionKey].projects.some((p) => p.name === project)) {
+          region = regionKey;
+          break;
+        }
+      }
+
+      meReports.push({
+        project,
+        region,
+        date: evaluationDate,
+        progress: parseInt(progress),
+        budgetUtilization: budgetUtilization ? parseInt(budgetUtilization) : null,
+        score: score ? parseInt(score) : null,
+        findings,
+        recommendations,
+      });
+
+      updateStats();
+
+      meForm.reset();
+
+      closeMeModal();
+
+      updatePerformanceChart();
+      updateReportsList();
+
+      alert("M&E report submitted successfully!");
+    });
+
+    const statusPopup = document.getElementById("status-projects-popup");
+    const statusPopupTitle = document.getElementById("status-popup-title");
+    const statusPopupContent = document.getElementById("status-popup-content");
+    const closeStatusPopupBtn = document.getElementById("close-status-popup");
+
+    closeStatusPopupBtn.addEventListener("click", () => {
+      statusPopup.classList.add("hidden");
+      statusPopup.setAttribute("aria-hidden", "true");
+      statusPopupContent.innerHTML = "";
+      statusPopupTitle.textContent = "";
+    });
+
+    statusPopup.addEventListener("click", (e) => {
+      if (e.target === statusPopup) {
+        statusPopup.classList.add("hidden");
+        statusPopup.setAttribute("aria-hidden", "true");
+        statusPopupContent.innerHTML = "";
+        statusPopupTitle.textContent = "";
+      }
+    });
+
+    function showProjectsByStatusPopup(regionId) {
+      const regionData = projectsData[regionId];
+      if (!regionData) return;
+
+      const ongoingProjects = regionData.projects.filter(
+        (p) => p.status.toLowerCase() === "ongoing"
+      );
+      const completedProjects = regionData.projects.filter(
+        (p) => p.status.toLowerCase() === "completed"
+      );
+      const planningProjects = regionData.projects.filter(
+        (p) => p.status.toLowerCase() === "planning"
+      );
+      const submittedProjects = regionData.projects.filter(
+        (p) => p.status.toLowerCase() === "submitted"
+      );
+
+      let html = "";
+
+      if (submittedProjects.length > 0) {
+        html += `<h4 class="text-xl font-semibold mb-2 text-[#1a3a5f]">Submitted Projects (${submittedProjects.length})</h4>`;
+        html += submittedProjects.map((p) => projectCardHTML(p)).join("");
+      } else {
+        html += `<h4 class="text-xl font-semibold mb-2 text-[#1a3a5f]">No Submitted Projects</h4>`;
+      }
+
+      if (planningProjects.length > 0) {
+        html += `<h4 class="text-xl font-semibold mt-6 mb-2 text-[#1a3a5f]">Planning Projects (${planningProjects.length})</h4>`;
+        html += planningProjects.map((p) => projectCardHTML(p)).join("");
+      } else {
+        html += `<h4 class="text-xl font-semibold mt-6 mb-2 text-[#1a3a5f]">No Planning Projects</h4>`;
+      }
+
+      if (ongoingProjects.length > 0) {
+        html += `<h4 class="text-xl font-semibold mt-6 mb-2 text-[#1a3a5f]">Ongoing Projects (${ongoingProjects.length})</h4>`;
+        html += ongoingProjects.map((p) => projectCardHTML(p)).join("");
+      } else {
+        html += `<h4 class="text-xl font-semibold mt-6 mb-2 text-[#1a3a5f]">No Ongoing Projects</h4>`;
+      }
+
+      if (completedProjects.length > 0) {
+        html += `<h4 class="text-xl font-semibold mt-6 mb-2 text-[#1a3a5f]">Completed Projects (${completedProjects.length})</h4>`;
+        html += completedProjects.map((p) => projectCardHTML(p)).join("");
+      } else {
+        html += `<h4 class="text-xl font-semibold mt-6 mb-2 text-[#1a3a5f]">No Completed Projects</h4>`;
+      }
+
+      statusPopupTitle.textContent = `Projects in ${regionId} by Status`;
+      statusPopupContent.innerHTML = html;
+      statusPopup.classList.remove("hidden");
+      statusPopup.setAttribute("aria-hidden", "false");
+      statusPopup.focus();
+    }
+
+    function projectCardHTML(project) {
+      return `
+        <div class="mb-4 p-4 bg-[#f8fafd] rounded-lg border-l-4 border-[#2c5a8a] shadow-md hover:shadow-lg transition-shadow">
+          <div class="text-lg font-bold text-[#1a3a5f] mb-1">${project.name}</div>
+          <div class="flex flex-wrap justify-between text-gray-600 text-sm mb-1 gap-2">
+            <span><strong>Sector:</strong> <span class="inline-block bg-[#e1ecf7] text-[#2c5a8a] px-3 py-0.5 rounded-full font-semibold">${project.sector}</span></span>
+            <span><strong>Status:</strong> ${project.status}</span>
+            <span><strong>District:</strong> ${project.district || 'N/A'}</span>
+            <span><strong>NDP3 Alignment:</strong> ${project.ndp3Alignment || 'N/A'}</span>
+          </div>
+          <div class="flex flex-wrap justify-between text-gray-600 text-sm gap-2">
+            <span><strong>Budget:</strong> ${project.budget}</span>
+            <span><strong>Completion:</strong> ${project.completion}</span>
+            <span><strong>Start Date:</strong> ${project.startDate ? new Date(project.startDate).toLocaleDateString() : 'N/A'}</span>
+            <span><strong>Duration:</strong> ${project.projectDurationValue ? project.projectDurationValue + ' ' + project.projectDurationUnit : 'N/A'}</span>
+          </div>
+          <div class="mt-2 text-gray-700 text-sm">
+            <strong>Donor:</strong> ${project.donorName || 'N/A'}<br/>
+            <strong>Implementer:</strong> ${project.implementerName || 'N/A'}<br/>
+            <strong>Partner:</strong> ${project.partnerName || 'N/A'}<br/>
+            <strong>Description:</strong> ${project.description || 'N/A'}
+          </div>
+        </div>
+      `;
+    }
+
+    let performanceChartInstance = null;
+
+    function updatePerformanceChart() {
+      if (!performanceChartInstance) return;
+
+      const regions = ["Awdal", "Maroodi Jeex", "Sahil", "Togdheer", "Sanaag", "Sool"];
+      const avgProgress = [];
+      const avgBudgetUtil = [];
+
+      regions.forEach((region) => {
+        const reports = meReports.filter((r) => r.region === region);
+        if (reports.length === 0) {
+          avgProgress.push(0);
+          avgBudgetUtil.push(0);
+          return;
+        }
+        const totalProgress = reports.reduce((sum, r) => sum + (r.progress || 0), 0);
+        const totalBudget = reports.reduce(
+          (sum, r) => sum + (r.budgetUtilization || 0),
+          0
+        );
+        avgProgress.push(Math.round(totalProgress / reports.length));
+        avgBudgetUtil.push(Math.round(totalBudget / reports.length));
+      });
+
+      performanceChartInstance.data.datasets[0].data = avgProgress;
+      performanceChartInstance.data.datasets[1].data = avgBudgetUtil;
+      performanceChartInstance.update();
+
+      const allProgress = meReports.map((r) => r.progress).filter((p) => p != null);
+      const allBudgetUtil = meReports
+        .map((r) => r.budgetUtilization)
+        .filter((b) => b != null);
+      const allScores = meReports.map((r) => r.score).filter((s) => s != null);
+
+      const avgProg = allProgress.length
+        ? Math.round(allProgress.reduce((a, b) => a + b, 0) / allProgress.length)
+        : 0;
+      const avgBudg = allBudgetUtil.length
+        ? Math.round(allBudgetUtil.reduce((a, b) => a + b, 0) / allBudgetUtil.length)
+        : 0;
+      const avgScore = allScores.length
+        ? (allScores.reduce((a, b) => a + b, 0) / allScores.length).toFixed(1)
+        : "0.0";
+
+      document.getElementById("avg-progress").textContent = `${avgProg}%`;
+      document.getElementById("budget-utilization").textContent = `${avgBudg}%`;
+      document.getElementById("avg-eval-score").textContent = `${avgScore}/5`;
+
+      const onScheduleCount = allProgress.filter((p) => p >= 75).length;
+      const onSchedulePercent = allProgress.length
+        ? Math.round((onScheduleCount / allProgress.length) * 100)
+        : 0;
+      document.getElementById("on-schedule-projects").textContent = `${onSchedulePercent}%`;
+    }
+
+    function initPerformanceChart() {
+      const ctx = document.getElementById("performance-chart").getContext("2d");
+      performanceChartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["Awdal", "Maroodi Jeex", "Sahil", "Togdheer", "Sanaag", "Sool"],
+          datasets: [
+            {
+              label: "Average Progress (%)",
+              data: [78, 85, 92, 80, 65, 75],
+              backgroundColor: "#1a3a5f",
+              borderColor: "#1a3a5f",
+              borderWidth: 1,
+            },
+            {
+              label: "Budget Utilization (%)",
+              data: [72, 88, 90, 78, 60, 70],
+              backgroundColor: "#5CAF4E",
+              borderColor: "#5CAF4E",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: {
+                callback: function (value) {
+                  return value + "%";
+                },
+              },
+              title: {
+                display: true,
+                text: "Percentage",
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              position: "top",
+            },
+            title: {
+              display: true,
+              text: "Regional Project Performance",
+              font: {
+                size: 16,
+              },
+            },
+          },
+        },
+      });
+    }
+
+    function initReportsList() {
+      const reportsContainer = document.getElementById("reports-list");
+      reportsContainer.innerHTML = "";
+
+      const sortedReports = meReports
+        .slice()
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      sortedReports.slice(0, 3).forEach((report) => {
+        const reportElement = document.createElement("div");
+        reportElement.className =
+          "bg-[#f0f7ff] p-4 rounded-lg border-l-4 border-[#1a3a5f] mb-4";
+        reportElement.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="font-bold text-[#1a3a5f]">${report.project}</div>
+              <div class="text-sm text-gray-600">Evaluated: ${new Date(
+                report.date
+              ).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}</div>
+            </div>
+            <div class="${
+              report.progress === 100
+                ? "bg-green-500 text-white"
+                : report.progress > 75
+                ? "bg-green-400 text-white"
+                : report.progress > 50
+                ? "bg-yellow-400 text-[#1a3a5f]"
+                : "bg-red-400 text-white"
+            } font-semibold rounded-full px-3 py-1 text-sm">
+              ${
+                report.progress === 100
+                  ? "Completed"
+                  : `Progress: ${report.progress}%`
+              }
+            </div>
+          </div>
+          <div class="mt-2 text-sm">
+            <span class="font-medium">Key Finding:</span> ${report.findings}
+          </div>
+        `;
+        reportsContainer.appendChild(reportElement);
+      });
+    }
+
+    function updateReportsList() {
+      initReportsList();
+    }
+
+    document.getElementById("current-date").textContent = new Date().toLocaleDateString(
+      "en-US",
+      {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    );
+
+    document
+      .getElementById("ongoing-projects-container")
+      .addEventListener("click", () => {
+        showProjectsByStatusPopupForStatus("ongoing");
+      });
+    document
+      .getElementById("planning-projects-container")
+      .addEventListener("click", () => {
+        showProjectsByStatusPopupForStatus("planning");
+      });
+    document
+      .getElementById("completed-projects-container")
+      .addEventListener("click", () => {
+        showProjectsByStatusPopupForStatus("completed");
+      });
+    document
+      .getElementById("evaluated-projects-container")
+      .addEventListener("click", () => {
+        showEvaluatedProjectsPopup();
+      });
+    document
+      .getElementById("total-investment-container")
+      .addEventListener("click", () => {
+        showAllProjectsPopup();
+      });
+
+    document
+      .getElementById("ongoing-projects-container")
+      .addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          showProjectsByStatusPopupForStatus("ongoing");
+        }
+      });
+    document
+      .getElementById("planning-projects-container")
+      .addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          showProjectsByStatusPopupForStatus("planning");
+        }
+      });
+    document
+      .getElementById("completed-projects-container")
+      .addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          showProjectsByStatusPopupForStatus("completed");
+        }
+      });
+    document
+      .getElementById("evaluated-projects-container")
+      .addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          showEvaluatedProjectsPopup();
+        }
+      });
+    document
+      .getElementById("total-investment-container")
+      .addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          showAllProjectsPopup();
+        }
+      });
+
+    function showProjectsByStatusPopupForStatus(status) {
+      let allProjects = [];
+      for (const regionKey in projectsData) {
+        const region = projectsData[regionKey];
+        const filtered = region.projects.filter(
+          (p) => p.status.toLowerCase() === status.toLowerCase()
+        );
+        allProjects = allProjects.concat(filtered);
+      }
+      if (allProjects.length === 0) {
+        alert(`No projects with status "${status}" found.`);
+        return;
+      }
+      let html = `<h4 class="text-xl font-semibold mb-4 text-[#1a3a5f]">Projects with status "${status}" (${allProjects.length})</h4>`;
+      html += allProjects.map((p) => projectCardHTML(p)).join("");
+      statusPopupTitle.textContent = `Projects with status "${status}"`;
+      statusPopupContent.innerHTML = html;
+      statusPopup.classList.remove("hidden");
+      statusPopup.setAttribute("aria-hidden", "false");
+      statusPopup.focus();
+    }
+
+    function showEvaluatedProjectsPopup() {
+      if (meReports.length === 0) {
+        alert("No evaluated projects found.");
+        return;
+      }
+      let html = `<h4 class="text-xl font-semibold mb-4 text-[#1a3a5f]">Evaluated Projects (${meReports.length})</h4>`;
+      meReports.forEach((report) => {
+        html += `
+          <div class="mb-4 p-4 bg-[#f8fafd] rounded-lg border-l-4 border-[#2c5a8a] shadow-md">
+            <div class="text-lg font-bold text-[#1a3a5f] mb-1">${report.project}</div>
+            <div class="text-gray-600 text-sm mb-1">Region: ${report.region}</div>
+            <div class="text-gray-600 text-sm mb-1">Evaluation Date: ${new Date(
+              report.date
+            ).toLocaleDateString()}</div>
+            <div class="text-gray-600 text-sm mb-1">Progress: ${report.progress}%</div>
+            <div class="text-gray-600 text-sm mb-1">Budget Utilization: ${
+              report.budgetUtilization != null ? report.budgetUtilization + "%" : "N/A"
+            }</div>
+            <div class="text-gray-600 text-sm mb-1">Score: ${
+              report.score != null ? report.score : "N/A"
+            }</div>
+            <div class="text-gray-700 text-sm"><strong>Findings:</strong> ${
+              report.findings || "N/A"
+            }</div>
+            <div class="text-gray-700 text-sm"><strong>Recommendations:</strong> ${
+              report.recommendations || "N/A"
+            }</div>
+          </div>
+        `;
+      });
+      statusPopupTitle.textContent = "Evaluated Projects";
+      statusPopupContent.innerHTML = html;
+      statusPopup.classList.remove("hidden");
+      statusPopup.setAttribute("aria-hidden", "false");
+      statusPopup.focus();
+    }
+
+    function showAllProjectsPopup() {
+      let allProjects = [];
+      for (const regionKey in projectsData) {
+        const region = projectsData[regionKey];
+        allProjects = allProjects.concat(region.projects);
+      }
+      if (allProjects.length === 0) {
+        alert("No projects found.");
+        return;
+      }
+      let html = `<h4 class="text-xl font-semibold mb-4 text-[#1a3a5f]">All Projects (${allProjects.length})</h4>`;
+      html += allProjects.map((p) => projectCardHTML(p)).join("");
+      statusPopupTitle.textContent = "All Projects";
+      statusPopupContent.innerHTML = html;
+      statusPopup.classList.remove("hidden");
+      statusPopup.setAttribute("aria-hidden", "false");
+      statusPopup.focus();
+    }
+
+    window.addEventListener("load", () => {
+      initPerformanceChart();
+      updateReportsList();
+      updatePerformanceChart();
+    });
+  </script>
+</body>
+</html>
