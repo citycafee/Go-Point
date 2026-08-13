@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Somaliland e-NGO Registration Portal</title>
+<style>
+  :root{
+    --primary:#0a7d3b;
+    --primary-dark:#065a2a;
+    --primary-light:#e8f5ec;
+    --secondary:#c8102e;
+    --secondary-dark:#9a0c24;
+    --bg:#f4f7fa;
+    --card:#ffffff;
+    --text:#1f2d3d;
+    --muted:#6c757d;
+    --border:#d9e2ec;
+    --success:#28a745;
+    --danger:#dc3545;
+    --warning:#ffc107;
+    --info:#17a2b8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:var(--secondary);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* Header */
+  .mainheader{background:#fff;border-bottom:3px solid var(--primary);box-shadow:0 2px 6px rgba(0,0,0,.06)}
+  .ecs-container{max-width:1200px;margin:0 auto;padding:0 24px}
+  .mainheader-top{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+  .logocontent{display:flex;align-items:center;gap:14px}
+  .logo-wrap{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0a7d3b,#c8102e);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px;border:2px solid #fff;box-shadow:0 0 0 2px var(--primary)}
+  .brand-title{font-size:18px;font-weight:700;color:var(--primary-dark)}
+  .brand-sub{font-size:12px;color:var(--muted)}
+  .menucontent{display:flex;align-items:center;gap:14px}
+  .langlink{cursor:pointer;font-size:13px;padding:7px 12px;border-radius:4px;background:var(--primary-light);color:var(--primary-dark);font-weight:500}
+  .langlink:hover{background:var(--primary);color:#fff}
+  .langlink.active{background:var(--primary);color:#fff}
+
+  /* Hero / Banner */
+  .hero{background:linear-gradient(135deg,#0a7d3b 0%,#065a2a 50%,#c8102e 100%);color:#fff;padding:48px 0;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;top:-50%;right:-10%;width:60%;height:200%;background:rgba(255,255,255,.04);transform:rotate(35deg)}
+  .hero .ecs-container{position:relative;z-index:1}
+  .hero h1{font-size:32px;margin-bottom:8px;font-weight:700}
+  .hero p{opacity:.95;max-width:780px;font-size:15px}
+  .hero-stats{display:flex;gap:30px;margin-top:24px;flex-wrap:wrap}
+  .hero-stat{background:rgba(255,255,255,.12);padding:12px 20px;border-radius:8px;backdrop-filter:blur(6px)}
+  .hero-stat .num{font-size:24px;font-weight:700}
+  .hero-stat .lbl{font-size:12px;opacity:.9}
+
+  /* Steps bar */
+  .steps-bar{background:#fff;padding:18px 0;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .steps-list{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .step-item{display:flex;align-items:center;gap:10px;flex:1;min-width:200px;padding:8px 14px;border-radius:8px;background:transparent;cursor:pointer;transition:.2s}
+  .step-item:hover{background:var(--primary-light)}
+  .step-item.active{background:var(--primary-light);border:1px solid var(--primary)}
+  .step-item.done{background:#f8fdf9}
+  .step-item .num-circle{width:32px;height:32px;border-radius:50%;background:#eef2f7;color:var(--muted);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+  .step-item.active .num-circle{background:var(--primary);color:#fff}
+  .step-item.done .num-circle{background:var(--success);color:#fff}
+  .step-item .step-txt{font-size:13px;font-weight:600;color:#344054}
+  .step-item .step-sub{font-size:11px;color:var(--muted)}
+
+  /* Main */
+  main{padding:36px 0 60px}
+  .form-section{display:none;background:var(--card);border-radius:10px;padding:36px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:24px;border-top:4px solid var(--primary)}
+  .form-section.active{display:block;animation:fadeIn .35s ease}
+  .form-section.organisation{border-top-color:var(--secondary)}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .form-section h2{font-size:24px;margin-bottom:6px;display:flex;align-items:center;gap:12px}
+  .form-section.organisation h2{color:var(--secondary-dark)}
+  .form-section h2 .badge{background:var(--primary);color:#fff;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600}
+  .form-section.organisation h2 .badge{background:var(--secondary)}
+  .form-section .subtitle{color:var(--muted);margin-bottom:24px;font-size:14px}
+
+  /* Form layout */
+  .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-bottom:14px}
+  .ecs-inline_2x{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:760px){.ecs-inline_2x{grid-template-columns:1fr}}
+  .form-group{display:flex;flex-direction:column;margin-bottom:8px}
+  .form-group label{font-size:13px;font-weight:600;color:#344054;margin-bottom:6px}
+  .form-group label .req{color:var(--danger);margin-left:2px}
+  .form-group input, .form-group select, .form-group textarea{
+    padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:#fff;color:var(--text);
+    transition:border-color .2s, box-shadow .2s;font-family:inherit
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus{
+    outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(10,125,59,.15)
+  }
+  .form-section.organisation .form-group input:focus,
+  .form-section.organisation .form-group select:focus,
+  .form-section.organisation .form-group textarea:focus{
+    border-color:var(--secondary);box-shadow:0 0 0 3px rgba(200,16,46,.15)
+  }
+  .form-group textarea{min-height:80px;resize:vertical}
+  .field-hint{font-size:12px;color:var(--muted);margin-top:4px}
+  .field-error{font-size:12px;color:var(--danger);margin-top:4px;display:none}
+  .form-group.error input, .form-group.error select, .form-group.error textarea{border-color:var(--danger)}
+  .form-group.error .field-error{display:block}
+
+  /* Section title */
+  .section-title{font-size:16px;font-weight:700;color:var(--primary-dark);margin:24px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--primary-light);display:flex;align-items:center;gap:8px}
+  .form-section.organisation .section-title{color:var(--secondary-dark);border-bottom-color:#fde7eb}
+  .section-title::before{content:"";width:4px;height:18px;background:var(--primary);border-radius:2px}
+  .form-section.organisation .section-title::before{background:var(--secondary)}
+
+  /* Buttons */
+  .form-buttons{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap;justify-content:space-between;border-top:1px solid var(--border);padding-top:20px}
+  .form-buttons .left, .form-buttons .right{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{padding:11px 26px;border-radius:6px;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 4px 10px rgba(10,125,59,.25)}
+  .btn-secondary{background:#fff;color:var(--primary);border:1.5px solid var(--primary)}
+  .btn-secondary:hover{background:var(--primary-light)}
+  .form-section.organisation .btn-primary{background:var(--secondary)}
+  .form-section.organisation .btn-primary:hover{background:var(--secondary-dark);box-shadow:0 4px 10px rgba(200,16,46,.25)}
+  .form-section.organisation .btn-secondary{color:var(--secondary);border-color:var(--secondary)}
+  .form-section.organisation .btn-secondary:hover{background:#fde7eb}
+
+  /* Checkbox group */
+  .check-group{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  .check-item{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:13px;transition:.2s}
+  .check-item:hover{border-color:var(--primary);background:var(--primary-light)}
+  .check-item input{margin:0;accent-color:var(--primary)}
+  .check-item.checked{background:var(--primary-light);border-color:var(--primary);color:var(--primary-dark);font-weight:600}
+
+  /* File upload */
+  .file-upload{border:2px dashed var(--border);border-radius:8px;padding:22px;text-align:center;background:#fbfdfc;cursor:pointer;transition:.2s;position:relative}
+  .file-upload:hover{border-color:var(--primary);background:var(--primary-light)}
+  .file-upload .upload-icon{font-size:32px;color:var(--primary);margin-bottom:8px}
+  .file-upload p{font-size:13px;color:var(--muted);margin:4px 0}
+  .file-upload .file-name{font-size:12px;color:var(--primary-dark);font-weight:600;margin-top:6px;display:none}
+  .file-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+  /* Table */
+  .table-card{background:#fbfdfc;border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:14px}
+  .table-card h5{color:var(--primary-dark);font-size:14px;margin-bottom:10px;font-weight:700}
+  table.table{width:100%;border-collapse:collapse;font-size:13px}
+  table.table th, table.table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+  table.table th{background:#eef2f7;font-weight:600;color:#344054;font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+  table.table tr:last-child td{border-bottom:none}
+  .table-empty{color:var(--muted);font-style:italic;font-size:13px;text-align:center;padding:16px !important}
+
+  /* Radio cards */
+  .radio-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:6px}
+  .radio-card{position:relative;padding:14px;border:2px solid var(--border);border-radius:8px;cursor:pointer;transition:.2s;background:#fff}
+  .radio-card:hover{border-color:var(--primary)}
+  .radio-card input{position:absolute;opacity:0}
+  .radio-card .ico{font-size:24px;margin-bottom:6px}
+  .radio-card .ttl{font-weight:600;font-size:14px;color:#344054}
+  .radio-card .desc{font-size:12px;color:var(--muted);margin-top:2px}
+  .radio-card.checked{border-color:var(--primary);background:var(--primary-light)}
+
+  /* Toast */
+  .toast{position:fixed;right:20px;bottom:20px;background:#1f2d3d;color:#fff;padding:14px 22px;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.18);transform:translateX(420px);transition:transform .35s;z-index:1000;font-size:14px;max-width:380px}
+  .toast.show{transform:translateX(0)}
+  .toast.success{background:var(--success)}
+  .toast.error{background:var(--danger)}
+
+  /* Footer */
+  footer{background:#0a2540;color:#cfd8d3;padding:30px 0;margin-top:40px;text-align:center;font-size:13px}
+  footer .links{display:flex;justify-content:center;gap:24px;margin-bottom:12px;flex-wrap:wrap}
+  footer .links a{color:#cfd8d3}
+  footer .links a:hover{color:#fff}
+
+  /* Required note */
+  .req-note{font-size:12px;color:var(--muted);text-align:right;margin-bottom:10px}
+  .req-note .req{color:var(--danger)}
+
+  /* Small helpers */
+  .mt-2{margin-top:8px}
+  .mt-3{margin-top:14px}
+  .text-center{text-align:center}
+  .hide{display:none !important}
+
+  /* Info banner */
+  .info-banner{background:#e7f3ff;border-left:4px solid var(--info);padding:14px 16px;border-radius:6px;font-size:13px;color:#0c5460;margin-bottom:18px;display:flex;gap:10px;align-items:flex-start}
+  .info-banner .ico{font-size:20px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="mainheader">
+  <div class="ecs-container mainheader-top">
+    <div class="logocontent">
+      <div class="logo-wrap">SL</div>
+      <div>
+        <div class="brand-title">Republic of Somaliland — e-NGO Portal</div>
+        <div class="brand-sub">Ministry of Interior & Non-Governmental Organizations Registration</div>
+      </div>
+    </div>
+    <div class="menucontent">
+      <a class="langlink active" onclick="setLang(this,'English')">English</a>
+      <a class="langlink" onclick="setLang(this,'Somali')">Somali</a>
+      <a class="langlink" onclick="setLang(this,'Arabic')">العربية</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="ecs-container">
+    <h1>🇸🇴 Somaliland Non-Governmental Organization Registration</h1>
+    <p>Register your NGO with the Somaliland Government. Complete the application form below — you can save your progress and return at any time.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">2</div><div class="lbl">Main Sections</div></div>
+      <div class="hero-stat"><div class="num">~15 min</div><div class="lbl">Estimated Time</div></div>
+      <div class="hero-stat"><div class="num">100%</div><div class="lbl">Online Process</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS BAR -->
+<div class="steps-bar">
+  <div class="ecs-container">
+    <div class="steps-list">
+      <div class="step-item active" id="step-applicant" onclick="showSection('applicant')">
+        <div class="num-circle">1</div>
+        <div>
+          <div class="step-txt">Applicant Details</div>
+          <div class="step-sub">Personal information of the applicant</div>
+        </div>
+      </div>
+      <div class="step-item" id="step-organisation" onclick="showSection('organisation')">
+        <div class="num-circle">2</div>
+        <div>
+          <div class="step-txt">Organisation Details</div>
+          <div class="step-sub">Information about the NGO</div>
+        </div>
+      </div>
+      <div class="step-item" id="step-review" onclick="showReview()">
+        <div class="num-circle">3</div>
+        <div>
+          <div class="step-txt">Review & Submit</div>
+          <div class="step-sub">Verify and submit your application</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+<div class="ecs-container">
+
+  <!-- ============================================== -->
+  <!-- APPLICANT DETAILS FORM -->
+  <!-- ============================================== -->
+  <div class="form-section applicant active" id="section-applicant">
+    <h2>👤 Applicant Details <span class="badge">Section 1 of 2</span></h2>
+    <p class="subtitle">Provide the personal information of the person submitting this application on behalf of the organization.</p>
+
+    <div class="info-banner">
+      <div class="ico">ℹ️</div>
+      <div>The applicant must be the authorized representative of the organization (e.g. Executive Director, Chairperson, or Legal Representative). All fields marked with <span class="req">*</span> are required.</div>
+    </div>
+
+    <div class="req-note">Fields marked with <span class="req">*</span> are required</div>
+
+    <h4 class="section-title">Personal Information</h4>
+    <div class="ecs-inline_2x">
+      <div class="form-group">
+        <label>First Name <span class="req">*</span></label>
+        <input type="text" name="surname" placeholder="Enter first name" required>
+        <span class="field-error">First name is required</span>
+      </div>
+      <div class="form-group">
+        <label>Middle Name</label>
+        <input type="text" name="postname" placeholder="Enter middle name (optional)">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Last Name <span class="req">*</span></label>
+        <input type="text" name="lastname" placeholder="Enter last name" required>
+        <span class="field-error">Last name is required</span>
+      </div>
+      <div class="form-group">
+        <label>Mother's Name</label>
+        <input type="text" name="mothername" placeholder="Enter mother's full name">
+      </div>
+    </div>
+
+    <div class="ecs-inline_2x">
+      <div class="form-group">
+        <label>Gender <span class="req">*</span></label>
+        <select name="gender" required>
+          <option value="">-- Select Gender --</option>
+          <option>Male</option>
+          <option>Female</option>
+        </select>
+        <span class="field-error">Gender is required</span>
+      </div>
+      <div class="form-group">
+        <label>Civil Status <span class="req">*</span></label>
+        <select name="civilStatusId" required>
+          <option value="">-- Select Civil Status --</option>
+          <option>Single</option>
+          <option>Married</option>
+          <option>Divorced</option>
+          <option>Widowed</option>
+        </select>
+        <span class="field-error">Civil status is required</span>
+      </div>
+    </div>
+
+    <div class="ecs-inline_2x">
+      <div class="form-group">
+        <label>Date of Birth <span class="req">*</span></label>
+        <input type="date" name="dateOfBirth" required>
+        <span class="field-error">Date of birth is required</span>
+      </div>
+      <div class="form-group">
+        <label>Place of Birth <span class="req">*</span></label>
+        <input type="text" name="placeOfBirth" placeholder="Enter place of birth" required>
+        <span class="field-error">Place of birth is required</span>
+      </div>
+    </div>
+
+    <h4 class="section-title">Identification & Nationality</h4>
+    <div class="ecs-inline_2x">
+      <div class="form-group">
+        <label>Nationality <span class="req">*</span></label>
+        <select name="nationalityId" required>
+          <option value="">-- Select Nationality --</option>
+          <option selected>Somaliland</option>
+          <option>Somalia</option>
+          <option>Djibouti</option>
+          <option>Ethiopia</option>
+          <option>Kenya</option>
+          <option>Other</option>
+        </select>
+        <span class="field-error">Nationality is required</span>
+      </div>
+      <div class="form-group">
+        <label>Country of Birth <span class="req">*</span></label>
+        <select name="countryOfBirthId" required>
+          <option value="">-- Select Country --</option>
+          <option selected>Somaliland</option>
+          <option>Somalia</option>
+          <option>Djibouti</option>
+          <option>Ethiopia</option>
+          <option>Other</option>
+        </select>
+        <span class="field-error">Country of birth is required</span>
+      </div>
+    </div>
+
+    <div class="ecs-inline_2x">
+      <div class="form-group">
+        <label>National ID / Passport Number <span class="req">*</span></label>
+        <input type="text" name="passport" placeholder="Enter ID or Passport number" required>
+        <span class="field-hint">Enter your Somaliland National ID or Passport number</span>
+        <span class="field-error">ID/Passport is required</span>
+      </div>
+      <div class="form-group">
+        <label>Type of ID</label>
+        <select name="idType">
+          <option value="">-- Select ID type --</option>
+          <option>National ID</option>
+          <option>Passport</option>
+          <option>Driving License</option>
+        </select>
+      </div>
+    </div>
+
+    <h4 class="section-title">Contact Information</h4>
+    <div class="ecs-inline_2x">
+      <div class="form-group">
+        <label>Phone Number <span class="req">*</span></label>
+        <input type="tel" name="phone" placeholder="+252 63 XXXXXXX" required>
+        <span class="field-error">Phone number is required</span>
+      </div>
+      <div class="form-group">
+        <label>Email Address <span class="req">*</span></label>
+        <input type="email" name="email" placeholder="example@email.com" required>
+        <span class="field-error">Valid email is required</span>
+      </div>
+    </div>
+
+    <h4 class="section-title">Address</h4>
+    <div class="ecs-inline_2x">
+      <div class="form-group">
+        <label>Region <span class="req">*</span></label>
+        <select name="region" required>
+          <option value="">-- Select Region --</option>
+          <option>Awdal</option>
+          <option>Maroodi Jeex (Hargeisa)</option>
+          <option>Sahil</option>
+          <option>Togdheer (Burao)</option>
+          <option>Sanag</option>
+          <option>Sool</option>
+          <option>Baakool (Barwaaqo)</option>
+        </select>
+        <span class="field-error">Region is required</span>
+      </div>
+      <div class="form-group">
+        <label>District <span class="req">*</span></label>
+        <input type="text" name="district" placeholder="Enter district" required>
+        <span class="field-error">District is required</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Village / Town <span class="req">*</span></label>
+        <input type="text" name="village" placeholder="Enter village or town" required>
+      </div>
+      <div class="form-group">
+        <label>Sub-village / Cell</label>
+        <input type="text" name="cell" placeholder="Enter sub-village or cell">
+      </div>
+    </div>
+
+    <h4 class="section-title">Position in the Organisation</h4>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Position / Title <span class="req">*</span></label>
+        <input type="text" name="position" placeholder="e.g. Executive Director" required>
+      </div>
+      <div class="form-group">
+        <label>Role Category <span class="req">*</span></label>
+        <select name="roleCategory" required>
+          <option value="">-- Select Role --</option>
+          <option>Executive Director / CEO</option>
+          <option>President / Chairperson</option>
+          <option>Legal Representative</option>
+          <option>Authorized Signatory</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-buttons">
+      <div class="left">
+        <button class="btn btn-secondary" type="button" onclick="resetForm('applicant')">⟲ Reset</button>
+      </div>
+      <div class="right">
+        <button class="btn btn-primary" type="button" onclick="nextSection('applicant','organisation')">Next: Organisation Details →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- ORGANISATION DETAILS FORM -->
+  <!-- ============================================== -->
+  <div class="form-section organisation" id="section-organisation">
+    <h2>🏢 Organisation Details <span class="badge">Section 2 of 2</span></h2>
+    <p class="subtitle">Provide complete information about the Non-Governmental Organization applying for registration.</p>
+
+    <div class="info-banner">
+      <div class="ico">ℹ️</div>
+      <div>Select the organisation category that best describes your NGO. The Somaliland Government registers International, National, and Faith-Based Non-Governmental Organizations.</div>
+    </div>
+
+    <div class="req-note">Fields marked with <span class="req">*</span> are required</div>
+
+    <h4 class="section-title">Organisation / Institution Category</h4>
+    <div class="form-group">
+      <label>Choose Organisation / Institution category <span class="req">*</span></label>
+      <div class="radio-cards">
+        <label class="radio-card" onclick="selectRadio(this)">
+          <input type="radio" name="organizationTypeId" value="1">
+          <div class="ico">🌍</div>
+          <div class="ttl">International NGO</div>
+          <div class="desc">Operates in multiple countries</div>
+        </label>
+        <label class="radio-card" onclick="selectRadio(this)">
+          <input type="radio" name="organizationTypeId" value="2" checked>
+          <div class="ico">🇸🇴</div>
+          <div class="ttl">National NGO</div>
+          <div class="desc">Operates within Somaliland</div>
+        </label>
+        <label class="radio-card" onclick="selectRadio(this)">
+          <input type="radio" name="organizationTypeId" value="3">
+          <div class="ico">🕌</div>
+          <div class="ttl">Faith Based Organization</div>
+          <div class="desc">Religious-based organisation</div>
+        </label>
+        <label class="radio-card" onclick="selectRadio(this)">
+          <input type="radio" name="organizationTypeId" value="4">
+          <div class="ico">🏛️</div>
+          <div class="ttl">Political Organization</div>
+          <div class="desc">Political party or movement</div>
+        </label>
+      </div>
+    </div>
+
+    <h4 class="section-title">Proposed Names</h4>
+    <div class="ecs-inline_2x">
+      <div class="form-group">
+        <label>Proposed Organisation Name <span class="req">*</span></label>
+        <input type="text" name="orgName" placeholder="Enter proposed full legal name" required>
+        <span class="field-hint">Three names may be submitted in order of preference</span>
+      </div>
+      <div class="form-group">
+        <label>Abbreviation / Acronym</label>
+        <input type="text" name="orgAbbrev" placeholder="e.g. SNGO, HELP">
+      </div>
+    </div>
+
+    <h4 class="section-title">Organisation Address</h4>
+    <div class="ecs-inline_2x">
+      <div class="form-group">
+        <label>Region <span class="req">*</span></label>
+        <select name="orgRegion" required>
+          <option value="">-- Select Region --</option>
+          <option>Awdal</option>
+          <option selected>Maroodi Jeex (Hargeisa)</option>
+          <option>Sahil</option>
+          <option>Togdheer (Burao)</option>
+          <option>Sanag</option>
+          <option>Sool</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>District <span class="req">*</span></label>
+        <input type="text" name="orgDistrict" placeholder="Enter district" required>
+      </div>
+    </div>
+
+    <div class="ecs-inline_2x">
+      <div class="form-group">
+        <label>Sector / Town <span class="req">*</span></label>
+        <input type="text" name="orgSector" placeholder="Enter sector or town" required>
+      </div>
+      <div class="form-group">
+        <label>P.O. Box</label>
+        <input type="text" name="orgPoBox" placeholder="Enter P.O. Box number">
+      </div>
+    </div>
+
+    <div class="ecs-inline_2x">
+      <div class="form-group">
+        <label>Email <span class="req">*</span></label>
+        <input type="email" name="orgEmail" placeholder="contact@organisation.org" required>
+      </div>
+      <div class="form-group">
+        <label>Phone Number <span class="req">*</span></label>
+        <input type="tel" name="orgPhone" placeholder="+252 63 XXXXXXX" required>
+      </div>
+    </div>
+
+    <h4 class="section-title">Additional Details</h4>
+    <div class="ecs-inline_2x">
+      <div class="form-group">
+        <label>Number of Branches</label>
+        <input type="number" name="branches" placeholder="0" min="0" value="0">
+        <span class="field-hint">Number of branch offices in Somaliland</span>
+      </div>
+      <div class="form-group">
+        <label>Date of Establishment <span class="req">*</span></label>
+        <input type="date" name="estDate" required>
+      </div>
+    </div>
+
+    <div class="ecs-inline_2x">
+      <div class="form-group">
+        <label>No. of Staff (Volunteers)</label>
+        <input type="number" name="volunteers" placeholder="0" min="0" value="0">
+      </div>
+      <div class="form-group">
+        <label>No. of Staff (Paid)</label>
+        <input type="number" name="paidStaff" placeholder="0" min="0" value="0">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Mission & Objectives <span class="req">*</span></label>
+      <textarea name="mission" placeholder="Briefly describe the mission and main objectives of the organisation..." required></textarea>
+    </div>
+
+    <h4 class="section-title">Cluster of Intervention / Pillars <span class="req">*</span></h4>
+    <div class="check-group" id="clusters">
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" name="cluster" value="social"> Social transformational</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" name="cluster" value="governance"> Governance & Human Rights</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" name="cluster" value="crosscutting"> Crosscutting areas</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" name="cluster" value="education"> Education</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" name="cluster" value="health"> Health & Nutrition</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" name="cluster" value="env"> Environment & Climate</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" name="cluster" value="economic"> Economic Development</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" name="cluster" value="peace"> Peace & Security</label>
+    </div>
+
+    <h4 class="section-title">Sector (Max of 3) <span class="req">*</span></h4>
+    <div class="form-group">
+      <select name="sector" required>
+        <option value="">-- Select Primary Sector --</option>
+        <option>Health</option>
+        <option>Education</option>
+        <option>Agriculture & Food Security</option>
+        <option>Water, Sanitation & Hygiene (WASH)</option>
+        <option>Livelihoods & Economic Recovery</option>
+        <option>Protection & Human Rights</option>
+        <option>Gender & Women Empowerment</option>
+        <option>Youth Development</option>
+        <option>Peace Building</option>
+        <option>Environment & Climate Change</option>
+        <option>Disaster Risk Management</option>
+        <option>Governance & Civil Society</option>
+        <option>Other</option>
+      </select>
+    </div>
+
+    <h4 class="section-title">Source of Fund <span class="req">*</span></h4>
+    <div class="form-group">
+      <label>Add Source of Fund (To add another source, select again)</label>
+      <div class="ecs-inline_2x">
+        <select name="fundingSource" id="fundingSourceSelect">
+          <option value="">-- Select source --</option>
+          <option>Government</option>
+          <option>International Donors (UN, EU, USAID)</option>
+          <option>World Bank</option>
+          <option>African Development Bank</option>
+          <option>Arab Development Bank</option>
+          <option>Private Foundations</option>
+          <option>Member Contributions</option>
+          <option>Self Generated Income</option>
+          <option>Other</option>
+        </select>
+        <button class="btn btn-secondary" type="button" onclick="addFunding()">+ Add Funding Source</button>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <h5>Added Cluster of Intervention</h5>
+      <table class="table" id="clustersTable">
+        <thead><tr><th>Cluster of Intervention</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr class="table-empty"><td colspan="2">No clusters added yet. Select above and click elsewhere.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-card">
+      <h5>Added Sectors</h5>
+      <table class="table">
+        <thead><tr><th>Sector</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr class="table-empty"><td colspan="2">No sectors added yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-card">
+      <h5>Added Sources of Fund</h5>
+      <table class="table" id="fundingTable">
+        <thead><tr><th>Source of Fund</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr class="table-empty"><td colspan="2">No funding sources added yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 class="section-title">Supporting Documents</h4>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Certificate of Registration / Constitution</label>
+        <div class="file-upload" onclick="handleFile(this)">
+          <div class="upload-icon">📄</div>
+          <p>Drag & drop or click to upload PDF</p>
+          <div class="file-name"></div>
+          <input type="file" accept=".pdf,.doc,.docx">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Organisation Logo</label>
+        <div class="file-upload" onclick="handleFile(this)">
+          <div class="upload-icon">🖼️</div>
+          <p>Drag & drop or click to upload image</p>
+          <div class="file-name"></div>
+          <input type="file" accept="image/*">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Applicant ID Copy</label>
+        <div class="file-upload" onclick="handleFile(this)">
+          <div class="upload-icon">🪪</div>
+          <p>Drag & drop or click to upload ID</p>
+          <div class="file-name"></div>
+          <input type="file" accept=".pdf,.jpg,.png">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Letter of Intent / Application Letter</label>
+        <div class="file-upload" onclick="handleFile(this)">
+          <div class="upload-icon">✉️</div>
+          <p>Drag & drop or click to upload letter</p>
+          <div class="file-name"></div>
+          <input type="file" accept=".pdf,.doc,.docx">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="check-item" style="display:flex;align-items:flex-start;gap:8px">
+        <input type="checkbox" name="declaration" required>
+        <span>I hereby declare that all the information provided is true and accurate to the best of my knowledge. I understand that any false information may result in rejection or revocation of registration. <span class="req">*</span></span>
+      </label>
+    </div>
+
+    <div class="form-buttons">
+      <div class="left">
+        <button class="btn btn-secondary" type="button" onclick="showSection('applicant')">← Prev: Applicant Details</button>
+        <button class="btn btn-secondary" type="button" onclick="resetForm('organisation')">⟲ Reset</button>
+      </div>
+      <div class="right">
+        <button class="btn btn-primary" type="button" onclick="submitApplication()">Submit Application ✓</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<footer>
+  <div class="ecs-container">
+    <div class="links">
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">Help & Support</a>
+    </div>
+    © 2026 Republic of Somaliland — e-NGO Registration Portal. All rights reserved.
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let currentSection = 'applicant';
+  const addedClusters = new Set();
+  const addedFunding = new Set();
+
+  function showSection(name){
+    document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active'));
+
+    const section = document.getElementById('section-' + name);
+    if(section) section.classList.add('active');
+    const step = document.getElementById('step-' + name);
+    if(step) step.classList.add('active');
+
+    currentSection = name;
+    window.scrollTo({top: section.offsetTop - 100, behavior:'smooth'});
+  }
+
+  function nextSection(from, to){
+    if(validateSection(from)){
+      showSection(to);
+    } else {
+      showToast('Please complete all required fields before continuing.', 'error');
+    }
+  }
+
+  function showReview(){
+    showToast('Review feature: complete both forms then click Submit Application.', 'success');
+  }
+
+  function validateSection(name){
+    const section = document.getElementById('section-' + name);
+    let valid = true;
+    section.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
+      const group = field.closest('.form-group');
+      if(!field.value || (field.type === 'checkbox' && !field.checked)){
+        if(group) group.classList.add('error');
+        valid = false;
+      } else {
+        if(group) group.classList.remove('error');
+      }
+    });
+    return valid;
+  }
+
+  // Clear error state when user types
+  document.addEventListener('input', e => {
+    const group = e.target.closest('.form-group');
+    if(group) group.classList.remove('error');
+  });
+  document.addEventListener('change', e => {
+    const group = e.target.closest('.form-group');
+    if(group) group.classList.remove('error');
+  });
+
+  function setLang(el, lang){
+    document.querySelectorAll('.langlink').forEach(l => l.classList.remove('active'));
+    el.classList.add('active');
+    showToast('Language switched to ' + lang);
+  }
+
+  function selectRadio(card){
+    card.parentNode.querySelectorAll('.radio-card').forEach(c => c.classList.remove('checked'));
+    card.classList.add('checked');
+  }
+  // Initial check
+  document.querySelectorAll('.radio-card input:checked').forEach(input => {
+    input.closest('.radio-card').classList.add('checked');
+  });
+
+  function toggleCheck(item){
+    const cb = item.querySelector('input[type=checkbox]');
+    setTimeout(() => {
+      if(cb.checked){
+        item.classList.add('checked');
+        if(cb.name === 'cluster'){
+          if(!addedClusters.has(cb.value)){
+            addedClusters.add(cb.value);
+            addClusterRow(cb.value);
+          }
+        }
+      } else {
+        item.classList.remove('checked');
+        if(cb.name === 'cluster'){
+          addedClusters.delete(cb.value);
+          removeClusterRow(cb.value);
+        }
+      }
+    }, 0);
+  }
+
+  function addClusterRow(value){
+    const tbody = document.querySelector('#clustersTable tbody');
+    // Remove empty row
+    const empty = tbody.querySelector('.table-empty');
+    if(empty) empty.remove();
+    const tr = document.createElement('tr');
+    tr.dataset.value = value;
+    tr.innerHTML = '<td>' + escapeHtml(value) + '</td><td><button class="btn btn-secondary" type="button" style="padding:4px 10px;font-size:12px" onclick="removeClusterRow(\''+value+'\')">Remove</button></td>';
+    tbody.appendChild(tr);
+  }
+
+  function removeClusterRow(value){
+    addedClusters.delete(value);
+    const tr = document.querySelector('#clustersTable tr[data-value="'+value+'"]');
+    if(tr) tr.remove();
+    // Uncheck
+    document.querySelectorAll('input[name="cluster"][value="'+value+'"]').forEach(cb => {
+      cb.checked = false;
+      cb.closest('.check-item').classList.remove('checked');
+    });
+    const tbody = document.querySelector('#clustersTable tbody');
+    if(tbody.children.length === 0){
+      tbody.innerHTML = '<tr class="table-empty"><td colspan="2">No clusters added yet.</td></tr>';
+    }
+  }
+
+  function addFunding(){
+    const sel = document.getElementById('fundingSourceSelect');
+    const value = sel.value;
+    if(!value) { showToast('Please select a funding source first.', 'error'); return; }
+    if(addedFunding.has(value)) { showToast('This source is already added.', 'error'); return; }
+    addedFunding.add(value);
+    const tbody = document.querySelector('#fundingTable tbody');
+    const empty = tbody.querySelector('.table-empty');
+    if(empty) empty.remove();
+    const tr = document.createElement('tr');
+    tr.dataset.value = value;
+    tr.innerHTML = '<td>' + escapeHtml(value) + '</td><td><button class="btn btn-secondary" type="button" style="padding:4px 10px;font-size:12px" onclick="removeFunding(\''+value.replace(/'/g, "\\'")+'\')">Remove</button></td>';
+    tbody.appendChild(tr);
+    sel.value = '';
+    showToast('Funding source added.', 'success');
+  }
+
+  function removeFunding(value){
+    addedFunding.delete(value);
+    const tr = document.querySelector('#fundingTable tr[data-value="'+value+'"]');
+    if(tr) tr.remove();
+    const tbody = document.querySelector('#fundingTable tbody');
+    if(tbody.children.length === 0){
+      tbody.innerHTML = '<tr class="table-empty"><td colspan="2">No funding sources added yet.</td></tr>';
+    }
+  }
+
+  function handleFile(uploadEl){
+    const input = uploadEl.querySelector('input[type=file]');
+    input.addEventListener('change', function handler(){
+      if(this.files && this.files[0]){
+        const name = this.files[0].name;
+        const nameEl = uploadEl.querySelector('.file-name');
+        nameEl.textContent = '✓ ' + name;
+        nameEl.style.display = 'block';
+      }
+      input.removeEventListener('change', handler);
+    }, {once: true});
+  }
+
+  function submitApplication(){
+    if(!validateSection('applicant')){
+      showSection('applicant');
+      showToast('Please complete all required fields in Applicant Details.', 'error');
+      return;
+    }
+    if(!validateSection('organisation')){
+      showSection('organisation');
+      showToast('Please complete all required fields in Organisation Details.', 'error');
+      return;
+    }
+    showToast('Application submitted successfully! Reference: SL-NGO-' + Date.now().toString().slice(-8), 'success');
+  }
+
+  function resetForm(name){
+    if(confirm('Reset all fields in this section?')){
+      const section = document.getElementById('section-' + name);
+      section.querySelectorAll('input, select, textarea').forEach(el => {
+        if(el.type === 'checkbox' || el.type === 'radio'){
+          el.checked = el.defaultChecked;
+        } else {
+          el.value = '';
+        }
+      });
+      section.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
+      if(name === 'organisation'){
+        addedClusters.clear();
+        addedFunding.clear();
+        document.querySelector('#clustersTable tbody').innerHTML = '<tr class="table-empty"><td colspan="2">No clusters added yet.</td></tr>';
+        document.querySelector('#fundingTable tbody').innerHTML = '<tr class="table-empty"><td colspan="2">No funding sources added yet.</td></tr>';
+        document.querySelectorAll('.check-item').forEach(c => c.classList.remove('checked'));
+        document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('checked'));
+        document.querySelectorAll('.radio-card input:checked').forEach(i => i.closest('.radio-card').classList.add('checked'));
+      }
+      showToast('Form reset.', 'success');
+    }
+  }
+
+  function showToast(message, type){
+    const t = document.getElementById('toast');
+    t.textContent = message;
+    t.className = 'toast show ' + (type || '');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+</script>
+
+</body>
+</html>
