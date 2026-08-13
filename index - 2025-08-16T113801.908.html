@@ -1,0 +1,2660 @@
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   UQIQ Delivery
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+  </script>
+  <style>
+   /* Reset and base */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      min-height: 100vh;
+      color: #1f2937;
+    }
+    /* Buttons */
+    .iquq-button {
+      background-color: #22c55e;
+      color: white;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    .iquq-button:hover {
+      background-color: #16a34a;
+    }
+    /* Inputs */
+    .iquq-input {
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px 16px;
+      background-color: white;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      color: #374151;
+    }
+    .iquq-input:focus {
+      border-color: #22c55e;
+      outline: none;
+      box-shadow: 0 0 0 3px rgb(34 197 94 / 0.3);
+    }
+    /* Cards */
+    .iquq-card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgb(0 0 0 / 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .iquq-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 24px rgb(0 0 0 / 0.1);
+    }
+    /* Navigation */
+    nav a {
+      font-weight: 600;
+      color: #374151;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+    }
+    nav a:hover,
+    nav a.active {
+      background-color: #22c55e;
+      color: white;
+    }
+    /* Cart */
+    .cart-window {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 360px;
+      max-height: 80vh;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgb(0 0 0 / 0.15);
+      z-index: 1100;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      font-size: 0.95rem;
+    }
+    .cart-window.visible {
+      display: flex;
+    }
+    .cart-header {
+      background-color: #22c55e;
+      color: white;
+      padding: 18px 24px;
+      font-weight: 700;
+      font-size: 1.25rem;
+      user-select: none;
+      cursor: grab;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .cart-header:active {
+      cursor: grabbing;
+    }
+    .cart-items {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      background-color: #f9fafb;
+    }
+    .cart-footer {
+      padding: 20px 24px;
+      border-top: 1px solid #e5e7eb;
+      background-color: white;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 12px;
+    }
+    .cart-item:last-child {
+      margin-bottom: 0;
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .cart-item h4 {
+      font-weight: 600;
+      color: #111827;
+      margin: 0 0 4px 0;
+    }
+    .cart-item p {
+      color: #6b7280;
+      font-size: 0.875rem;
+      margin: 0;
+    }
+    .add-to-cart-btn {
+      background-color: #22c55e;
+      color: white;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-weight: 600;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+    }
+    .add-to-cart-btn:hover {
+      background-color: #16a34a;
+      transform: scale(1.05);
+    }
+    /* Category buttons */
+    .category-btn {
+      background-color: #f3f4f6;
+      border: 1.5px solid #d1d5db;
+      padding: 10px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .category-btn.active {
+      background-color: #22c55e;
+      color: white;
+      border-color: #22c55e;
+    }
+    .category-btn:hover:not(.active) {
+      background-color: #e5e7eb;
+    }
+    /* Order type buttons */
+    .order-type-btn {
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 24px 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #374151;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+    .order-type-btn.active {
+      border-color: #22c55e;
+      background-color: #dcfce7;
+      color: #166534;
+    }
+    .order-type-btn:hover:not(.active) {
+      background-color: #f3f4f6;
+    }
+    /* Feature cards */
+    .feature-card {
+      transition: transform 0.3s ease;
+      border-radius: 16px;
+      padding: 32px 24px;
+      background-color: white;
+      box-shadow: 0 8px 24px rgb(0 0 0 / 0.05);
+      text-align: center;
+      user-select: none;
+    }
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgb(0 0 0 / 0.1);
+    }
+    .feature-card i {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      color: #22c55e;
+    }
+    /* Hero section */
+    .hero-section {
+      background: linear-gradient(135deg, #22c55e, #166534);
+      color: white;
+      border-radius: 16px;
+      padding: 64px 32px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      user-select: none;
+    }
+    .hero-content {
+      max-width: 480px;
+      text-align: center;
+    }
+    .hero-content h1 {
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin-bottom: 24px;
+      line-height: 1.1;
+    }
+    .hero-content p {
+      font-size: 1.25rem;
+      margin-bottom: 32px;
+      color: #d1fae5;
+    }
+    .hero-content button {
+      font-size: 1.25rem;
+      padding: 16px 48px;
+      border-radius: 12px;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgb(34 197 94 / 0.5);
+    }
+    .hero-image {
+      max-width: 600px;
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgb(0 0 0 / 0.15);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    /* App download section */
+    .app-download {
+      background: linear-gradient(135deg, #22c55e, #166534);
+      border-radius: 16px;
+      padding: 64px 32px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      color: white;
+      user-select: none;
+    }
+    .app-download-text {
+      max-width: 480px;
+    }
+    .app-download-text h2 {
+      font-size: 2.75rem;
+      font-weight: 900;
+      margin-bottom: 24px;
+    }
+    .app-download-text p {
+      font-size: 1.25rem;
+      margin-bottom: 32px;
+      color: #d1fae5;
+    }
+    .app-download-buttons {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .app-download-buttons button {
+      background-color: black;
+      border-radius: 12px;
+      padding: 14px 28px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+    }
+    .app-download-buttons button:hover {
+      background-color: #111;
+    }
+    .app-download-buttons i {
+      font-size: 1.75rem;
+    }
+    .app-download-image {
+      max-width: 320px;
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgb(0 0 0 / 0.15);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    /* Restaurant cards */
+    #restaurantsContainer > div {
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgb(0 0 0 / 0.05);
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+    #restaurantsContainer > div:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgb(0 0 0 / 0.1);
+    }
+    #restaurantsContainer img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    #restaurantsContainer .p-4 {
+      padding: 20px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    #restaurantsContainer .flex.items-center {
+      margin-bottom: 12px;
+    }
+    #restaurantsContainer h3 {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #111827;
+    }
+    #restaurantsContainer p {
+      color: #6b7280;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+    }
+    /* Menu item cards */
+    .menu-item-card {
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgb(0 0 0 / 0.05);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+    }
+    .menu-item-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgb(0 0 0 / 0.1);
+    }
+    .menu-item-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+    }
+    .menu-item-card .p-4 {
+      padding: 20px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .menu-item-card h3 {
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 8px;
+      color: #111827;
+    }
+    .menu-item-card p {
+      color: #6b7280;
+      font-size: 0.9rem;
+      flex-grow: 1;
+    }
+    .menu-item-card .price {
+      font-weight: 700;
+      color: #22c55e;
+      margin-top: 12px;
+      font-size: 1.1rem;
+    }
+    /* Management Dashboard */
+    #managementSection {
+      background-color: #f3f4f6;
+      min-height: 100vh;
+      padding: 32px 24px;
+      user-select: none;
+    }
+    #managementSection h2 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 32px;
+      color: #111827;
+    }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    .dashboard-card {
+      background-color: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgb(0 0 0 / 0.05);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      cursor: default;
+      transition: box-shadow 0.3s ease;
+    }
+    .dashboard-card:hover {
+      box-shadow: 0 16px 40px rgb(0 0 0 / 0.1);
+    }
+    .dashboard-card i {
+      font-size: 2.5rem;
+      color: #22c55e;
+      flex-shrink: 0;
+    }
+    .dashboard-card .card-info {
+      flex-grow: 1;
+    }
+    .dashboard-card .card-info p {
+      margin: 0;
+      color: #6b7280;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .dashboard-card .card-info h3 {
+      margin: 4px 0 0 0;
+      font-size: 1.75rem;
+      font-weight: 900;
+      color: #111827;
+    }
+    .management-section {
+      background-color: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgb(0 0 0 / 0.05);
+      margin-bottom: 40px;
+    }
+    .management-section h3 {
+      font-size: 1.75rem;
+      font-weight: 900;
+      margin-bottom: 24px;
+      color: #111827;
+    }
+    .management-tabs {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .management-tab {
+      padding-bottom: 12px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #6b7280;
+      cursor: pointer;
+      border-bottom: 4px solid transparent;
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+    .management-tab.active {
+      color: #22c55e;
+      border-color: #22c55e;
+    }
+    .management-content {
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    .order-card, .vehicle-card, .restaurant-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      background-color: white;
+      box-shadow: 0 4px 12px rgb(0 0 0 / 0.05);
+      transition: box-shadow 0.3s ease;
+    }
+    .order-card:hover, .vehicle-card:hover, .restaurant-card:hover {
+      box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);
+    }
+    .order-header, .vehicle-header, .restaurant-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .order-status {
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      user-select: none;
+    }
+    .order-status.pending {
+      background-color: #fef3c7;
+      color: #b45309;
+    }
+    .order-status.completed {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+    .vehicle-status {
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      user-select: none;
+    }
+    .vehicle-available {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+    .vehicle-delivering {
+      background-color: #fef3c7;
+      color: #b45309;
+    }
+    .vehicle-unavailable {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+    .btn-small {
+      background-color: #22c55e;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
+      border: none;
+    }
+    .btn-small:hover {
+      background-color: #16a34a;
+    }
+    .btn-danger {
+      background-color: #ef4444;
+    }
+    .btn-danger:hover {
+      background-color: #b91c1c;
+    }
+    /* Scrollbar for management content */
+    .management-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    .management-content::-webkit-scrollbar-thumb {
+      background-color: #22c55e;
+      border-radius: 4px;
+    }
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero-section {
+        flex-direction: column;
+        padding: 48px 24px;
+      }
+      .app-download {
+        flex-direction: column;
+        padding: 48px 24px;
+      }
+      .hero-content, .app-download-text {
+        max-width: 100%;
+        text-align: center;
+      }
+      .hero-image, .app-download-image {
+        max-width: 100%;
+      }
+      .cart-window {
+        width: 90vw;
+        right: 5vw;
+        top: 10vh;
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+ </head>
+ <body>
+  <!-- Header -->
+  <header class="bg-white shadow-md sticky top-0 z-50">
+   <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-2 cursor-pointer" onclick="showMainPage()">
+     <h1 class="text-3xl font-extrabold text-green-600 select-none">
+      UQIQ
+     </h1>
+     <span class="text-lg font-semibold text-gray-600 select-none">
+      Delivery
+     </span>
+    </div>
+    <nav class="hidden md:flex space-x-6">
+     <a class="nav-link active" data-target="mainPage" href="#">
+      Home
+     </a>
+     <a class="nav-link" data-target="customerView" href="#">
+      Restaurants
+     </a>
+     <a class="nav-link" data-target="contactSection" href="#">
+      Contact
+     </a>
+     <a class="nav-link" data-target="managementLogin" href="#">
+      Management
+     </a>
+    </nav>
+    <div class="relative">
+     <button aria-label="Toggle cart" class="bg-gray-200 p-3 rounded-full relative hover:bg-gray-300 transition-colors" id="cartToggleBtn">
+      <i class="fas fa-shopping-cart text-2xl text-gray-700">
+      </i>
+      <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden" id="cartCount">
+      </span>
+     </button>
+    </div>
+    <button aria-label="Toggle menu" class="md:hidden p-2 rounded-md hover:bg-gray-200" id="mobileMenuBtn">
+     <i class="fas fa-bars text-xl">
+     </i>
+    </button>
+   </div>
+   <nav class="hidden md:hidden bg-white shadow-md" id="mobileMenu">
+    <a class="block px-6 py-3 border-b border-gray-200 nav-link active" data-target="mainPage" href="#">
+     Home
+    </a>
+    <a class="block px-6 py-3 border-b border-gray-200 nav-link" data-target="customerView" href="#">
+     Restaurants
+    </a>
+    <a class="block px-6 py-3 border-b border-gray-200 nav-link" data-target="contactSection" href="#">
+     Contact
+    </a>
+    <a class="block px-6 py-3 nav-link" data-target="managementLogin" href="#">
+     Management
+    </a>
+   </nav>
+  </header>
+  <!-- Main App Container -->
+  <main class="min-h-screen">
+   <!-- Main Page -->
+   <section class="container mx-auto px-6 py-12 max-w-7xl" id="mainPage">
+    <div class="hero-section mx-auto">
+     <div class="hero-content">
+      <h1>
+       Food delivery and more
+      </h1>
+      <p>
+       Groceries, shops, pharmacies, anything!
+      </p>
+      <button class="iquq-button" onclick="showCustomerView()">
+       Get Started
+      </button>
+     </div>
+     <div class="hero-image">
+      <img alt="UQIQ Delivery logo with green background and white text, representing a food delivery service" src="https://storage.googleapis.com/a1aa/image/ab5880ca-9c75-4f74-ab83-a6983769b058.jpg"/>
+     </div>
+    </div>
+    <!-- How It Works Section -->
+    <section class="py-16 bg-white mt-20" id="how-it-works">
+     <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">
+       How UQIQ Delivery Works
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+       <div class="text-center p-6">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+         <i class="fas fa-utensils text-3xl text-green-600">
+         </i>
+        </div>
+        <h3 class="text-xl font-semibold mb-3">
+         1. Choose Restaurant
+        </h3>
+        <p class="text-gray-600">
+         Browse menus from our partner restaurants and select your favorite dishes.
+        </p>
+       </div>
+       <div class="text-center p-6">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+         <i class="fas fa-mobile-alt text-3xl text-green-600">
+         </i>
+        </div>
+        <h3 class="text-xl font-semibold mb-3">
+         2. Secure Payment
+        </h3>
+        <p class="text-gray-600">
+         Pay easily with Zaad or E-Dahab mobile money directly from your phone.
+        </p>
+       </div>
+       <div class="text-center p-6">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+         <i class="fas fa-motorcycle text-3xl text-green-600">
+         </i>
+        </div>
+        <h3 class="text-xl font-semibold mb-3">
+         3. Fast Delivery
+        </h3>
+        <p class="text-gray-600">
+         Our riders will deliver your order to your doorstep in under an hour.
+        </p>
+       </div>
+      </div>
+     </div>
+    </section>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mt-20">
+     <div class="feature-card">
+      <i class="fas fa-shipping-fast">
+      </i>
+      <h3>
+       Fast Delivery
+      </h3>
+      <p>
+       Like a flash! Order or send anything in your city and receive it in minutes
+      </p>
+     </div>
+     <div class="feature-card">
+      <i class="fas fa-clock">
+      </i>
+      <h3>
+       24/7 Availability
+      </h3>
+      <p>
+       We are always here for you, day or night, 24 hours a day, 7 days a week
+      </p>
+     </div>
+     <div class="feature-card">
+      <i class="fas fa-shopping-basket">
+      </i>
+      <h3>
+       Groceries &amp; More
+      </h3>
+      <p>
+       Find anything you need! From supermarkets to shops, pharmacies to florists
+      </p>
+     </div>
+    </div>
+    <div class="app-download mx-auto mt-24">
+     <div class="app-download-text">
+      <h2>
+       Better with our app
+      </h2>
+      <p>
+       Download the UQIQ app for faster ordering and to access exclusive features.
+      </p>
+      <div class="app-download-buttons">
+       <button>
+        <i class="fab fa-apple">
+        </i>
+        <div>
+         <div class="text-xs">
+          Download on the
+         </div>
+         <div>
+          App Store
+         </div>
+        </div>
+       </button>
+       <button>
+        <i class="fab fa-google-play">
+        </i>
+        <div>
+         <div class="text-xs">
+          GET IT ON
+         </div>
+         <div>
+          Google Play
+         </div>
+        </div>
+       </button>
+      </div>
+     </div>
+     <div class="app-download-image">
+      <img alt="Screenshot of UQIQ Delivery mobile app showing food ordering interface with menu and cart" src="https://storage.googleapis.com/a1aa/image/8f688d12-69e5-4c71-0006-f7492ced629d.jpg"/>
+     </div>
+    </div>
+   </section>
+   <!-- Customer View - Restaurant Selection and Menu -->
+   <div class="hidden" id="customerView">
+    <!-- Restaurant Selection -->
+    <section class="container mx-auto px-4 mb-8">
+     <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">
+      Featured Restaurants
+     </h2>
+     <p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+      Discover the best food from our partner restaurants
+     </p>
+     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6" id="restaurantsContainer">
+     </div>
+    </section>
+    <!-- Menu View -->
+    <section class="container mx-auto px-4 hidden" id="menuView">
+     <button class="mb-4 flex items-center text-green-600 hover:text-green-700 transition-colors" id="backToRestaurantsBtn">
+      <i class="fas fa-arrow-left mr-2">
+      </i>
+      Back to Restaurants
+     </button>
+     <!-- Restaurant Header -->
+     <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <div class="flex flex-col md:flex-row items-center">
+       <div class="w-24 h-24 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6">
+        <img alt="Restaurant logo" class="w-full h-full object-cover" id="restaurantLogo" src=""/>
+       </div>
+       <div>
+        <h2 class="text-2xl font-bold text-gray-800" id="menuRestaurantName">
+        </h2>
+        <p class="text-gray-600 flex items-center gap-2 mt-1" id="restaurantAddress">
+         <i class="fas fa-map-marker-alt text-green-600">
+         </i>
+         <span id="restaurantAddressText">
+         </span>
+        </p>
+        <p class="text-gray-600 flex items-center gap-2 mt-1" id="restaurantPhone">
+         <i class="fas fa-phone text-green-600">
+         </i>
+         <span id="restaurantPhoneText">
+         </span>
+        </p>
+       </div>
+      </div>
+     </div>
+     <!-- Order Type Selection -->
+     <div class="mb-8">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">
+       How would you like to order?
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+       <button class="order-type-btn" id="dineInBtn" onclick="setOrderType('dinein')">
+        <i class="fas fa-utensils text-3xl">
+        </i>
+        <span>
+         Dine In
+        </span>
+        <span class="text-sm text-gray-600 mt-1">
+         Eat at the restaurant
+        </span>
+       </button>
+       <button class="order-type-btn active" id="takeawayBtn" onclick="setOrderType('takeaway')">
+        <i class="fas fa-shopping-bag text-3xl">
+        </i>
+        <span>
+         Take Away
+        </span>
+        <span class="text-sm text-gray-600 mt-1">
+         Order for pickup
+        </span>
+       </button>
+       <button class="order-type-btn" id="deliveryBtn" onclick="setOrderType('delivery')">
+        <i class="fas fa-motorcycle text-3xl">
+        </i>
+        <span>
+         Delivery
+        </span>
+        <span class="text-sm text-gray-600 mt-1">
+         Deliver to your location
+        </span>
+       </button>
+      </div>
+     </div>
+     <!-- Category Navigation -->
+     <div class="flex space-x-4 mb-6 overflow-x-auto no-scrollbar pb-2">
+      <button class="category-btn active" id="allBtn" onclick="setActiveCategory('all')">
+       <i class="fas fa-list">
+       </i>
+       <span>
+        All
+       </span>
+      </button>
+      <button class="category-btn" id="foodBtn" onclick="setActiveCategory('food')">
+       <i class="fas fa-utensils">
+       </i>
+       <span>
+        Food
+       </span>
+      </button>
+      <button class="category-btn" id="drinkBtn" onclick="setActiveCategory('drink')">
+       <i class="fas fa-coffee">
+       </i>
+       <span>
+        Drinks
+       </span>
+      </button>
+      <button class="category-btn" id="dessertBtn" onclick="setActiveCategory('dessert')">
+       <i class="fas fa-cake">
+       </i>
+       <span>
+        Desserts
+       </span>
+      </button>
+     </div>
+     <!-- Menu Items -->
+     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="menuItems">
+     </div>
+    </section>
+   </div>
+   <!-- Cart Window -->
+   <aside aria-label="Shopping cart" class="cart-window" id="cartWindow">
+    <div class="cart-header">
+     <span>
+      Your Order
+     </span>
+     <button aria-label="Close cart" onclick="toggleCart()">
+      <i class="fas fa-times">
+      </i>
+     </button>
+    </div>
+    <div class="cart-items" id="cartItemsContainer">
+     <p class="text-center text-gray-500 mt-8">
+      Your cart is empty
+     </p>
+    </div>
+    <div class="cart-footer hidden" id="cartSummary">
+     <div class="flex justify-between font-bold text-lg mb-4">
+      <span>
+       Total:
+      </span>
+      <span id="totalPrice">
+       $0.00
+      </span>
+     </div>
+     <button class="iquq-button w-full py-3 rounded-lg" id="checkoutBtn" onclick="proceedToCheckout()">
+      Checkout
+     </button>
+    </div>
+   </aside>
+   <!-- Delivery Form -->
+   <section class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50" id="deliveryForm">
+    <form class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-lg max-h-[90vh] overflow-y-auto" id="deliveryInfoForm">
+     <h3 class="text-3xl font-extrabold text-green-600 mb-8 text-center">
+      Delivery Information
+     </h3>
+     <div class="step-indicator mb-8 flex justify-between relative">
+      <div class="step completed text-center flex-1 relative z-10">
+       <div class="step-number bg-green-500 text-white mx-auto mb-2 w-10 h-10 rounded-full flex items-center justify-center font-bold">
+        1
+       </div>
+       <div class="step-label font-semibold text-gray-700">
+        Order
+       </div>
+      </div>
+      <div class="step active text-center flex-1 relative z-10">
+       <div class="step-number bg-yellow-400 text-black mx-auto mb-2 w-10 h-10 rounded-full flex items-center justify-center font-bold">
+        2
+       </div>
+       <div class="step-label font-semibold text-gray-700">
+        Delivery
+       </div>
+      </div>
+      <div class="step text-center flex-1 relative z-10">
+       <div class="step-number bg-gray-300 text-gray-600 mx-auto mb-2 w-10 h-10 rounded-full flex items-center justify-center font-bold">
+        3
+       </div>
+       <div class="step-label font-semibold text-gray-700">
+        Payment
+       </div>
+      </div>
+      <div class="absolute top-5 left-0 right-0 h-1 bg-gray-300 z-0">
+      </div>
+      <div class="absolute top-5 left-0 right-1/2 h-1 bg-green-500 z-0">
+      </div>
+     </div>
+     <input id="deliveryMethod" type="hidden" value="bike"/>
+     <div class="mb-6">
+      <label class="block text-gray-700 font-semibold mb-2" for="deliveryName">
+       Full Name *
+      </label>
+      <input class="iquq-input w-full" id="deliveryName" required="" type="text"/>
+     </div>
+     <div class="mb-6">
+      <label class="block text-gray-700 font-semibold mb-2" for="deliveryPhone">
+       Phone Number *
+      </label>
+      <input class="iquq-input w-full" id="deliveryPhone" required="" type="tel"/>
+     </div>
+     <div class="mb-6">
+      <label class="block text-gray-700 font-semibold mb-2" for="detectedLocation">
+       Detected Location
+      </label>
+      <input class="iquq-input w-full bg-gray-100 cursor-not-allowed" id="detectedLocation" readonly="" type="text"/>
+      <div class="text-center text-sm text-gray-600 mt-2 whitespace-pre-line" id="locationStatusDelivery">
+       456 Market Road, Hargeisa
+       <br/>
+       Phone: +252 61 876 5432
+      </div>
+     </div>
+     <div class="mb-6">
+      <label class="block text-gray-700 font-semibold mb-2" for="deliveryAddressForm">
+       Delivery Address *
+      </label>
+      <textarea class="iquq-input w-full resize-none" id="deliveryAddressForm" placeholder="Enter your full address" required="" rows="3"></textarea>
+     </div>
+     <div class="mb-6">
+      <label class="block text-gray-700 font-semibold mb-2">
+       Delivery Method *
+      </label>
+      <div class="grid grid-cols-2 gap-6">
+       <button class="p-4 border-2 border-green-600 rounded-xl flex flex-col items-center active" id="bikeOptionForm" onclick="selectDeliveryMethod('bike')" type="button">
+        <i class="fas fa-motorcycle text-3xl text-green-600 mb-2">
+        </i>
+        Bike
+       </button>
+       <button class="p-4 border-2 border-gray-300 rounded-xl flex flex-col items-center" id="taxiOptionForm" onclick="selectDeliveryMethod('taxi')" type="button">
+        <img alt="Icon of a green taxi car" class="mb-2" height="48" src="https://storage.googleapis.com/a1aa/image/0b84ee3e-eef6-4c79-4477-e3a22a493e0e.jpg" width="48"/>
+        Taxi
+       </button>
+      </div>
+     </div>
+     <div class="mb-6" id="vehicleSelectionContainer">
+      <label class="block text-gray-700 font-semibold mb-2" for="selectedVehicleId">
+       Select Vehicle *
+      </label>
+      <select class="iquq-input w-full" id="selectedVehicleId" required="">
+       <option value="">
+        Choose a vehicle
+       </option>
+      </select>
+     </div>
+     <div class="flex gap-6">
+      <button class="flex-1 py-3 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors" onclick="closeDeliveryForm()" type="button">
+       Back
+      </button>
+      <button class="flex-1 py-3 rounded-lg iquq-button font-semibold" type="submit">
+       Continue to Payment
+      </button>
+     </div>
+    </form>
+   </section>
+   <!-- Payment Form -->
+   <section class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50" id="paymentForm">
+    <form class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-lg max-h-[90vh] overflow-y-auto" id="paymentInfoForm">
+     <h3 class="text-3xl font-extrabold text-green-600 mb-8 text-center">
+      Payment Method
+     </h3>
+     <div class="step-indicator mb-8 flex justify-between relative">
+      <div class="step completed text-center flex-1 relative z-10">
+       <div class="step-number bg-green-500 text-white mx-auto mb-2 w-10 h-10 rounded-full flex items-center justify-center font-bold">
+        1
+       </div>
+       <div class="step-label font-semibold text-gray-700">
+        Order
+       </div>
+      </div>
+      <div class="step completed text-center flex-1 relative z-10">
+       <div class="step-number bg-green-500 text-white mx-auto mb-2 w-10 h-10 rounded-full flex items-center justify-center font-bold">
+        2
+       </div>
+       <div class="step-label font-semibold text-gray-700">
+        Delivery
+       </div>
+      </div>
+      <div class="step active text-center flex-1 relative z-10">
+       <div class="step-number bg-yellow-400 text-black mx-auto mb-2 w-10 h-10 rounded-full flex items-center justify-center font-bold">
+        3
+       </div>
+       <div class="step-label font-semibold text-gray-700">
+        Payment
+       </div>
+      </div>
+      <div class="absolute top-5 left-0 right-0 h-1 bg-gray-300 z-0">
+      </div>
+      <div class="absolute top-5 left-0 right-1/2 h-1 bg-green-500 z-0">
+      </div>
+     </div>
+     <input id="paymentMethod" type="hidden" value=""/>
+     <div class="mb-6">
+      <label class="block text-gray-700 font-semibold mb-2">
+       Select Payment Method *
+      </label>
+      <div class="grid grid-cols-3 gap-6 max-w-md mx-auto">
+       <button class="p-4 border-2 border-green-600 rounded-xl flex flex-col items-center active" id="zaadOption" onclick="selectPaymentMethod('zaad')" type="button">
+        <i class="fas fa-mobile-alt text-3xl text-green-600 mb-2">
+        </i>
+        Zaad
+       </button>
+       <button class="p-4 border-2 border-gray-300 rounded-xl flex flex-col items-center" id="edahabOption" onclick="selectPaymentMethod('edahab')" type="button">
+        <i class="fas fa-wallet text-3xl text-green-600 mb-2">
+        </i>
+        E-Dahab
+       </button>
+       <button class="p-4 border-2 border-gray-300 rounded-xl flex flex-col items-center" id="cashOption" onclick="selectPaymentMethod('cash')" type="button">
+        <i class="fas fa-money-bill-wave text-3xl text-green-600 mb-2">
+        </i>
+        Cash
+       </button>
+      </div>
+     </div>
+     <div class="mb-6 hidden" id="paymentPhoneContainer">
+      <label class="block text-gray-700 font-semibold mb-2" for="paymentPhone">
+       Phone Number for Payment *
+      </label>
+      <input class="iquq-input w-full" id="paymentPhone" placeholder="Enter phone number for payment" type="tel"/>
+     </div>
+     <div class="mb-6 text-center">
+      <label class="block text-gray-700 font-semibold mb-2">
+       Total Amount
+      </label>
+      <div class="text-3xl font-extrabold text-green-600" id="paymentTotal">
+       $0.00
+      </div>
+     </div>
+     <div class="flex gap-6">
+      <button class="flex-1 py-3 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors" onclick="backToDelivery()" type="button">
+       Back
+      </button>
+      <button class="flex-1 py-3 rounded-lg iquq-button font-semibold" type="submit">
+       Place Order
+      </button>
+     </div>
+    </form>
+   </section>
+   <!-- Bill Modal -->
+   <section class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50" id="billModal">
+    <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md max-h-[90vh] overflow-y-auto">
+     <div class="text-center mb-8" id="billHeader">
+     </div>
+     <div class="border-b border-gray-200 pb-6 mb-6">
+      <div class="flex justify-between mb-3">
+       <span>
+        Order Number:
+       </span>
+       <span class="font-bold" id="billOrderNumber">
+       </span>
+      </div>
+      <div class="flex justify-between mb-3">
+       <span>
+        Date &amp; Time:
+       </span>
+       <span id="billDateTime">
+       </span>
+      </div>
+      <div class="flex justify-between mb-3">
+       <span>
+        Restaurant:
+       </span>
+       <span id="billRestaurantName">
+       </span>
+      </div>
+      <div class="text-sm text-gray-600" id="billRestaurantAddress">
+      </div>
+      <div class="text-sm text-gray-600" id="billRestaurantPhone">
+      </div>
+     </div>
+     <div class="border-b border-gray-200 pb-6 mb-6">
+      <div class="flex justify-between mb-3">
+       <span>
+        Customer:
+       </span>
+       <span id="billCustomerInfo">
+       </span>
+      </div>
+      <div class="flex justify-between mb-3">
+       <span>
+        Order Type:
+       </span>
+       <span id="billOrderType">
+       </span>
+      </div>
+      <div class="mb-3" id="billDeliveryInfo">
+      </div>
+      <div id="billVehicleInfo">
+      </div>
+     </div>
+     <div class="border-b border-gray-200 pb-6 mb-6">
+      <h4 class="font-bold mb-4">
+       Order Items
+      </h4>
+      <div class="space-y-2" id="billItems">
+      </div>
+     </div>
+     <div class="flex justify-between font-bold text-xl mb-8">
+      <span>
+       Total:
+      </span>
+      <span class="text-green-600" id="billTotal">
+      </span>
+     </div>
+     <div class="text-center mb-8 text-green-600 font-bold" id="billFooter">
+     </div>
+     <div class="flex justify-center mb-8" id="qrcode-container">
+     </div>
+     <div class="flex gap-6">
+      <button class="flex-1 py-3 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors" onclick="window.print()">
+       Print Receipt
+      </button>
+      <button class="flex-1 py-3 rounded-lg iquq-button font-semibold" onclick="closeBill()">
+       Close
+      </button>
+     </div>
+    </div>
+   </section>
+   <!-- Contact Section -->
+   <section class="container mx-auto px-6 py-12 max-w-3xl hidden" id="contactSection">
+    <h2 class="text-4xl font-extrabold text-center mb-12">
+     Contact Us
+    </h2>
+    <form class="bg-white rounded-2xl shadow-lg p-10 space-y-6" id="contactForm">
+     <div>
+      <label class="block text-gray-700 font-semibold mb-2" for="contactName">
+       Name
+      </label>
+      <input class="iquq-input w-full" id="contactName" placeholder="Your Name" required="" type="text"/>
+     </div>
+     <div>
+      <label class="block text-gray-700 font-semibold mb-2" for="contactEmail">
+       Email
+      </label>
+      <input class="iquq-input w-full" id="contactEmail" placeholder="Your Email" required="" type="email"/>
+     </div>
+     <div>
+      <label class="block text-gray-700 font-semibold mb-2" for="contactSubject">
+       Subject
+      </label>
+      <input class="iquq-input w-full" id="contactSubject" placeholder="Subject" required="" type="text"/>
+     </div>
+     <div>
+      <label class="block text-gray-700 font-semibold mb-2" for="contactMessage">
+       Message
+      </label>
+      <textarea class="iquq-input w-full resize-none" id="contactMessage" placeholder="Your Message" required="" rows="5"></textarea>
+     </div>
+     <button class="iquq-button w-full py-4 font-semibold text-lg rounded-2xl" type="submit">
+      Send Message
+     </button>
+     <div class="hidden text-green-600 text-center mt-4 font-semibold" id="contactSuccess">
+      <i class="fas fa-check-circle mr-2">
+      </i>
+      Thank you for your message!
+     </div>
+    </form>
+   </section>
+   <!-- Management Login Form -->
+   <section class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50" id="managementLoginFormContainer">
+    <form class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md space-y-6" id="managementLoginForm">
+     <h3 class="text-3xl font-extrabold text-green-600 text-center">
+      Management Login
+     </h3>
+     <div>
+      <label class="block text-gray-700 font-semibold mb-2" for="username">
+       Username
+      </label>
+      <input class="iquq-input w-full" id="username" placeholder="Enter username" required="" type="text"/>
+     </div>
+     <div>
+      <label class="block text-gray-700 font-semibold mb-2" for="password">
+       Password
+      </label>
+      <input class="iquq-input w-full" id="password" placeholder="Enter password" required="" type="password"/>
+     </div>
+     <button class="iquq-button w-full py-4 font-semibold text-lg rounded-2xl" type="submit">
+      Login
+     </button>
+    </form>
+   </section>
+   <!-- Management Dashboard -->
+   <section class="hidden container mx-auto px-6 py-12 max-w-7xl" id="managementSection">
+    <div class="flex justify-between items-center mb-12">
+     <h2 class="text-4xl font-extrabold text-gray-900">
+      Management Dashboard
+     </h2>
+     <button class="iquq-button py-3 px-6 rounded-2xl font-semibold hover:bg-green-700 transition-colors" id="logoutBtn">
+      Logout
+     </button>
+    </div>
+    <div class="dashboard-grid">
+     <div class="dashboard-card" onclick="showOrdersManagement()" role="button" tabindex="0">
+      <i class="fas fa-shopping-cart">
+      </i>
+      <div class="card-info">
+       <p>
+        Total Orders
+       </p>
+       <h3 id="totalOrders">
+        0
+       </h3>
+      </div>
+     </div>
+     <div class="dashboard-card" onclick="showVehiclesManagement()" role="button" tabindex="0">
+      <i class="fas fa-motorcycle">
+      </i>
+      <div class="card-info">
+       <p>
+        Total Vehicles
+       </p>
+       <h3 id="totalVehicles">
+        0
+       </h3>
+      </div>
+     </div>
+     <div class="dashboard-card" onclick="showRestaurantsManagement()" role="button" tabindex="0">
+      <i class="fas fa-utensils">
+      </i>
+      <div class="card-info">
+       <p>
+        Total Restaurants
+       </p>
+       <h3 id="totalRestaurants">
+        0
+       </h3>
+      </div>
+     </div>
+     <div class="dashboard-card" onclick="showOrdersManagement()" role="button" tabindex="0">
+      <i class="fas fa-clock">
+      </i>
+      <div class="card-info">
+       <p>
+        Pending Orders
+       </p>
+       <h3 id="pendingOrders">
+        0
+       </h3>
+      </div>
+     </div>
+    </div>
+    <div class="management-section">
+     <div aria-label="Management Sections" class="management-tabs" role="tablist">
+      <button aria-controls="ordersManagement" aria-selected="true" class="management-tab active" id="tab-orders" onclick="showOrdersManagement()" role="tab" tabindex="0">
+       Orders
+      </button>
+      <button aria-controls="vehiclesManagement" aria-selected="false" class="management-tab" id="tab-vehicles" onclick="showVehiclesManagement()" role="tab" tabindex="-1">
+       Vehicles
+      </button>
+      <button aria-controls="restaurantsManagement" aria-selected="false" class="management-tab" id="tab-restaurants" onclick="showRestaurantsManagement()" role="tab" tabindex="-1">
+       Restaurants
+      </button>
+     </div>
+     <div aria-labelledby="tab-orders" class="management-content" id="ordersManagement" role="tabpanel">
+      <h3 class="text-2xl font-extrabold mb-6">
+       Order Management
+      </h3>
+      <div aria-live="polite" aria-relevant="additions" class="mb-8" id="pendingOrdersList">
+      </div>
+      <div aria-live="polite" aria-relevant="additions" id="completedOrdersList">
+      </div>
+     </div>
+     <div aria-labelledby="tab-vehicles" class="management-content hidden" id="vehiclesManagement" role="tabpanel">
+      <h3 class="text-2xl font-extrabold mb-6">
+       Vehicle Management
+      </h3>
+      <form class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" id="addVehicleForm">
+       <input class="iquq-input" placeholder="Plate Number" required="" type="text"/>
+       <input class="iquq-input" placeholder="Driver Name" required="" type="text"/>
+       <select class="iquq-input" required="">
+        <option value="">
+         Select Type
+        </option>
+        <option value="bike">
+         Bike
+        </option>
+        <option value="taxi">
+         Taxi
+        </option>
+       </select>
+       <button class="iquq-button py-3 rounded-2xl font-semibold" type="submit">
+        Add Vehicle
+       </button>
+      </form>
+      <div aria-live="polite" aria-relevant="additions" id="vehiclesList">
+      </div>
+     </div>
+     <div aria-labelledby="tab-restaurants" class="management-content hidden" id="restaurantsManagement" role="tabpanel">
+      <h3 class="text-2xl font-extrabold mb-6">
+       Restaurant Management
+      </h3>
+      <button class="iquq-button py-3 px-6 rounded-2xl font-semibold mb-8" onclick="showAddRestaurantModal()">
+       Add Restaurant
+      </button>
+      <div aria-live="polite" aria-relevant="additions" id="managementRestaurantsList">
+      </div>
+      <div class="mt-12">
+       <label class="block font-semibold mb-3" for="menuRestaurantSelect">
+        Select Restaurant to Edit Menu
+       </label>
+       <select class="iquq-input w-full max-w-md" id="menuRestaurantSelect" onchange="loadMenuForEdit()">
+        <option value="">
+         Select a restaurant
+        </option>
+       </select>
+      </div>
+      <div class="hidden mt-8" id="menuEditor">
+       <h4 class="font-bold mb-4">
+        Edit Menu Items
+       </h4>
+       <div class="space-y-6" id="menuItemsEditor">
+       </div>
+       <button class="iquq-button py-3 px-6 rounded-2xl font-semibold mt-6" onclick="saveMenuChanges()">
+        Save Changes
+       </button>
+      </div>
+     </div>
+    </div>
+   </section>
+  </main>
+  <!-- Add Restaurant Modal -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50" id="addRestaurantModal">
+   <div class="bg-white rounded-2xl p-8 w-full max-w-lg">
+    <div class="flex justify-between items-center mb-6">
+     <h3 class="text-2xl font-extrabold">
+      Add New Restaurant
+     </h3>
+     <button aria-label="Close modal" class="text-gray-600 hover:text-gray-900" onclick="closeAddRestaurantModal()">
+      <i class="fas fa-times text-xl">
+      </i>
+     </button>
+    </div>
+    <form class="space-y-6" id="addRestaurantForm">
+     <div>
+      <label class="block font-semibold mb-2" for="restaurantName">
+       Restaurant Name *
+      </label>
+      <input class="iquq-input w-full" id="restaurantName" required="" type="text"/>
+     </div>
+     <div>
+      <label class="block font-semibold mb-2" for="restaurantAddress">
+       Address *
+      </label>
+      <input class="iquq-input w-full" id="restaurantAddress" required="" type="text"/>
+     </div>
+     <div>
+      <label class="block font-semibold mb-2" for="restaurantPhone">
+       Phone *
+      </label>
+      <input class="iquq-input w-full" id="restaurantPhone" required="" type="text"/>
+     </div>
+     <div>
+      <label class="block font-semibold mb-2" for="restaurantLogo">
+       Logo Image URL
+      </label>
+      <input class="iquq-input w-full" id="restaurantLogo" placeholder="https://example.com/logo.png" type="text"/>
+     </div>
+     <div>
+      <label class="block font-semibold mb-2" for="restaurantCover">
+       Cover Image URL
+      </label>
+      <input class="iquq-input w-full" id="restaurantCover" placeholder="https://example.com/cover.jpg" type="text"/>
+     </div>
+     <div>
+      <label class="block font-semibold mb-2" for="restaurantLocation">
+       Location (Lat, Lng)
+      </label>
+      <input class="iquq-input w-full" id="restaurantLocation" placeholder="2.0469, 45.3182" type="text"/>
+     </div>
+     <div class="flex justify-end gap-4">
+      <button class="py-3 px-6 rounded-lg bg-gray-200 font-semibold hover:bg-gray-300 transition-colors" onclick="closeAddRestaurantModal()" type="button">
+       Cancel
+      </button>
+      <button class="iquq-button py-3 px-6 rounded-lg font-semibold" type="submit">
+       Add Restaurant
+      </button>
+     </div>
+    </form>
+   </div>
+  </div>
+  <!-- Add Menu Item Modal -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50" id="addMenuItemModal">
+   <div class="bg-white rounded-2xl p-8 w-full max-w-lg">
+    <div class="flex justify-between items-center mb-6">
+     <h3 class="text-2xl font-extrabold">
+      Add Menu Item
+     </h3>
+     <button aria-label="Close modal" class="text-gray-600 hover:text-gray-900" onclick="closeAddMenuItemModal()">
+      <i class="fas fa-times text-xl">
+      </i>
+     </button>
+    </div>
+    <form class="space-y-6" id="addMenuItemForm">
+     <input id="menuRestaurantKey" type="hidden"/>
+     <div>
+      <label class="block font-semibold mb-2" for="menuItemName">
+       Item Name *
+      </label>
+      <input class="iquq-input w-full" id="menuItemName" required="" type="text"/>
+     </div>
+     <div>
+      <label class="block font-semibold mb-2" for="menuItemPrice">
+       Price *
+      </label>
+      <input class="iquq-input w-full" id="menuItemPrice" required="" step="0.01" type="number"/>
+     </div>
+     <div>
+      <label class="block font-semibold mb-2" for="menuItemCategory">
+       Category *
+      </label>
+      <select class="iquq-input w-full" id="menuItemCategory" required="">
+       <option value="">
+        Select Category
+       </option>
+       <option value="food">
+        Food
+       </option>
+       <option value="drink">
+        Drink
+       </option>
+       <option value="dessert">
+        Dessert
+       </option>
+      </select>
+     </div>
+     <div>
+      <label class="block font-semibold mb-2" for="menuItemImage">
+       Image URL
+      </label>
+      <input class="iquq-input w-full" id="menuItemImage" placeholder="https://example.com/item.jpg" type="text"/>
+     </div>
+     <div>
+      <label class="block font-semibold mb-2" for="menuItemDescription">
+       Description
+      </label>
+      <textarea class="iquq-input w-full resize-none" id="menuItemDescription" rows="4"></textarea>
+     </div>
+     <div class="flex justify-end gap-4">
+      <button class="py-3 px-6 rounded-lg bg-gray-200 font-semibold hover:bg-gray-300 transition-colors" onclick="closeAddMenuItemModal()" type="button">
+       Cancel
+      </button>
+      <button class="iquq-button py-3 px-6 rounded-lg font-semibold" type="submit">
+       Add Item
+      </button>
+     </div>
+    </form>
+   </div>
+  </div>
+  <script>
+   // Application state and variables
+    let restaurants = {
+      'chicking': {
+        name: "Chicking",
+        address: "123 Main Street, Hargeisa",
+        phone: "+252 61 234 5678",
+        logo: "https://placehold.co/100x100/1AB759/white?text=Chicking",
+        cover: "https://placehold.co/600x400/1AB759/white?text=Chicking+Cover",
+        location: "2.0469, 45.3182",
+        status: "active",
+        menu: [
+          { id: 1, name: "Crispy Chicken Burger", price: 5.5, category: "food", image: "https://placehold.co/300x200/1AB759/white?text=Crispy+Chicken+Burger", description: "Delicious crispy chicken burger with fresh vegetables" },
+          { id: 2, name: "Chicken Wings (6 pcs)", price: 7.0, category: "food", image: "https://placehold.co/300x200/1AB759/white?text=Chicken+Wings", description: "Spicy chicken wings with special sauce" },
+          { id: 3, name: "Coke (500ml)", price: 1.5, category: "drink", image: "https://placehold.co/300x200/1AB759/white?text=Coke", description: "Refreshing Coca-Cola drink" },
+          { id: 4, name: "French Fries", price: 3.0, category: "food", image: "https://placehold.co/300x200/1AB759/white?text=French+Fries", description: "Crispy golden french fries" }
+        ]
+      },
+      'albaik': {
+        name: "Albaik",
+        address: "456 Market Road, Hargeisa",
+        phone: "+252 61 876 5432",
+        logo: "https://placehold.co/100x100/1AB759/white?text=Albaik",
+        cover: "https://placehold.co/600x400/1AB759/white?text=Albaik+Cover",
+        location: "2.0569, 45.3282",
+        status: "active",
+        menu: [
+          { id: 5, name: "Albaik Special Chicken", price: 8.0, category: "food", image: "https://placehold.co/300x200/1AB759/white?text=Albaik+Special", description: "Our signature fried chicken recipe" },
+          { id: 6, name: "Hot Wings (6 pcs)", price: 7.5, category: "food", image: "https://placehold.co/300x200/1AB759/white?text=Hot+Wings", description: "Extra spicy chicken wings" },
+          { id: 7, name: "Sprite (500ml)", price: 1.5, category: "drink", image: "https://placehold.co/300x200/1AB759/white?text=Sprite", description: "Refreshing lemon-lime soda" },
+          { id: 8, name: "Garlic Fries", price: 3.5, category: "food", image: "https://placehold.co/300x200/1AB759/white?text=Garlic+Fries", description: "Fries tossed in garlic sauce" }
+        ]
+      },
+      'pizza-hut': {
+        name: "Pizza Hut",
+        address: "789 Pizza Avenue, Hargeisa",
+        phone: "+252 61 123 9876",
+        logo: "https://placehold.co/100x100/1AB759/white?text=Pizza+Hut",
+        cover: "https://placehold.co/600x400/1AB759/white?text=Pizza+Hut+Cover",
+        location: "2.0369, 45.3082",
+        status: "active",
+        menu: [
+          { id: 9, name: "Pepperoni Pizza (Medium)", price: 12.0, category: "food", image: "https://placehold.co/300x200/1AB759/white?text=Pepperoni+Pizza", description: "Classic pizza with pepperoni slices" },
+          { id: 10, name: "Margherita Pizza (Medium)", price: 10.0, category: "food", image: "https://placehold.co/300x200/1AB759/white?text=Margherita+Pizza", description: "Traditional pizza with tomato and cheese" },
+          { id: 11, name: "Pepsi (1.5L)", price: 2.5, category: "drink", image: "https://placehold.co/300x200/1AB759/white?text=Pepsi", description: "Large bottle of Pepsi" },
+          { id: 12, name: "Garlic Breadsticks", price: 4.0, category: "food", image: "https://placehold.co/300x200/1AB759/white?text=Garlic+Breadsticks", description: "Freshly baked breadsticks with garlic" }
+        ]
+      }
+    };
+    let cart = [];
+    let orders = [];
+    let vehicles = [];
+    let nextOrderId = 1;
+    let currentRestaurant = null;
+    let orderType = 'takeaway';
+    let deliveryInfo = {};
+    let paymentInfo = {};
+    let detectedCoordinates = null;
+    let cartVisible = false;
+    let dragState = { isDragging: false, offsetX: 0, offsetY: 0 };
+    let isAdmin = false;
+    let currentCategory = 'all';
+    let notificationsAllowed = false;
+    
+    // DOM Elements
+    const mainPage = document.getElementById('mainPage');
+    const customerView = document.getElementById('customerView');
+    const restaurantsContainer = document.getElementById('restaurantsContainer');
+    const menuView = document.getElementById('menuView');
+    const menuRestaurantName = document.getElementById('menuRestaurantName');
+    const menuItemsContainer = document.getElementById('menuItems');
+    const cartWindow = document.getElementById('cartWindow');
+    const cartToggleBtn = document.getElementById('cartToggleBtn');
+    const cartItemsContainer = document.getElementById('cartItemsContainer');
+    const cartCount = document.getElementById('cartCount');
+    const totalPriceElement = document.getElementById('totalPrice');
+    const cartSummary = document.getElementById('cartSummary');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const backToRestaurantsBtn = document.getElementById('backToRestaurantsBtn');
+    const deliveryForm = document.getElementById('deliveryForm');
+    const paymentForm = document.getElementById('paymentForm');
+    const billModal = document.getElementById('billModal');
+    const managementSection = document.getElementById('managementSection');
+    const managementLoginFormContainer = document.getElementById('managementLoginFormContainer');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const totalOrdersElement = document.getElementById('totalOrders');
+    const totalVehiclesElement = document.getElementById('totalVehicles');
+    const totalRestaurantsElement = document.getElementById('totalRestaurants');
+    const pendingOrdersElement = document.getElementById('pendingOrders');
+    const pendingOrdersList = document.getElementById('pendingOrdersList');
+    const completedOrdersList = document.getElementById('completedOrdersList');
+    const vehiclesList = document.getElementById('vehiclesList');
+    const managementRestaurantsList = document.getElementById('managementRestaurantsList');
+    const menuRestaurantSelect = document.getElementById('menuRestaurantSelect');
+    const menuEditor = document.getElementById('menuEditor');
+    const menuItemsEditor = document.getElementById('menuItemsEditor');
+    const addRestaurantModal = document.getElementById('addRestaurantModal');
+    const addMenuItemModal = document.getElementById('addMenuItemModal');
+    const locationStatusDelivery = document.getElementById('locationStatusDelivery');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const paymentPhoneContainer = document.getElementById('paymentPhoneContainer');
+    
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      initApp();
+    });
+    
+    function initApp() {
+      updateCart();
+      makeCartDraggable();
+      setOrderType('takeaway');
+      initVehicles();
+      renderRestaurants();
+      setupEventListeners();
+      setupNavigation();
+      setupCategoryFilter();
+      updateStats();
+      detectLocationOnLoad();
+    }
+    
+    function detectLocationOnLoad() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            detectedCoordinates = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            };
+            if (!deliveryForm.classList.contains('hidden')) {
+              document.getElementById('detectedLocation').value = `${detectedCoordinates.lat.toFixed(6)}, ${detectedCoordinates.lng.toFixed(6)}`;
+              locationStatusDelivery.textContent = '456 Market Road, Hargeisa\nPhone: +252 61 876 5432';
+              locationStatusDelivery.className = 'text-center text-sm text-gray-600 mt-2 whitespace-pre-line';
+            }
+          },
+          () => {
+            detectedCoordinates = null;
+            if (!deliveryForm.classList.contains('hidden')) {
+              locationStatusDelivery.textContent = '456 Market Road, Hargeisa\nPhone: +252 61 876 5432';
+              locationStatusDelivery.className = 'text-center text-sm text-gray-600 mt-2 whitespace-pre-line';
+            }
+          }
+        );
+      } else {
+        detectedCoordinates = null;
+        if (!deliveryForm.classList.contains('hidden')) {
+          locationStatusDelivery.textContent = '456 Market Road, Hargeisa\nPhone: +252 61 876 5432';
+          locationStatusDelivery.className = 'text-center text-sm text-gray-600 mt-2 whitespace-pre-line';
+        }
+      }
+    }
+    
+    function setupEventListeners() {
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          navLinks.forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+          const target = link.getAttribute('data-target');
+          if (target === 'mainPage') showMainPage();
+          else if (target === 'customerView') showCustomerView();
+          else if (target === 'contactSection') showContactSection();
+          else if (target === 'managementLogin') showManagementLoginForm();
+        });
+      });
+      
+      backToRestaurantsBtn.addEventListener('click', () => {
+        menuView.classList.add('hidden');
+        customerView.querySelector('#how-it-works').classList.remove('hidden');
+        customerView.querySelector('section[mb-8]').classList.remove('hidden');
+        currentRestaurant = null;
+        setOrderType('takeaway');
+      });
+      
+      cartToggleBtn.addEventListener('click', toggleCart);
+      
+      logoutBtn.addEventListener('click', logout);
+      
+      document.getElementById('deliveryInfoForm').addEventListener('submit', e => {
+        e.preventDefault();
+        showPaymentForm();
+      });
+      
+      document.getElementById('paymentInfoForm').addEventListener('submit', e => {
+        e.preventDefault();
+        if (orderType === 'delivery') submitDeliveryOrder();
+        else submitOrder();
+      });
+      
+      document.getElementById('managementLoginForm').addEventListener('submit', e => {
+        e.preventDefault();
+        login();
+      });
+      
+      document.getElementById('addVehicleForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const plateNumber = formData.get(0);
+        const driverName = formData.get(1);
+        const type = formData.get(2);
+        if (plateNumber && driverName && type) {
+          vehicles.push({
+            id: vehicles.length + 1,
+            type,
+            plateNumber,
+            driverName,
+            status: 'available',
+          });
+          renderVehicles();
+          alert('Vehicle added successfully!');
+          e.target.reset();
+          updateStats();
+        }
+      });
+      
+      document.getElementById('addRestaurantForm').addEventListener('submit', e => {
+        e.preventDefault();
+        addRestaurant();
+      });
+      
+      document.getElementById('addMenuItemForm').addEventListener('submit', e => {
+        e.preventDefault();
+        addMenuItem();
+      });
+      
+      menuRestaurantSelect.addEventListener('change', loadMenuForEdit);
+      
+      document.getElementById('contactForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const name = document.getElementById('contactName').value;
+        const email = document.getElementById('contactEmail').value;
+        const subject = document.getElementById('contactSubject').value;
+        const message = document.getElementById('contactMessage').value;
+        if (name && email && subject && message) {
+          document.getElementById('contactSuccess').classList.remove('hidden');
+          setTimeout(() => {
+            document.getElementById('contactSuccess').classList.add('hidden');
+            document.getElementById('contactForm').reset();
+          }, 3000);
+        }
+      });
+    }
+    
+    function setupNavigation() {
+      document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenu.classList.toggle('hidden');
+      });
+    }
+    
+    function showMainPage() {
+      mainPage.classList.remove('hidden');
+      customerView.classList.add('hidden');
+      managementSection.classList.add('hidden');
+      managementLoginFormContainer.classList.add('hidden');
+      paymentForm.classList.add('hidden');
+      deliveryForm.classList.add('hidden');
+      document.getElementById('contactSection').classList.add('hidden');
+      customerView.querySelector('#how-it-works').classList.remove('hidden');
+      customerView.querySelector('section[mb-8]').classList.remove('hidden');
+      menuView.classList.add('hidden');
+      currentRestaurant = null;
+      setOrderType('takeaway');
+      navLinks.forEach(l => l.classList.remove('active'));
+      document.querySelector('a[data-target="mainPage"]').classList.add('active');
+    }
+    
+    function showCustomerView() {
+      mainPage.classList.add('hidden');
+      customerView.classList.remove('hidden');
+      managementSection.classList.add('hidden');
+      managementLoginFormContainer.classList.add('hidden');
+      paymentForm.classList.add('hidden');
+      deliveryForm.classList.add('hidden');
+      document.getElementById('contactSection').classList.add('hidden');
+      customerView.querySelector('#how-it-works').classList.remove('hidden');
+      customerView.querySelector('section[mb-8]').classList.remove('hidden');
+      menuView.classList.add('hidden');
+      currentRestaurant = null;
+      setOrderType('takeaway');
+      renderRestaurants();
+      navLinks.forEach(l => l.classList.remove('active'));
+      document.querySelector('a[data-target="customerView"]').classList.add('active');
+    }
+    
+    function showContactSection() {
+      mainPage.classList.add('hidden');
+      customerView.classList.add('hidden');
+      managementSection.classList.add('hidden');
+      managementLoginFormContainer.classList.add('hidden');
+      paymentForm.classList.add('hidden');
+      deliveryForm.classList.add('hidden');
+      document.getElementById('contactSection').classList.remove('hidden');
+      navLinks.forEach(l => l.classList.remove('active'));
+      document.querySelector('a[data-target="contactSection"]').classList.add('active');
+    }
+    
+    function showManagementLoginForm() {
+      mainPage.classList.add('hidden');
+      customerView.classList.add('hidden');
+      managementSection.classList.add('hidden');
+      managementLoginFormContainer.classList.remove('hidden');
+      paymentForm.classList.add('hidden');
+      deliveryForm.classList.add('hidden');
+      document.getElementById('contactSection').classList.add('hidden');
+      navLinks.forEach(l => l.classList.remove('active'));
+      document.querySelector('a[data-target="managementLogin"]').classList.add('active');
+    }
+    
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if (username === 'admin' && password === 'admin123') {
+        isAdmin = true;
+        managementLoginFormContainer.classList.add('hidden');
+        managementSection.classList.remove('hidden');
+        updateStats();
+        showOrdersManagement();
+      } else {
+        alert('Invalid username or password');
+      }
+    }
+    
+    function logout() {
+      isAdmin = false;
+      managementSection.classList.add('hidden');
+      showMainPage();
+    }
+    
+    function renderRestaurants() {
+      restaurantsContainer.innerHTML = '';
+      for (const key in restaurants) {
+        const r = restaurants[key];
+        if (r.status !== 'active') continue;
+        const div = document.createElement('div');
+        div.className = 'iquq-card cursor-pointer';
+        div.setAttribute('tabindex', '0');
+        div.setAttribute('role', 'button');
+        div.setAttribute('aria-label', `Select restaurant ${r.name}`);
+        div.onclick = () => selectRestaurant(key);
+        div.onkeypress = e => { if (e.key === 'Enter') selectRestaurant(key); };
+        div.innerHTML = `
+          <img src="${r.cover}" alt="Photo of ${r.name} restaurant building with green branding" />
+          <div class="p-4 flex flex-col justify-center">
+            <div class="flex items-center mb-3">
+              <img src="${r.logo}" alt="${r.name} logo" class="w-12 h-12 rounded-full mr-4" />
+              <h3 class="font-bold text-xl">${r.name}</h3>
+            </div>
+            <p class="text-gray-600 flex items-center gap-2"><i class="fas fa-map-marker-alt text-green-600"></i>${r.address}</p>
+          </div>
+        `;
+        restaurantsContainer.appendChild(div);
+      }
+      managementRestaurantsList.innerHTML = '';
+      for (const key in restaurants) {
+        const r = restaurants[key];
+        const div = document.createElement('div');
+        div.className = 'restaurant-card';
+        div.innerHTML = `
+          <h4 class="font-bold text-lg">${r.name}</h4>
+          <p class="text-gray-600">${r.address}</p>
+          <p class="text-gray-600">Phone: ${r.phone}</p>
+        `;
+        managementRestaurantsList.appendChild(div);
+      }
+      populateMenuRestaurantSelect();
+      totalRestaurantsElement.textContent = Object.keys(restaurants).length;
+    }
+    
+    function selectRestaurant(key) {
+      if (!restaurants[key]) return;
+      currentRestaurant = key;
+      menuRestaurantName.textContent = restaurants[key].name;
+      document.getElementById('restaurantAddressText').textContent = restaurants[key].address;
+      document.getElementById('restaurantPhoneText').textContent = restaurants[key].phone;
+      document.getElementById('restaurantLogo').src = restaurants[key].logo;
+      
+      customerView.querySelector('#how-it-works').classList.add('hidden');
+      customerView.querySelector('section[mb-8]').classList.add('hidden');
+      menuView.classList.remove('hidden');
+      renderMenuItems();
+      setOrderType(orderType);
+    }
+    
+    function renderMenuItems() {
+      if (!currentRestaurant) return;
+      const menu = restaurants[currentRestaurant].menu;
+      menuItemsContainer.innerHTML = '';
+      const filtered = currentCategory === 'all' ? menu : menu.filter(i => i.category === currentCategory);
+      
+      if (filtered.length === 0) {
+        menuItemsContainer.innerHTML = `
+          <div class="col-span-full text-center p-8 bg-white rounded-xl shadow-md">
+            <p class="text-gray-600">No items found in this category.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      filtered.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'menu-item-card';
+        div.innerHTML = `
+          <img src="${item.image}" alt="Image of ${item.name} food item with green background" />
+          <div class="p-4 flex flex-col justify-between flex-grow">
+            <div>
+              <h3>${item.name}</h3>
+              <p>${item.description || ''}</p>
+            </div>
+            <div class="mt-4 flex justify-between items-center">
+              <span class="price">$${item.price.toFixed(2)}</span>
+              <button class="add-to-cart-btn" onclick="addToCart(${item.id})" aria-label="Add ${item.name} to cart">
+                <i class="fas fa-plus"></i> Add
+              </button>
+            </div>
+          </div>
+        `;
+        menuItemsContainer.appendChild(div);
+      });
+    }
+    
+    function setupCategoryFilter() {
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentCategory = btn.id.replace('Btn', '');
+          renderMenuItems();
+        });
+      });
+    }
+    
+    function addToCart(itemId) {
+      if (!currentRestaurant) return;
+      const menu = restaurants[currentRestaurant].menu;
+      const item = menu.find(i => i.id === itemId);
+      if (!item) return;
+      const existing = cart.find(i => i.id === itemId);
+      if (existing) existing.quantity++;
+      else cart.push({...item, quantity: 1});
+      updateCart();
+    }
+    
+    function updateCart() {
+      cartCount.textContent = cart.reduce((a,b) => a + b.quantity, 0);
+      cartCount.classList.toggle('hidden', cart.length === 0);
+      cartItemsContainer.innerHTML = '';
+      if (cart.length === 0) {
+        cartItemsContainer.innerHTML = '<p class="text-center text-gray-500 mt-8">Your cart is empty</p>';
+        cartSummary.classList.add('hidden');
+        return;
+      }
+      cartSummary.classList.remove('hidden');
+      let total = 0;
+      cart.forEach(item => {
+        total += item.price * item.quantity;
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <div>
+            <h4>${item.name}</h4>
+            <p>$${item.price.toFixed(2)} × ${item.quantity}</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="font-bold">$${(item.price * item.quantity).toFixed(2)}</span>
+            <button aria-label="Remove ${item.name} from cart" onclick="removeFromCart(${item.id})" class="text-red-600 hover:text-red-800">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        `;
+        cartItemsContainer.appendChild(div);
+      });
+      totalPriceElement.textContent = `$${total.toFixed(2)}`;
+      document.getElementById('paymentTotal').textContent = `$${total.toFixed(2)}`;
+      validateOrderForm();
+    }
+    
+    function removeFromCart(itemId) {
+      cart = cart.filter(i => i.id !== itemId);
+      updateCart();
+    }
+    
+    function validateOrderForm() {
+      const valid = cart.length > 0;
+      checkoutBtn.disabled = !valid;
+    }
+    
+    function toggleCart() {
+      cartVisible = !cartVisible;
+      if (cartVisible) {
+        cartWindow.classList.add('visible');
+        cartToggleBtn.classList.add('bg-gray-300');
+      } else {
+        cartWindow.classList.remove('visible');
+        cartToggleBtn.classList.remove('bg-gray-300');
+      }
+    }
+    
+    function makeCartDraggable() {
+      const header = cartWindow.querySelector('.cart-header');
+      header.addEventListener('mousedown', e => {
+        dragState.isDragging = true;
+        const rect = cartWindow.getBoundingClientRect();
+        dragState.offsetX = e.clientX - rect.left;
+        dragState.offsetY = e.clientY - rect.top;
+        cartWindow.style.cursor = 'grabbing';
+      });
+      
+      document.addEventListener('mousemove', e => {
+        if (!dragState.isDragging) return;
+        e.preventDefault();
+        let x = e.clientX - dragState.offsetX;
+        let y = e.clientY - dragState.offsetY;
+        const maxX = window.innerWidth - cartWindow.offsetWidth;
+        const maxY = window.innerHeight - cartWindow.offsetHeight;
+        x = Math.max(0, Math.min(x, maxX));
+        y = Math.max(0, Math.min(y, maxY));
+        cartWindow.style.left = x + 'px';
+        cartWindow.style.top = y + 'px';
+      });
+      
+      document.addEventListener('mouseup', () => {
+        dragState.isDragging = false;
+        cartWindow.style.cursor = 'default';
+      });
+    }
+    
+    function setOrderType(type) {
+      ['dineInBtn', 'takeawayBtn', 'deliveryBtn'].forEach(id => {
+        document.getElementById(id).classList.remove('active');
+      });
+      if (type === 'dinein') document.getElementById('dineInBtn').classList.add('active');
+      else if (type === 'takeaway') document.getElementById('takeawayBtn').classList.add('active');
+      else document.getElementById('deliveryBtn').classList.add('active');
+      orderType = type;
+    }
+    
+    function setActiveCategory(category) {
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById(category + 'Btn').classList.add('active');
+      currentCategory = category;
+      renderMenuItems();
+    }
+    
+    function proceedToCheckout() {
+      if (cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+      }
+      toggleCart();
+      if (orderType === 'delivery') proceedToDelivery();
+      else submitOrder();
+    }
+    
+    function proceedToDelivery() {
+      if (cart.length === 0) {
+        alert('Please add items to your order');
+        return;
+      }
+      cartWindow.classList.remove('visible');
+      cartVisible = false;
+      cartToggleBtn.classList.remove('bg-gray-300');
+      deliveryForm.classList.remove('hidden');
+      if (detectedCoordinates) {
+        document.getElementById('detectedLocation').value = `${detectedCoordinates.lat.toFixed(6)}, ${detectedCoordinates.lng.toFixed(6)}`;
+      }
+      renderAvailableVehicles();
+    }
+    
+    function closeDeliveryForm() {
+      deliveryForm.classList.add('hidden');
+      cartWindow.classList.add('visible');
+      cartVisible = true;
+      cartToggleBtn.classList.add('bg-gray-300');
+    }
+    
+    function selectDeliveryMethod(method) {
+      document.getElementById('deliveryMethod').value = method;
+      document.getElementById('bikeOptionForm').classList.toggle('border-green-600', method === 'bike');
+      document.getElementById('taxiOptionForm').classList.toggle('border-green-600', method === 'taxi');
+      renderAvailableVehicles();
+    }
+    
+    function renderAvailableVehicles() {
+      const method = document.getElementById('deliveryMethod').value;
+      const select = document.getElementById('selectedVehicleId');
+      select.innerHTML = '<option value="">Choose a vehicle</option>';
+      const available = vehicles.filter(v => v.type === method && v.status === 'available');
+      if (available.length === 0) {
+        const opt = document.createElement('option');
+        opt.textContent = `No available ${method}s`;
+        opt.disabled = true;
+        select.appendChild(opt);
+      } else {
+        available.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v.id;
+          opt.textContent = `${v.type.toUpperCase()} - ${v.plateNumber} (${v.driverName})`;
+          select.appendChild(opt);
+        });
+      }
+    }
+    
+    function showPaymentForm() {
+      const name = document.getElementById('deliveryName').value.trim();
+      const phone = document.getElementById('deliveryPhone').value.trim();
+      const address = document.getElementById('deliveryAddressForm').value.trim();
+      const method = document.getElementById('deliveryMethod').value;
+      const vehicleId = document.getElementById('selectedVehicleId').value;
+      if (!name || !phone || !address || !method || !vehicleId) {
+        alert('Please fill all required delivery information including selecting a vehicle');
+        return;
+      }
+      deliveryInfo = { name, phone, address, method, vehicleId };
+      deliveryForm.classList.add('hidden');
+      paymentForm.classList.remove('hidden');
+      const total = cart.reduce((a,b) => a + b.price * b.quantity, 0);
+      document.getElementById('paymentTotal').textContent = `$${total.toFixed(2)}`;
+    }
+    
+    function backToDelivery() {
+      paymentForm.classList.add('hidden');
+      deliveryForm.classList.remove('hidden');
+    }
+    
+    function selectPaymentMethod(method) {
+      document.getElementById('paymentMethod').value = method;
+      ['zaadOption', 'edahabOption', 'cashOption'].forEach(id => {
+        document.getElementById(id).classList.remove('border-green-600');
+      });
+      document.getElementById(method + 'Option').classList.add('border-green-600');
+      if (method === 'cash') paymentPhoneContainer.classList.add('hidden');
+      else paymentPhoneContainer.classList.remove('hidden');
+    }
+    
+    function submitOrder() {
+      if (cart.length === 0) {
+        alert('Please add items to your order');
+        return;
+      }
+      const orderId = nextOrderId++;
+      const total = cart.reduce((a,b) => a + b.price * b.quantity, 0);
+      const order = {
+        id: orderId,
+        type: orderType,
+        customer: { name: 'Walk-in Customer' },
+        items: [...cart],
+        total,
+        status: 'pending',
+        timestamp: new Date(),
+        restaurant: currentRestaurant,
+      };
+      orders.push(order);
+      cart = [];
+      updateCart();
+      updateStats();
+      toggleCart();
+      showBill(orderId);
+    }
+    
+    function submitDeliveryOrder() {
+      const paymentMethod = document.getElementById('paymentMethod').value;
+      const paymentPhone = document.getElementById('paymentPhone').value.trim();
+      if (!paymentMethod || (paymentMethod !== 'cash' && !paymentPhone)) {
+        alert('Please select payment method and enter phone number if required');
+        return;
+      }
+      paymentInfo = {
+        method: paymentMethod,
+        phone: paymentMethod === 'cash' ? 'Cash on Delivery' : paymentPhone,
+      };
+      const orderId = nextOrderId++;
+      const total = cart.reduce((a,b) => a + b.price * b.quantity, 0);
+      const vehicle = vehicles.find(v => v.id == deliveryInfo.vehicleId);
+      const order = {
+        id: orderId,
+        type: 'delivery',
+        customer: deliveryInfo,
+        payment: paymentInfo,
+        items: [...cart],
+        total,
+        status: 'pending',
+        timestamp: new Date(),
+        coordinates: detectedCoordinates,
+        restaurant: currentRestaurant,
+        vehicle,
+      };
+      orders.push(order);
+      if (vehicle) {
+        vehicle.status = 'delivering';
+        renderVehicles();
+        renderAvailableVehicles();
+      }
+      cart = [];
+      updateCart();
+      updateStats();
+      document.getElementById('deliveryInfoForm').reset();
+      document.getElementById('paymentPhone').value = '';
+      document.getElementById('paymentMethod').value = '';
+      document.getElementById('selectedVehicleId').value = '';
+      paymentForm.classList.add('hidden');
+      toggleCart();
+      showBill(orderId);
+    }
+    
+    function showBill(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      const restaurant = restaurants[order.restaurant] || restaurants['chicking'];
+      const billHeader = document.getElementById('billHeader');
+      billHeader.innerHTML = `
+        <h3 class="text-2xl font-extrabold">${restaurant.name}</h3>
+        <p class="text-gray-600">${restaurant.address}</p>
+        <p class="text-gray-600">Phone: ${restaurant.phone}</p>
+      `;
+      document.getElementById('billOrderNumber').textContent = order.id;
+      document.getElementById('billDateTime').textContent = order.timestamp.toLocaleString();
+      document.getElementById('billRestaurantName').textContent = restaurant.name;
+      document.getElementById('billRestaurantAddress').textContent = restaurant.address;
+      document.getElementById('billRestaurantPhone').textContent = `Phone: ${restaurant.phone}`;
+      if (order.type === 'delivery') {
+        document.getElementById('billCustomerInfo').textContent = `Customer: ${order.customer.name}`;
+        document.getElementById('billOrderType').textContent = '(Delivery)';
+        document.getElementById('billDeliveryInfo').innerHTML = `
+          <div>
+            <div><i class="fas fa-phone mr-1"></i> ${order.customer.phone}</div>
+            <div><i class="fas fa-map-marker-alt mr-1"></i> ${order.customer.address}</div>
+            <div><i class="fas fa-${order.customer.method === 'bike' ? 'motorcycle' : 'car'} mr-1"></i> ${order.customer.method === 'bike' ? 'Motorcycle' : 'Taxi'} Delivery</div>
+            <div><i class="fas fa-wallet mr-1"></i> Payment: ${order.payment.method.toUpperCase()}</div>
+          </div>
+        `;
+        if (order.vehicle) {
+          document.getElementById('billVehicleInfo').innerHTML = `
+            <div class="mt-4 border-t border-gray-200 pt-4">
+              <div class="font-semibold">Delivery Vehicle:</div>
+              <div><i class="fas fa-${order.vehicle.type === 'bike' ? 'motorcycle' : 'car'} mr-1"></i> ${order.vehicle.type.toUpperCase()}</div>
+              <div><i class="fas fa-id-card mr-1"></i> Plate: ${order.vehicle.plateNumber}</div>
+              <div><i class="fas fa-user mr-1"></i> Driver: ${order.vehicle.driverName}</div>
+              <p id="distanceInfo_${order.id}" class="mt-2"><i class="fas fa-road mr-1"></i> Calculating distance...</p>
+            </div>
+          `;
+          if (order.coordinates && restaurants[order.restaurant]) {
+            const rLoc = restaurants[order.restaurant].location.split(',').map(Number);
+            const dist = calculateDistance(rLoc[0], rLoc[1], order.coordinates.lat, order.coordinates.lng);
+            const distEl = document.getElementById(`distanceInfo_${order.id}`);
+            if (distEl) distEl.textContent = `Distance: ${dist.toFixed(2)} km`;
+          }
+        } else {
+          document.getElementById('billVehicleInfo').innerHTML = '';
+        }
+      } else {
+        document.getElementById('billCustomerInfo').textContent = 'Customer: Walk-in';
+        document.getElementById('billOrderType').textContent = order.type === 'dinein' ? '(Dine In)' : '(Take Away)';
+        document.getElementById('billDeliveryInfo').innerHTML = '';
+        document.getElementById('billVehicleInfo').innerHTML = '';
+      }
+      const billItems = document.getElementById('billItems');
+      billItems.innerHTML = '';
+      order.items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'flex justify-between';
+        div.textContent = `${item.name} × ${item.quantity}`;
+        const priceSpan = document.createElement('span');
+        priceSpan.textContent = `$${(item.price * item.quantity).toFixed(2)}`;
+        div.appendChild(priceSpan);
+        billItems.appendChild(div);
+      });
+      document.getElementById('billTotal').textContent = `$${order.total.toFixed(2)}`;
+      document.getElementById('billFooter').innerHTML = `
+        <p>Thank you for your order! Welcome back again soon.</p>
+      `;
+      const qrcodeContainer = document.getElementById('qrcode-container');
+      qrcodeContainer.innerHTML = '';
+      new QRCode(qrcodeContainer, {
+        text: `Order ID: ${order.id}
+Restaurant: ${restaurant.name}
+Total: $${order.total.toFixed(2)}
+Status: ${order.status}`,
+        width: 128,
+        height: 128,
+      });
+      billModal.classList.remove('hidden');
+    }
+    
+    function closeBill() {
+      billModal.classList.add('hidden');
+    }
+    
+    function initVehicles() {
+      vehicles = [
+        { id: 1, type: 'bike', plateNumber: 'B1234', driverName: 'Ahmed Ali', status: 'available' },
+        { id: 2, type: 'taxi', plateNumber: 'T5678', driverName: 'Mohamed Hassan', status: 'available' },
+        { id: 3, type: 'bike', plateNumber: 'B9012', driverName: 'Abdi Karim', status: 'delivering' }
+      ];
+      renderVehicles();
+    }
+    
+    function renderVehicles() {
+      vehiclesList.innerHTML = '';
+      if (vehicles.length === 0) {
+        vehiclesList.innerHTML = '<p class="text-gray-500">No vehicles registered</p>';
+        totalVehiclesElement.textContent = '0';
+        return;
+      }
+      totalVehiclesElement.textContent = vehicles.length;
+      vehicles.forEach(v => {
+        const div = document.createElement('div');
+        div.className = 'vehicle-card';
+        let statusClass = '';
+        let statusText = '';
+        if (v.status === 'available') {
+          statusClass = 'vehicle-available';
+          statusText = 'Available';
+        } else if (v.status === 'delivering') {
+          statusClass = 'vehicle-delivering';
+          statusText = 'Delivering';
+        } else {
+          statusClass = 'vehicle-unavailable';
+          statusText = 'Unavailable';
+        }
+        div.innerHTML = `
+          <div class="vehicle-header">
+            <div>
+              <h4 class="font-bold">${v.type.toUpperCase()} - ${v.plateNumber}</h4>
+              <p class="text-gray-600">Driver: ${v.driverName}</p>
+            </div>
+            <span class="vehicle-status ${statusClass}">${statusText}</span>
+          </div>
+          <button class="btn-small ${v.status === 'available' ? 'btn-danger' : 'iquq-button'}" onclick="toggleVehicleStatus(${v.id})">
+            ${v.status === 'available' ? 'Mark as Unavailable' : 'Mark as Available'}
+          </button>
+        `;
+        vehiclesList.appendChild(div);
+      });
+    }
+    
+    function toggleVehicleStatus(id) {
+      const v = vehicles.find(x => x.id === id);
+      if (!v) return;
+      if (v.status === 'available') v.status = 'unavailable';
+      else v.status = 'available';
+      renderVehicles();
+    }
+    
+    function updateStats() {
+      totalOrdersElement.textContent = orders.length;
+      const totalRevenue = orders.reduce((a,b) => a + b.total, 0);
+      const pendingCount = orders.filter(o => o.status === 'pending').length;
+      pendingOrdersElement.textContent = pendingCount;
+      renderOrders();
+    }
+    
+    function renderOrders() {
+      pendingOrdersList.innerHTML = '';
+      completedOrdersList.innerHTML = '';
+      const pending = orders.filter(o => o.status === 'pending');
+      const completed = orders.filter(o => o.status === 'completed');
+      pending.forEach(o => {
+        const div = document.createElement('div');
+        div.className = 'order-card';
+        const rName = restaurants[o.restaurant]?.name || 'Unknown Restaurant';
+        let icon = '';
+        let typeText = '';
+        if (o.type === 'delivery') {
+          icon = '<i class="fas fa-motorcycle text-green-600 mr-2"></i>';
+          typeText = `Delivery: ${o.customer.name}`;
+        } else if (o.type === 'dinein') {
+          icon = '<i class="fas fa-utensils text-purple-600 mr-2"></i>';
+          typeText = 'Dine In: Walk-in';
+        } else {
+          icon = '<i class="fas fa-shopping-bag text-blue-600 mr-2"></i>';
+          typeText = 'Take Away: Walk-in';
+        }
+        div.innerHTML = `
+          <div class="order-header">
+            <div>
+              <h4 class="font-bold">Order #${o.id} (${rName})</h4>
+              <p class="text-gray-600 flex items-center">${icon}${typeText}</p>
+            </div>
+            <span class="order-status pending">Pending</span>
+          </div>
+          <div class="flex justify-between text-sm mb-4">
+            <span>${o.timestamp.toLocaleTimeString()}</span>
+            <span class="font-bold">$${o.total.toFixed(2)}</span>
+          </div>
+          <button class="btn-small iquq-button w-full" onclick="completeOrder(${o.id})">Mark as Completed</button>
+        `;
+        pendingOrdersList.appendChild(div);
+      });
+      completed.forEach(o => {
+        const div = document.createElement('div');
+        div.className = 'order-card';
+        const rName = restaurants[o.restaurant]?.name || 'Unknown Restaurant';
+        let icon = '';
+        let typeText = '';
+        if (o.type === 'delivery') {
+          icon = '<i class="fas fa-motorcycle text-green-600 mr-2"></i>';
+          typeText = `Delivery: ${o.customer.name}`;
+        } else if (o.type === 'dinein') {
+          icon = '<i class="fas fa-utensils text-purple-600 mr-2"></i>';
+          typeText = 'Dine In: Walk-in';
+        } else {
+          icon = '<i class="fas fa-shopping-bag text-blue-600 mr-2"></i>';
+          typeText = 'Take Away: Walk-in';
+        }
+        div.innerHTML = `
+          <div class="order-header">
+            <div>
+              <h4 class="font-bold">Order #${o.id} (${rName})</h4>
+              <p class="text-gray-600 flex items-center">${icon}${typeText}</p>
+            </div>
+            <span class="order-status completed">Completed</span>
+          </div>
+          <div class="flex justify-between text-sm mb-4">
+            <span>${o.timestamp.toLocaleTimeString()}</span>
+            <span class="font-bold">$${o.total.toFixed(2)}</span>
+          </div>
+          <button class="btn-small bg-gray-200 text-gray-700 w-full" onclick="showBill(${o.id})">View Bill</button>
+        `;
+        completedOrdersList.appendChild(div);
+      });
+    }
+    
+    function completeOrder(id) {
+      const o = orders.find(x => x.id === id);
+      if (!o) return;
+      o.status = 'completed';
+      if (o.vehicle) {
+        const v = vehicles.find(x => x.id === o.vehicle.id);
+        if (v) {
+          v.status = 'available';
+          renderVehicles();
+          renderAvailableVehicles();
+        }
+      }
+      updateStats();
+      renderOrders();
+      showBill(id);
+    }
+    
+    function populateMenuRestaurantSelect() {
+      menuRestaurantSelect.innerHTML = '<option value="">Select a restaurant</option>';
+      for (const key in restaurants) {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = restaurants[key].name;
+        menuRestaurantSelect.appendChild(opt);
+      }
+    }
+    
+    function loadMenuForEdit() {
+      const key = menuRestaurantSelect.value;
+      if (!key) {
+        menuEditor.classList.add('hidden');
+        return;
+      }
+      menuEditor.classList.remove('hidden');
+      menuItemsEditor.innerHTML = '';
+      const r = restaurants[key];
+      const addBtn = document.createElement('button');
+      addBtn.className = 'iquq-button py-3 px-6 rounded-2xl font-semibold mb-6';
+      addBtn.textContent = 'Add Menu Item';
+      addBtn.onclick = () => showAddMenuItemModal(key);
+      menuItemsEditor.appendChild(addBtn);
+      r.menu.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'border p-4 rounded-lg mb-6';
+        div.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+            <input type="text" class="iquq-input" value="${item.name}" data-index="${idx}" data-field="name" />
+            <input type="number" step="0.01" class="iquq-input" value="${item.price}" data-index="${idx}" data-field="price" />
+            <select class="iquq-input" data-index="${idx}" data-field="category">
+              <option value="food" ${item.category === 'food' ? 'selected' : ''}>Food</option>
+              <option value="drink" ${item.category === 'drink' ? 'selected' : ''}>Drink</option>
+              <option value="dessert" ${item.category === 'dessert' ? 'selected' : ''}>Dessert</option>
+            </select>
+            <input type="text" class="iquq-input" value="${item.image}" data-index="${idx}" data-field="image" />
+            <button class="btn-small btn-danger" onclick="removeMenuItem('${key}', ${idx})">Remove</button>
+          </div>
+          <textarea class="iquq-input w-full resize-none" rows="3" data-index="${idx}" data-field="description">${item.description || ''}</textarea>
+          <img src="${item.image}" alt="${item.name}" class="w-24 h-24 object-cover rounded mt-3" />
+        `;
+        menuItemsEditor.appendChild(div);
+      });
+    }
+    
+    function removeMenuItem(key, idx) {
+      restaurants[key].menu.splice(idx, 1);
+      loadMenuForEdit();
+    }
+    
+    function saveMenuChanges() {
+      const inputs = menuItemsEditor.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        const idx = parseInt(input.dataset.index);
+        const field = input.dataset.field;
+        if (field) {
+          if (field === 'price') {
+            restaurants[menuRestaurantSelect.value].menu[idx][field] = parseFloat(input.value);
+          } else {
+            restaurants[menuRestaurantSelect.value].menu[idx][field] = input.value;
+          }
+        }
+      });
+      alert('Menu changes saved successfully!');
+    }
+    
+    function showAddRestaurantModal() {
+      addRestaurantModal.classList.remove('hidden');
+      document.getElementById('addRestaurantForm').reset();
+    }
+    
+    function closeAddRestaurantModal() {
+      addRestaurantModal.classList.add('hidden');
+    }
+    
+    function addRestaurant() {
+      const name = document.getElementById('restaurantName').value.trim();
+      const address = document.getElementById('restaurantAddress').value.trim();
+      const phone = document.getElementById('restaurantPhone').value.trim();
+      const logo = document.getElementById('restaurantLogo').value.trim() || 'https://placehold.co/100x100/1AB759/white?text=R';
+      const cover = document.getElementById('restaurantCover').value.trim() || 'https://placehold.co/600x400/1AB759/white?text=Restaurant';
+      const location = document.getElementById('restaurantLocation').value.trim() || '0,0';
+      if (!name || !address || !phone) {
+        alert('Please fill all required fields');
+        return;
+      }
+      const key = name.toLowerCase().replace(/\s+/g, '-');
+      restaurants[key] = { name, address, phone, logo, cover, location, status: 'active', menu: [] };
+      renderRestaurants();
+      populateMenuRestaurantSelect();
+      closeAddRestaurantModal();
+      alert('Restaurant added successfully!');
+    }
+    
+    function showAddMenuItemModal(key) {
+      document.getElementById('menuRestaurantKey').value = key;
+      addMenuItemModal.classList.remove('hidden');
+      document.getElementById('addMenuItemForm').reset();
+    }
+    
+    function closeAddMenuItemModal() {
+      addMenuItemModal.classList.add('hidden');
+    }
+    
+    function addMenuItem() {
+      const key = document.getElementById('menuRestaurantKey').value;
+      const name = document.getElementById('menuItemName').value.trim();
+      const price = parseFloat(document.getElementById('menuItemPrice').value);
+      const category = document.getElementById('menuItemCategory').value;
+      const image = document.getElementById('menuItemImage').value.trim() || 'https://placehold.co/300x200/1AB759/white?text=Item';
+      const description = document.getElementById('menuItemDescription').value.trim();
+      if (!name || !price || !category) {
+        alert('Please fill all required fields');
+        return;
+      }
+      if (!restaurants[key]) return;
+      const newId = restaurants[key].menu.length ? Math.max(...restaurants[key].menu.map(i => i.id)) + 1 : 1;
+      restaurants[key].menu.push({ id: newId, name, price, category, image, description });
+      closeAddMenuItemModal();
+      loadMenuForEdit();
+      alert('Menu item added successfully!');
+    }
+    
+    function showOrdersManagement() {
+      document.getElementById('ordersManagement').classList.remove('hidden');
+      document.getElementById('vehiclesManagement').classList.add('hidden');
+      document.getElementById('restaurantsManagement').classList.add('hidden');
+      document.getElementById('tab-orders').classList.add('active');
+      document.getElementById('tab-vehicles').classList.remove('active');
+      document.getElementById('tab-restaurants').classList.remove('active');
+      document.getElementById('tab-orders').setAttribute('aria-selected', 'true');
+      document.getElementById('tab-vehicles').setAttribute('aria-selected', 'false');
+      document.getElementById('tab-restaurants').setAttribute('aria-selected', 'false');
+    }
+    
+    function showVehiclesManagement() {
+      document.getElementById('ordersManagement').classList.add('hidden');
+      document.getElementById('vehiclesManagement').classList.remove('hidden');
+      document.getElementById('restaurantsManagement').classList.add('hidden');
+      document.getElementById('tab-orders').classList.remove('active');
+      document.getElementById('tab-vehicles').classList.add('active');
+      document.getElementById('tab-restaurants').classList.remove('active');
+      document.getElementById('tab-orders').setAttribute('aria-selected', 'false');
+      document.getElementById('tab-vehicles').setAttribute('aria-selected', 'true');
+      document.getElementById('tab-restaurants').setAttribute('aria-selected', 'false');
+    }
+    
+    function showRestaurantsManagement() {
+      document.getElementById('ordersManagement').classList.add('hidden');
+      document.getElementById('vehiclesManagement').classList.add('hidden');
+      document.getElementById('restaurantsManagement').classList.remove('hidden');
+      document.getElementById('tab-orders').classList.remove('active');
+      document.getElementById('tab-vehicles').classList.remove('active');
+      document.getElementById('tab-restaurants').classList.add('active');
+      document.getElementById('tab-orders').setAttribute('aria-selected', 'false');
+      document.getElementById('tab-vehicles').setAttribute('aria-selected', 'false');
+      document.getElementById('tab-restaurants').setAttribute('aria-selected', 'true');
+    }
+    
+    // Distance calculation helper
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+  </script>
+ </body>
+</html>

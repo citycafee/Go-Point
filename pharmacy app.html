@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#0077b6" />
+<title>PharmaLogic - Pharmacy Management System</title>
+<!-- Icons -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%230077b6'>P</text></svg>" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%230077b6'>P</text></svg>" />
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- External Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+:root {
+--bg-primary: #f0f4f8;
+--text-primary: #023e8a;
+--card-bg: white;
+--border-color: #d8e1e9;
+--btn-primary: #0077b6;
+--btn-primary-hover: #005f87;
+--danger: #d90429;
+--warning: #f4a261;
+--success: #10b981;
+}
+[data-theme="dark"] {
+--bg-primary: #0f172a;
+--text-primary: #e2e8f0;
+--card-bg: #1e293b;
+--border-color: #334155;
+--btn-primary: #38bdf8;
+--btn-primary-hover: #0ea5e9;
+--danger: #ef4444;
+--warning: #f59e0b;
+--success: #10b981;
+}
+* {
+box-sizing: border-box;
+}
+body {
+font-family: 'Segoe UI', 'Roboto', sans-serif;
+background-color: var(--bg-primary);
+color: var(--text-primary);
+margin: 0;
+transition: background-color 0.3s, color 0.3s;
+overflow-x: hidden;
+}
+.bg-card {
+background-color: var(--card-bg);
+border: 1px solid var(--border-color);
+}
+.border-theme {
+border-color: var(--border-color) !important;
+}
+.text-primary {
+color: var(--text-primary);
+}
+.btn-primary {
+background-color: var(--btn-primary);
+color: white;
+border: none;
+padding: 10px 20px;
+border-radius: 8px;
+cursor: pointer;
+font-weight: 600;
+transition: background-color 0.3s, transform 0.2s;
+}
+.btn-primary:hover {
+background-color: var(--btn-primary-hover);
+transform: translateY(-2px);
+}
+.btn-primary:active {
+transform: translateY(0);
+}
+/* Toast */
+.toast {
+position: fixed;
+top: 20px;
+right: 20px;
+z-index: 1000;
+padding: 12px 20px;
+border-radius: 8px;
+color: white;
+font-weight: 500;
+box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+transform: translateX(120%);
+transition: transform 0.3s ease;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.toast.show {
+transform: translateX(0);
+}
+.toast.success {
+background-color: var(--success);
+}
+.toast.error {
+background-color: var(--danger);
+}
+.toast.warning {
+background-color: var(--warning);
+}
+.toast.info {
+background-color: var(--btn-primary);
+}
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+width: 8px;
+height: 8px;
+}
+::-webkit-scrollbar-track {
+background: var(--border-color);
+border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+background: var(--btn-primary);
+border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+background: var(--btn-primary-hover);
+}
+/* Animations */
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
+.fade-in {
+animation: fadeIn 0.5s ease-out;
+}
+/* Loading Spinner */
+.spinner {
+border: 3px solid rgba(0, 0, 0, 0.1);
+border-radius: 50%;
+border-top: 3px solid var(--btn-primary);
+width: 24px;
+height: 24px;
+animation: spin 1s linear infinite;
+}
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+/* Modal Styles */
+.modal-overlay {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: rgba(0, 0, 0, 0.5);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 999;
+animation: fadeIn 0.3s ease-out;
+}
+/* Responsive fixes */
+@media (max-width: 768px) {
+.mobile-menu-open {
+transform: translateX(0) !important;
+}
+.mobile-menu-closed {
+transform: translateX(-100%) !important;
+}
+.overlay-active {
+display: block !important;
+}
+}
+/* Card hover effects */
+.stat-card {
+transition: transform 0.3s, box-shadow 0.3s;
+cursor: pointer;
+}
+.stat-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+/* Table row hover */
+.medicine-row:hover {
+background-color: rgba(0, 119, 182, 0.05);
+}
+/* Expiry status colors */
+.expired {
+background-color: rgba(239, 68, 68, 0.1) !important;
+color: #dc2626 !important;
+}
+.expiring-soon {
+background-color: rgba(245, 158, 11, 0.1) !important;
+color: #d97706 !important;
+}
+.safe {
+background-color: rgba(16, 185, 129, 0.1) !important;
+color: #059669 !important;
+}
+
+/* Updated Navigation Bar Style */
+.top-nav-bar {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.5rem 1rem; /* Reduced padding */
+    margin-bottom: 1rem; /* Space below the nav */
+    border-radius: 0.5rem; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow */
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 0.5rem; /* Space between items */
+}
+.top-nav-item {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem; /* Slightly rounded */
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s, color 0.2s;
+    white-space: nowrap; /* Prevent text wrapping inside item */
+}
+.top-nav-item:hover {
+    background-color: #e2e8f0; /* Light gray on hover */
+}
+.active-nav-item {
+    background-color: var(--btn-primary);
+    color: white;
+}
+.active-nav-item:hover {
+    background-color: var(--btn-primary-hover); /* Darker blue on hover when active */
+}
+@media (min-width: 768px) {
+    .top-nav-bar {
+        flex-wrap: nowrap; /* Keep items on single line on larger screens */
+    }
+}
+</style>
+</head>
+<body class="min-h-screen flex flex-col">
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+<!-- Login Modal -->
+<div id="login-modal" class="modal-overlay">
+<div class="bg-card p-8 rounded-lg shadow-xl w-full max-w-md mx-4 fade-in">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-2xl font-bold text-[#0077b6]">PharmaLogic Login</h2>
+<div class="w-10 h-10 rounded-full bg-[#0077b6] flex items-center justify-center">
+<i class="fas fa-pills text-white"></i>
+</div>
+</div>
+<form id="login-form" class="space-y-4">
+<div>
+<label for="username" class="block text-sm font-medium mb-1">Username</label>
+<input type="text" id="username" required
+class="w-full px-3 py-2 border border-theme rounded-md focus:outline-none focus:ring-2 focus:ring-[#0077b6] bg-card"
+value="admin@pharmalogic.com"
+placeholder="Enter your username">
+</div>
+<div>
+<label for="password" class="block text-sm font-medium mb-1">Password</label>
+<input type="password" id="password" required
+class="w-full px-3 py-2 border border-theme rounded-md focus:outline-none focus:ring-2 focus:ring-[#0077b6] bg-card"
+value="@12345"
+placeholder="Enter your password">
+</div>
+<div id="expiry-warning" class="hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 text-sm rounded">
+<p><i class="fas fa-exclamation-triangle mr-2"></i>Your account will expire in <span id="days-remaining" class="font-bold">0</span> days</p>
+</div>
+<button type="submit" class="w-full btn-primary flex items-center justify-center gap-2">
+<i class="fas fa-sign-in-alt"></i>
+<span>Login</span>
+</button>
+<div class="text-center text-sm text-gray-500 mt-4">
+<p>Default credentials: admin@pharmalogic.com / @12345</p>
+</div>
+</form>
+</div>
+</div>
+<!-- Main App (hidden until login) -->
+<div id="app-container" class="hidden">
+<header class="bg-gradient-to-r from-[#0077b6] to-[#0096c7] text-white py-4 px-6 text-xl font-extrabold shadow-lg flex justify-between items-center sticky top-0 z-40">
+<div class="flex items-center space-x-4">
+<button id="menu-toggle" aria-label="Toggle menu" class="md:hidden text-white text-2xl focus:outline-none">
+<i class="fas fa-bars"></i>
+</button>
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+<i class="fas fa-pills"></i>
+</div>
+<span class="text-2xl font-bold">PharmaLogic</span>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<button id="theme-toggle" class="text-white text-xl hover:bg-white/10 p-2 rounded-full transition-colors duration-200" title="Toggle theme">
+<i class="fas fa-moon"></i>
+</button>
+<div id="user-greeting" class="hidden md:flex items-center space-x-3 bg-white/10 px-4 py-2 rounded-lg">
+<div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#0077b6]">
+<i class="fas fa-user-md"></i>
+</div>
+<div>
+<p class="text-sm font-medium">Welcome,</p>
+<p id="username-display" class="font-bold">Admin</p>
+</div>
+</div>
+<button id="logout-btn" class="hidden md:flex items-center gap-2 bg-white text-[#0077b6] px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition-colors duration-200">
+<i class="fas fa-sign-out-alt"></i>
+<span>Logout</span>
+</button>
+</div>
+</header>
+<div class="flex flex-1 max-w-7xl mx-auto w-full min-h-[calc(100vh-80px)] mt-4 px-4 md:px-6">
+<!-- Sidebar - Removed -->
+
+<!-- Main Content -->
+<main class="flex-1 bg-card p-4 md:p-6 rounded-lg shadow-lg overflow-auto transition-all duration-300">
+    <!-- Top Navigation Bar -->
+    <div class="top-nav-bar">
+        <div id="nav-dashboard" class="top-nav-item active-nav-item">Dashboard</div>
+        <div id="nav-add-upload" class="top-nav-item">Medicine Management</div>
+        <div id="nav-settings" class="top-nav-item">Settings</div>
+    </div>
+
+<!-- Dashboard Section -->
+<section id="dashboard-section" class="fade-in">
+<div class="mb-8">
+<h1 class="text-2xl md:text-3xl font-bold text-[#0077b6] mb-2">Pharmacy Dashboard</h1>
+<p class="text-gray-600">Monitor and manage your medicine inventory in real-time</p>
+</div>
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+<div id="total-medicines-card" class="stat-card bg-gradient-to-br from-[#219ebc] to-[#0077b6] text-white rounded-xl p-6 shadow-lg cursor-pointer">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-lg font-semibold">Total Medicines</p>
+<p id="total-count" class="text-4xl md:text-5xl font-black mt-2">0</p>
+</div>
+<div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+<i class="fas fa-pills text-2xl"></i>
+</div>
+</div>
+<p class="text-sm mt-4 opacity-90">Click to view all medicines</p>
+</div>
+<div class="stat-card bg-gradient-to-br from-[#f4a261] to-[#e76f51] text-white rounded-xl p-6 shadow-lg">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-lg font-semibold">Expiring Soon (≤90 days)</p>
+<p id="expire-soon-count" class="text-4xl md:text-5xl font-black mt-2">0</p>
+</div>
+<div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+<i class="fas fa-exclamation-triangle text-2xl"></i>
+</div>
+</div>
+<p class="text-sm mt-4 opacity-90">Medicines expiring within 90 days</p>
+</div>
+<div class="stat-card bg-gradient-to-br from-[#d90429] to-[#9d0208] text-white rounded-xl p-6 shadow-lg">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-lg font-semibold">Expired Medicines</p>
+<p id="expired-count" class="text-4xl md:text-5xl font-black mt-2">0</p>
+</div>
+<div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+<i class="fas fa-ban text-2xl"></i>
+</div>
+</div>
+<p class="text-sm mt-4 opacity-90">Medicines past expiry date</p>
+</div>
+</div>
+<!-- Search & Filter -->
+<div class="mb-6 bg-card rounded-xl p-4 shadow">
+<div class="flex flex-col md:flex-row gap-4">
+<div class="flex-1">
+<label for="search-meds" class="block text-sm font-medium mb-2">Search Medicines</label>
+<div class="relative">
+<input type="text" id="search-meds" placeholder="Search by medicine name..."
+class="w-full px-4 py-3 border border-theme rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0077b6] bg-card pl-12">
+<div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+<i class="fas fa-search"></i>
+</div>
+</div>
+</div>
+<div>
+<label for="filter-expiry" class="block text-sm font-medium mb-2">Filter by Status</label>
+<select id="filter-expiry" class="w-full md:w-64 px-4 py-3 border border-theme rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0077b6] bg-card">
+<option value="all">All Medicines</option>
+<option value="expiring">Expiring Soon (≤90 days)</option>
+<option value="expired">Expired</option>
+<option value="safe">Safe (>90 days)</option>
+</select>
+</div>
+<div class="flex items-end">
+<button id="clear-filters" class="px-4 py-3 border border-theme rounded-lg hover:bg-gray-100 transition-colors duration-200">
+<i class="fas fa-times mr-2"></i>Clear Filters
+</button>
+</div>
+</div>
+</div>
+<!-- Medicine List Section -->
+<section id="medicine-list-section">
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-xl font-bold text-[#0077b6]">Medicine Inventory</h2>
+<div class="text-sm text-gray-500">
+<span id="filtered-count">0</span> of <span id="total-filtered-count">0</span> medicines shown
+</div>
+</div>
+<div class="overflow-x-auto rounded-xl border border-theme shadow">
+<table class="w-full">
+<thead class="bg-gradient-to-r from-[#90e0ef] to-[#48cae4] text-[#0077b6] font-bold">
+<tr>
+<th class="text-left px-6 py-4">Medicine Name</th>
+<th class="text-left px-6 py-4">Expiry Date</th>
+<th class="text-left px-6 py-4">Days Remaining</th>
+<th class="text-left px-6 py-4">Status</th>
+<th class="text-left px-6 py-4">Actions</th>
+</tr>
+</thead>
+<tbody id="medicine-list"></tbody>
+</table>
+<div id="empty-state" class="hidden p-12 text-center">
+<div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+<i class="fas fa-pills text-4xl text-gray-400"></i>
+</div>
+<h3 class="text-xl font-semibold text-gray-600 mb-2">No medicines found</h3>
+<p class="text-gray-500 mb-6">Add your first medicine to get started</p>
+<button id="empty-add-btn" class="btn-primary">
+<i class="fas fa-plus mr-2"></i>Add Medicine
+</button>
+</div>
+</div>
+</section>
+</section>
+<!-- Add / Upload Section -->
+<section id="add-upload-section" class="hidden fade-in">
+<div class="mb-8">
+<h1 class="text-2xl md:text-3xl font-bold text-[#0077b6] mb-2">Medicine Management</h1>
+<p class="text-gray-600">Add individual medicines or upload in bulk via Excel</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Add Medicine Form -->
+<div class="bg-card rounded-xl p-6 shadow-lg">
+<h2 class="text-xl font-bold text-[#0077b6] mb-6 flex items-center gap-2">
+<i class="fas fa-plus-circle"></i>
+<span>Add Single Medicine</span>
+</h2>
+<form id="medicine-form" class="space-y-6">
+<div>
+<label for="medicine-name" class="block text-sm font-medium mb-2">Medicine Name *</label>
+<input type="text" id="medicine-name" placeholder="e.g., Paracetamol 500mg" required
+class="w-full px-4 py-3 border border-theme rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0077b6] bg-card">
+</div>
+<div>
+<label for="expiry-date" class="block text-sm font-medium mb-2">Expiry Date *</label>
+<input type="date" id="expiry-date" required
+class="w-full px-4 py-3 border border-theme rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0077b6] bg-card">
+<p class="text-sm text-gray-500 mt-2">Select a future date for expiry</p>
+</div>
+<div>
+<label for="quantity" class="block text-sm font-medium mb-2">Quantity (Optional)</label>
+<input type="number" id="quantity" min="1" value="1"
+class="w-full px-4 py-3 border border-theme rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0077b6] bg-card">
+</div>
+<div>
+<label for="batch-number" class="block text-sm font-medium mb-2">Batch Number (Optional)</label>
+<input type="text" id="batch-number" placeholder="e.g., BATCH-2024-001"
+class="w-full px-4 py-3 border border-theme rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0077b6] bg-card">
+</div>
+<button type="submit" class="w-full btn-primary flex items-center justify-center gap-2 py-3">
+<i class="fas fa-plus"></i>
+<span>Add Medicine to Inventory</span>
+</button>
+</form>
+</div>
+<!-- Bulk Upload Section -->
+<div class="bg-card rounded-xl p-6 shadow-lg">
+<h2 class="text-xl font-bold text-[#0077b6] mb-6 flex items-center gap-2">
+<i class="fas fa-file-upload"></i>
+<span>Bulk Upload via Excel</span>
+</h2>
+<div class="mb-6">
+<label class="block text-sm font-medium mb-2">Upload Excel File</label>
+<div class="border-2 border-dashed border-theme rounded-xl p-8 text-center hover:bg-gray-50 transition-colors duration-200 cursor-pointer" id="drop-zone">
+<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
+<i class="fas fa-file-excel text-3xl text-[#0077b6]"></i>
+</div>
+<p class="font-medium mb-2">Drag & drop your Excel file here</p>
+<p class="text-sm text-gray-500 mb-4">or click to browse</p>
+<input type="file" id="upload-excel" accept=".xlsx,.xls,.csv" class="hidden">
+<button type="button" id="browse-btn" class="px-4 py-2 border border-theme rounded-lg hover:bg-gray-100 transition-colors duration-200">
+<i class="fas fa-folder-open mr-2"></i>Browse Files
+</button>
+</div>
+<div class="mt-4 p-4 bg-blue-50 rounded-lg">
+<p class="font-medium text-sm text-[#0077b6] mb-2">Required Excel Format:</p>
+<p class="text-sm text-gray-600 mb-1"><strong>Column A:</strong> Medicine Name (required)</p>
+<p class="text-sm text-gray-600"><strong>Column B:</strong> Expiry Date (required, format: YYYY-MM-DD)</p>
+<p class="text-sm text-gray-600 mt-2">Optional columns: Quantity, Batch Number, Manufacturer</p>
+</div>
+<div class="mt-6">
+<a href="#" id="download-template" class="inline-flex items-center gap-2 text-[#0077b6] hover:underline">
+<i class="fas fa-download"></i>
+<span>Download Excel Template</span>
+</a>
+</div>
+</div>
+<div id="upload-progress" class="hidden">
+<div class="flex justify-between items-center mb-2">
+<span class="text-sm font-medium">Upload Progress</span>
+<span id="progress-percentage" class="text-sm font-bold">0%</span>
+</div>
+<div class="w-full bg-gray-200 rounded-full h-2">
+<div id="progress-bar" class="bg-[#0077b6] h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+</div>
+<div id="upload-stats" class="mt-2 text-sm text-gray-600 hidden">
+<p>Processed: <span id="processed-count">0</span> items</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Settings Section -->
+<section id="settings-section" class="hidden fade-in">
+<div class="mb-8">
+<h1 class="text-2xl md:text-3xl font-bold text-[#0077b6] mb-2">Settings & Account</h1>
+<p class="text-gray-600">Manage your account and application preferences</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Account Info -->
+<div class="bg-card rounded-xl p-6 shadow-lg">
+<h2 class="text-xl font-bold text-[#0077b6] mb-6 flex items-center gap-2">
+<i class="fas fa-user-circle"></i>
+<span>Account Information</span>
+</h2>
+<div class="space-y-6">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-full bg-gradient-to-r from-[#0077b6] to-[#0096c7] flex items-center justify-center">
+<i class="fas fa-user-md text-2xl text-white"></i>
+</div>
+<div>
+<h3 class="font-bold text-lg" id="settings-username">Admin User</h3>
+<p class="text-gray-600">Pharmacy Administrator</p>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center pb-3 border-b border-theme">
+<span class="font-medium">Account Created</span>
+<span id="account-created" class="font-bold">—</span>
+</div>
+<div class="flex justify-between items-center pb-3 border-b border-theme">
+<span class="font-medium">Account Expires</span>
+<span id="account-expires" class="font-bold">—</span>
+</div>
+<div class="flex justify-between items-center pb-3 border-b border-theme">
+<span class="font-medium">Subscription Status</span>
+<span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-bold">Active</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-medium">Theme Preference</span>
+<span id="current-theme" class="font-bold">Light</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Data Management -->
+<div class="bg-card rounded-xl p-6 shadow-lg">
+<h2 class="text-xl font-bold text-[#0077b6] mb-6 flex items-center gap-2">
+<i class="fas fa-database"></i>
+<span>Data Management</span>
+</h2>
+<div class="space-y-6">
+<div>
+<h3 class="font-bold mb-4">Export Data</h3>
+<p class="text-gray-600 mb-4">Export your medicine inventory for backup or analysis</p>
+<div class="flex flex-wrap gap-3">
+<button id="export-json" class="btn-primary flex items-center gap-2">
+<i class="fas fa-file-export"></i>
+<span>Export as JSON</span>
+</button>
+<button id="export-excel" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2">
+<i class="fas fa-file-excel"></i>
+<span>Export as Excel</span>
+</button>
+</div>
+</div>
+<div>
+<h3 class="font-bold mb-4">Import Data</h3>
+<p class="text-gray-600 mb-4">Import medicine data from backup files</p>
+<button id="import-data" class="bg-[#90e0ef] text-[#0077b6] px-4 py-2 rounded-lg hover:bg-[#48cae4] transition-colors duration-200 flex items-center gap-2">
+<i class="fas fa-file-import"></i>
+<span>Import Backup File</span>
+</button>
+<p class="text-sm text-gray-500 mt-2">Supports JSON and Excel formats</p>
+</div>
+<div class="pt-6 border-t border-theme">
+<h3 class="font-bold mb-4 text-red-600">Danger Zone</h3>
+<p class="text-gray-600 mb-4">Permanently delete all data. This action cannot be undone.</p>
+<button id="delete-all-data" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 flex items-center gap-2">
+<i class="fas fa-trash-alt"></i>
+<span>Delete All Data</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+</div> <!-- End of app-container -->
+<script>
+// ===== GLOBAL CONSTANTS =====
+const STORAGE_KEY = 'pharmaLogicData_v2';
+const USER_KEY = 'pharmaLogicUser_v2';
+const ADMIN_CREDENTIALS = {
+username: 'admin@pharmalogic.com',
+password: '@12345'
+};
+// ===== STATE VARIABLES =====
+let medicines = [];
+let isLoggedIn = false;
+let currentUser = null;
+let userExpiryDate = null;
+let currentSection = 'dashboard-section';
+// ===== DOM ELEMENTS =====
+const loginModal = document.getElementById('login-modal');
+const appContainer = document.getElementById('app-container');
+const loginForm = document.getElementById('login-form');
+const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
+const expiryWarning = document.getElementById('expiry-warning');
+const daysRemainingSpan = document.getElementById('days-remaining');
+const usernameDisplay = document.getElementById('username-display');
+const logoutBtn = document.getElementById('logout-btn');
+const settingsUsername = document.getElementById('settings-username');
+const accountCreated = document.getElementById('account-created');
+const accountExpires = document.getElementById('account-expires');
+const exportJsonBtn = document.getElementById('export-json');
+const exportExcelBtn = document.getElementById('export-excel');
+const importDataBtn = document.getElementById('import-data');
+const deleteAllDataBtn = document.getElementById('delete-all-data');
+const medicineForm = document.getElementById('medicine-form');
+const medicineNameInput = document.getElementById('medicine-name');
+const expiryDateInput = document.getElementById('expiry-date');
+const quantityInput = document.getElementById('quantity');
+const batchNumberInput = document.getElementById('batch-number');
+const medicineListTbody = document.getElementById('medicine-list');
+const totalCountEl = document.getElementById('total-count');
+const expireSoonCountEl = document.getElementById('expire-soon-count');
+const expiredCountEl = document.getElementById('expired-count');
+const totalMedsCard = document.getElementById('total-medicines-card');
+const medicineListSection = document.getElementById('medicine-list-section');
+const searchInput = document.getElementById('search-meds');
+const filterSelect = document.getElementById('filter-expiry');
+const clearFiltersBtn = document.getElementById('clear-filters');
+const emptyState = document.getElementById('empty-state');
+const emptyAddBtn = document.getElementById('empty-add-btn');
+const filteredCountEl = document.getElementById('filtered-count');
+const totalFilteredCountEl = document.getElementById('total-filtered-count');
+const sidebarTotalCount = document.getElementById('sidebar-total-count'); // Not used anymore
+const sidebarExpiringCount = document.getElementById('sidebar-expiring-count'); // Not used anymore
+const sidebarExpiredCount = document.getElementById('sidebar-expired-count'); // Not used anymore
+const uploadExcelInput = document.getElementById('upload-excel');
+const browseBtn = document.getElementById('browse-btn');
+const dropZone = document.getElementById('drop-zone');
+const downloadTemplateBtn = document.getElementById('download-template');
+const uploadProgress = document.getElementById('upload-progress');
+const progressBar = document.getElementById('progress-bar');
+const progressPercentage = document.getElementById('progress-percentage');
+const uploadStats = document.getElementById('upload-stats');
+const processedCount = document.getElementById('processed-count');
+// Menu & Navigation (Updated IDs)
+const navDashboardBtn = document.getElementById('nav-dashboard');
+const navAddUploadBtn = document.getElementById('nav-add-upload');
+const navSettingsBtn = document.getElementById('nav-settings');
+// No more sidebar elements needed
+const menuToggleBtn = document.getElementById('menu-toggle');
+const overlay = document.getElementById('overlay');
+const themeToggle = document.getElementById('theme-toggle');
+const currentThemeSpan = document.getElementById('current-theme');
+// ===== UTILITY FUNCTIONS =====
+function daysBetween(d1, d2) {
+const oneDay = 24 * 60 * 60 * 1000;
+return Math.round((d2 - d1) / oneDay);
+}
+function formatDate(date) {
+return new Date(date).toLocaleDateString('en-US', {
+year: 'numeric',
+month: 'long',
+day: 'numeric'
+});
+}
+function formatDateShort(date) {
+return new Date(date).toLocaleDateString('en-US', {
+month: 'short',
+day: 'numeric',
+year: 'numeric'
+});
+}
+function showToast(message, type = 'info') {
+const iconMap = {
+success: 'fa-check-circle',
+error: 'fa-exclamation-circle',
+warning: 'fa-exclamation-triangle',
+info: 'fa-info-circle'
+};
+const toast = document.createElement('div');
+toast.className = `toast ${type}`;
+toast.innerHTML = `
+<i class="fas ${iconMap[type] || 'fa-info-circle'}"></i>
+<span>${message}</span>
+`;
+document.getElementById('toast-container').appendChild(toast);
+setTimeout(() => toast.classList.add('show'), 10);
+setTimeout(() => {
+toast.classList.remove('show');
+setTimeout(() => toast.remove(), 300);
+}, 4000);
+}
+function getExpiryStatus(expiryDate) {
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const expiry = new Date(expiryDate);
+expiry.setHours(0, 0, 0, 0);
+const daysRemaining = daysBetween(today, expiry);
+if (daysRemaining < 0) return { status: 'expired', days: daysRemaining, class: 'expired', label: 'Expired' };
+if (daysRemaining <= 90) return { status: 'expiring', days: daysRemaining, class: 'expiring-soon', label: 'Expiring Soon' };
+return { status: 'safe', days: daysRemaining, class: 'safe', label: 'Safe' };
+}
+function getStatusBadge(status) {
+const badges = {
+expired: '<span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold">Expired</span>',
+expiring: '<span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold">Expiring Soon</span>',
+safe: '<span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">Safe</span>'
+};
+return badges[status] || badges.safe;
+}
+// ===== THEME MANAGEMENT =====
+function initTheme() {
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+let savedTheme = localStorage.getItem('pharmaLogicTheme');
+if (!savedTheme) {
+savedTheme = prefersDark ? 'dark' : 'light';
+localStorage.setItem('pharmaLogicTheme', savedTheme);
+}
+document.documentElement.setAttribute('data-theme', savedTheme);
+updateThemeUI(savedTheme);
+}
+function toggleTheme() {
+const currentTheme = document.documentElement.getAttribute('data-theme');
+const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+document.documentElement.setAttribute('data-theme', newTheme);
+localStorage.setItem('pharmaLogicTheme', newTheme);
+updateThemeUI(newTheme);
+showToast(`Theme changed to ${newTheme} mode`, 'info');
+}
+function updateThemeUI(theme) {
+const icon = theme === 'dark' ? 'fa-sun' : 'fa-moon';
+themeToggle.innerHTML = `<i class="fas ${icon}"></i>`;
+currentThemeSpan.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+}
+// ===== DATA MANAGEMENT =====
+function loadData() {
+const data = localStorage.getItem(STORAGE_KEY);
+medicines = data ? JSON.parse(data) : [];
+// Initialize with sample data if empty
+if (medicines.length === 0) {
+const today = new Date();
+const nextMonth = new Date(today);
+nextMonth.setMonth(nextMonth.getMonth() + 1);
+const nextYear = new Date(today);
+nextYear.setFullYear(nextYear.getFullYear() + 1);
+const lastMonth = new Date(today);
+lastMonth.setMonth(lastMonth.getMonth() - 1);
+medicines = [
+{ name: 'Paracetamol 500mg', expiryDate: nextYear.toISOString().split('T')[0], quantity: 100, batch: 'BATCH-2024-001' },
+{ name: 'Amoxicillin 250mg', expiryDate: nextMonth.toISOString().split('T')[0], quantity: 50, batch: 'BATCH-2024-002' },
+{ name: 'Ibuprofen 400mg', expiryDate: lastMonth.toISOString().split('T')[0], quantity: 30, batch: 'BATCH-2023-005' },
+{ name: 'Cetirizine 10mg', expiryDate: nextYear.toISOString().split('T')[0], quantity: 80, batch: 'BATCH-2024-003' },
+{ name: 'Aspirin 75mg', expiryDate: today.toISOString().split('T')[0], quantity: 45, batch: 'BATCH-2024-004' }
+];
+saveData();
+}
+}
+function saveData() {
+localStorage.setItem(STORAGE_KEY, JSON.stringify(medicines));
+}
+function loadUser() {
+const userData = localStorage.getItem(USER_KEY);
+if (userData) {
+try {
+const { username, expiryDate } = JSON.parse(userData);
+currentUser = username;
+userExpiryDate = new Date(expiryDate);
+return true;
+} catch (e) {
+console.error('Error loading user data:', e);
+return false;
+}
+}
+return false;
+}
+function saveUser(username) {
+const expiryDate = new Date();
+expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+userExpiryDate = expiryDate;
+const userData = {
+username,
+expiryDate: expiryDate.toISOString(),
+createdDate: new Date().toISOString()
+};
+localStorage.setItem(USER_KEY, JSON.stringify(userData));
+return userData;
+}
+// ===== AUTHENTICATION =====
+function checkUserExpiry() {
+if (!userExpiryDate) return false;
+const today = new Date();
+const daysRemaining = daysBetween(today, userExpiryDate);
+if (daysRemaining <= 0) {
+localStorage.removeItem(USER_KEY);
+showToast('Your account has expired. Please contact support.', 'error');
+return false;
+} else if (daysRemaining <= 30) {
+expiryWarning.classList.remove('hidden');
+daysRemainingSpan.textContent = daysRemaining;
+if (daysRemaining <= 7) {
+showToast(`Your account will expire in ${daysRemaining} days`, 'warning');
+}
+}
+return true;
+}
+function handleLogin(username, password) {
+if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+isLoggedIn = true;
+currentUser = username.split('@')[0];
+// Update UI
+usernameDisplay.textContent = currentUser;
+settingsUsername.textContent = currentUser;
+// Load or create user data
+if (!loadUser()) {
+const userData = saveUser(username);
+const createdDate = new Date(userData.createdDate);
+accountCreated.textContent = formatDate(createdDate);
+accountExpires.textContent = formatDate(userExpiryDate);
+} else {
+const createdDate = new Date(userExpiryDate);
+createdDate.setFullYear(createdDate.getFullYear() - 1);
+accountCreated.textContent = formatDate(createdDate);
+accountExpires.textContent = formatDate(userExpiryDate);
+}
+// Check expiry
+if (!checkUserExpiry()) {
+handleLogout();
+return false;
+}
+// Load data and render
+loadData();
+renderMedicines();
+// Show main app
+loginModal.classList.add('hidden');
+appContainer.classList.remove('hidden');
+showToast(`Welcome back, ${currentUser}!`, 'success');
+return true;
+}
+return false;
+}
+function handleLogout() {
+isLoggedIn = false;
+currentUser = null;
+// Show login modal
+loginModal.classList.remove('hidden');
+appContainer.classList.add('hidden');
+// Reset form
+loginForm.reset();
+expiryWarning.classList.add('hidden');
+showToast('You have been logged out', 'info');
+}
+// ===== MEDICINE CRUD OPERATIONS =====
+function addMedicine(name, expiryDate, quantity = 1, batch = '') {
+// Validate input
+if (!name || !expiryDate) {
+showToast('Medicine name and expiry date are required', 'error');
+return false;
+}
+const expDate = new Date(expiryDate);
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+if (expDate < today) {
+showToast('Expiry date must be in the future', 'error');
+return false;
+}
+// Check for duplicates
+const normalizedName = name.toLowerCase().trim();
+const isDuplicate = medicines.some(med =>
+med.name.toLowerCase() === normalizedName &&
+med.expiryDate === expiryDate
+);
+if (isDuplicate) {
+showToast('This medicine with the same expiry date already exists', 'warning');
+return false;
+}
+// Add medicine
+const newMedicine = {
+id: Date.now(),
+name: name.trim(),
+expiryDate,
+quantity: parseInt(quantity) || 1,
+batch: batch.trim(),
+addedDate: new Date().toISOString()
+};
+medicines.push(newMedicine);
+saveData();
+renderMedicines();
+showToast(`${name} added successfully`, 'success');
+return true;
+}
+function editMedicine(index, name, expiryDate, quantity = 1, batch = '') {
+if (index < 0 || index >= medicines.length) return false;
+// Validate input
+if (!name || !expiryDate) {
+showToast('Medicine name and expiry date are required', 'error');
+return false;
+}
+const expDate = new Date(expiryDate);
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+if (expDate < today) {
+showToast('Expiry date must be in the future', 'error');
+return false;
+}
+// Update medicine
+medicines[index] = {
+...medicines[index],
+name: name.trim(),
+expiryDate,
+quantity: parseInt(quantity) || 1,
+batch: batch.trim(),
+updatedDate: new Date().toISOString()
+};
+saveData();
+renderMedicines();
+showToast(`${name} updated successfully`, 'success');
+return true;
+}
+function deleteMedicine(index) {
+if (index < 0 || index >= medicines.length) return false;
+const medicineName = medicines[index].name;
+medicines.splice(index, 1);
+saveData();
+renderMedicines();
+showToast(`${medicineName} deleted successfully`, 'success');
+return true;
+}
+// ===== RENDER FUNCTIONS =====
+function renderMedicines() {
+// Sort medicines by expiry date (soonest first)
+medicines.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+// Calculate statistics
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+let expireSoon = 0;
+let expired = 0;
+medicines.forEach(med => {
+const status = getExpiryStatus(med.expiryDate);
+if (status.status === 'expired') expired++;
+else if (status.status === 'expiring') expireSoon++;
+});
+// Update statistics
+totalCountEl.textContent = medicines.length;
+expireSoonCountEl.textContent = expireSoon;
+expiredCountEl.textContent = expired;
+// Update sidebar statistics - REMOVED AS SIDEBAR IS GONE
+// sidebarTotalCount.textContent = medicines.length;
+// sidebarExpiringCount.textContent = expireSoon;
+// sidebarExpiredCount.textContent = expired;
+// Apply filters and render
+applyFilters();
+}
+function applyFilters() {
+const searchTerm = searchInput.value.toLowerCase().trim();
+const filterType = filterSelect.value;
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+// Filter medicines
+let filtered = medicines.filter(med => {
+const matchesSearch = med.name.toLowerCase().includes(searchTerm);
+const status = getExpiryStatus(med.expiryDate);
+let matchesFilter = true;
+if (filterType === 'expiring') matchesFilter = status.status === 'expiring';
+else if (filterType === 'expired') matchesFilter = status.status === 'expired';
+else if (filterType === 'safe') matchesFilter = status.status === 'safe';
+return matchesSearch && matchesFilter;
+});
+// Update counts
+filteredCountEl.textContent = filtered.length;
+totalFilteredCountEl.textContent = medicines.length;
+// Show/hide empty state
+if (filtered.length === 0) {
+medicineListTbody.innerHTML = '';
+emptyState.classList.remove('hidden');
+medicineListTbody.parentElement.classList.add('hidden');
+} else {
+emptyState.classList.add('hidden');
+medicineListTbody.parentElement.classList.remove('hidden');
+// Render table
+medicineListTbody.innerHTML = '';
+filtered.forEach((med, displayIndex) => {
+const originalIndex = medicines.findIndex(m => m.id === med.id);
+const expiry = new Date(med.expiryDate);
+const status = getExpiryStatus(med.expiryDate);
+const row = document.createElement('tr');
+row.className = `medicine-row ${status.class} hover:bg-opacity-30`;
+row.innerHTML = `
+<td class="px-6 py-4 border-b border-theme">
+<div class="font-semibold">${med.name}</div>
+${med.batch ? `<div class="text-sm text-gray-500">Batch: ${med.batch}</div>` : ''}
+${med.quantity ? `<div class="text-sm text-gray-500">Qty: ${med.quantity}</div>` : ''}
+</td>
+<td class="px-6 py-4 border-b border-theme font-medium">${formatDateShort(expiry)}</td>
+<td class="px-6 py-4 border-b border-theme font-bold">${status.days} days</td>
+<td class="px-6 py-4 border-b border-theme">${getStatusBadge(status.status)}</td>
+<td class="px-6 py-4 border-b border-theme">
+<div class="flex space-x-2">
+<button class="edit-btn p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200" data-index="${originalIndex}" title="Edit">
+<i class="fas fa-edit"></i>
+</button>
+<button class="delete-btn p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200" data-index="${originalIndex}" title="Delete">
+<i class="fas fa-trash-alt"></i>
+</button>
+</div>
+</td>
+`;
+medicineListTbody.appendChild(row);
+});
+// Add event listeners to buttons
+document.querySelectorAll('.edit-btn').forEach(btn => {
+btn.addEventListener('click', handleEditMedicine);
+});
+document.querySelectorAll('.delete-btn').forEach(btn => {
+btn.addEventListener('click', handleDeleteMedicine);
+});
+}
+}
+// ===== MODAL HANDLERS =====
+function handleEditMedicine(e) {
+const index = parseInt(e.currentTarget.dataset.index);
+const med = medicines[index];
+// Create modal
+const modal = document.createElement('div');
+modal.className = 'modal-overlay';
+modal.innerHTML = `
+<div class="bg-card p-6 rounded-xl shadow-xl max-w-md w-full mx-4 fade-in">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-bold text-[#0077b6]">Edit Medicine</h3>
+<button class="close-modal text-gray-500 hover:text-gray-700 text-xl">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<form id="edit-medicine-form" class="space-y-4">
+<div>
+<label for="edit-medicine-name" class="block text-sm font-medium mb-1">Medicine Name</label>
+<input type="text" id="edit-medicine-name" value="${med.name}"
+class="w-full px-3 py-2 border border-theme rounded-md focus:outline-none focus:ring-2 focus:ring-[#0077b6] bg-card" required>
+</div>
+<div>
+<label for="edit-expiry-date" class="block text-sm font-medium mb-1">Expiry Date</label>
+<input type="date" id="edit-expiry-date" value="${med.expiryDate}"
+class="w-full px-3 py-2 border border-theme rounded-md focus:outline-none focus:ring-2 focus:ring-[#0077b6] bg-card" required>
+</div>
+<div>
+<label for="edit-quantity" class="block text-sm font-medium mb-1">Quantity</label>
+<input type="number" id="edit-quantity" value="${med.quantity || 1}" min="1"
+class="w-full px-3 py-2 border border-theme rounded-md focus:outline-none focus:ring-2 focus:ring-[#0077b6] bg-card">
+</div>
+<div>
+<label for="edit-batch-number" class="block text-sm font-medium mb-1">Batch Number</label>
+<input type="text" id="edit-batch-number" value="${med.batch || ''}"
+class="w-full px-3 py-2 border border-theme rounded-md focus:outline-none focus:ring-2 focus:ring-[#0077b6] bg-card">
+</div>
+<div class="flex justify-end gap-2 pt-4">
+<button type="button" class="close-modal px-4 py-2 border border-theme rounded-md hover:bg-gray-100 transition-colors duration-200">Cancel</button>
+<button type="submit" class="btn-primary px-4 py-2">Save Changes</button>
+</div>
+</form>
+</div>
+`;
+document.body.appendChild(modal);
+// Add event listeners
+const closeModal = () => modal.remove();
+modal.querySelectorAll('.close-modal').forEach(btn => {
+btn.addEventListener('click', closeModal);
+});
+modal.querySelector('#edit-medicine-form').addEventListener('submit', (e) => {
+e.preventDefault();
+const name = document.getElementById('edit-medicine-name').value.trim();
+const expiryDate = document.getElementById('edit-expiry-date').value;
+const quantity = document.getElementById('edit-quantity').value;
+const batch = document.getElementById('edit-batch-number').value.trim();
+if (editMedicine(index, name, expiryDate, quantity, batch)) {
+closeModal();
+}
+});
+// Close on overlay click
+modal.addEventListener('click', (e) => {
+if (e.target === modal) closeModal();
+});
+}
+function handleDeleteMedicine(e) {
+const index = parseInt(e.currentTarget.dataset.index);
+const medicineName = medicines[index].name;
+// Create confirmation modal
+const modal = document.createElement('div');
+modal.className = 'modal-overlay';
+modal.innerHTML = `
+<div class="bg-card p-6 rounded-xl shadow-xl max-w-md w-full mx-4 fade-in">
+<div class="text-center mb-6">
+<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+<i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+</div>
+<h3 class="text-xl font-bold text-gray-800 mb-2">Delete Medicine</h3>
+<p class="text-gray-600">Are you sure you want to delete <span class="font-semibold">"${medicineName}"</span>? This action cannot be undone.</p>
+</div>
+<div class="flex justify-center gap-3">
+<button class="cancel-delete px-4 py-2 border border-theme rounded-md hover:bg-gray-100 transition-colors duration-200">Cancel</button>
+<button class="confirm-delete px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200">Delete</button>
+</div>
+</div>
+`;
+document.body.appendChild(modal);
+// Add event listeners
+modal.querySelector('.cancel-delete').addEventListener('click', () => modal.remove());
+modal.querySelector('.confirm-delete').addEventListener('click', () => {
+deleteMedicine(index);
+modal.remove();
+});
+// Close on overlay click
+modal.addEventListener('click', (e) => {
+if (e.target === modal) modal.remove();
+});
+}
+// ===== IMPORT/EXPORT FUNCTIONS =====
+function exportToJson() {
+const data = {
+medicines,
+user: currentUser ? { username: currentUser } : null,
+exportDate: new Date().toISOString(),
+version: '1.0'
+};
+const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = `pharmalogic-backup-${new Date().toISOString().split('T')[0]}.json`;
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+URL.revokeObjectURL(url);
+showToast('Data exported successfully as JSON', 'success');
+}
+function exportToExcel() {
+try {
+// Prepare data for Excel
+const excelData = medicines.map(med => ({
+'Medicine Name': med.name,
+'Expiry Date': med.expiryDate,
+'Days Remaining': getExpiryStatus(med.expiryDate).days,
+'Quantity': med.quantity || 1,
+'Batch Number': med.batch || '',
+'Status': getExpiryStatus(med.expiryDate).label
+}));
+// Create worksheet
+const ws = XLSX.utils.json_to_sheet(excelData);
+// Create workbook
+const wb = XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(wb, ws, 'Medicines');
+// Generate and download file
+XLSX.writeFile(wb, `pharmalogic-inventory-${new Date().toISOString().split('T')[0]}.xlsx`);
+showToast('Data exported successfully as Excel', 'success');
+} catch (error) {
+console.error('Export error:', error);
+showToast('Failed to export Excel file', 'error');
+}
+}
+function importFromJson(file) {
+const reader = new FileReader();
+reader.onload = function(e) {
+try {
+const data = JSON.parse(e.target.result);
+if (!data.medicines || !Array.isArray(data.medicines)) {
+throw new Error('Invalid file format');
+}
+if (confirm(`This will import ${data.medicines.length} medicines. Replace current data?`)) {
+medicines = data.medicines;
+saveData();
+renderMedicines();
+showToast(`${data.medicines.length} medicines imported successfully`, 'success');
+}
+} catch (error) {
+console.error('Import error:', error);
+showToast('Failed to import file. Invalid format.', 'error');
+}
+};
+reader.readAsText(file);
+}
+function importFromExcel(file) {
+const reader = new FileReader();
+reader.onload = function(e) {
+try {
+const data = new Uint8Array(e.target.result);
+const workbook = XLSX.read(data, { type: 'array' });
+const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+const jsonData = XLSX.utils.sheet_to_json(worksheet);
+if (jsonData.length === 0) {
+showToast('Excel file is empty', 'warning');
+return;
+}
+// Show progress
+uploadProgress.classList.remove('hidden');
+progressBar.style.width = '0%';
+progressPercentage.textContent = '0%';
+uploadStats.classList.remove('hidden');
+processedCount.textContent = '0';
+let processed = 0;
+let added = 0;
+let skipped = 0;
+// Process in chunks to show progress
+const processChunk = (index) => {
+if (index >= jsonData.length) {
+// Processing complete
+uploadProgress.classList.add('hidden');
+uploadStats.classList.add('hidden');
+saveData();
+renderMedicines();
+showToast(`Import complete: ${added} added, ${skipped} skipped`, 'success');
+return;
+}
+const row = jsonData[index];
+processed++;
+// Update progress
+const progress = Math.round((processed / jsonData.length) * 100);
+progressBar.style.width = `${progress}%`;
+progressPercentage.textContent = `${progress}%`;
+processedCount.textContent = processed;
+// Extract data from row (case-insensitive column names)
+let medicineName = '';
+let expiryDate = '';
+// Try different possible column names
+for (const [key, value] of Object.entries(row)) {
+const lowerKey = key.toLowerCase();
+if (lowerKey.includes('name') || lowerKey.includes('medicine')) {
+medicineName = value.toString().trim();
+} else if (lowerKey.includes('expiry') || lowerKey.includes('date')) {
+expiryDate = value.toString().trim();
+}
+}
+// Validate required fields
+if (!medicineName || !expiryDate) {
+skipped++;
+setTimeout(() => processChunk(index + 1), 10);
+return;
+}
+// Parse date
+let parsedDate;
+if (typeof expiryDate === 'string') {
+parsedDate = new Date(expiryDate);
+} else if (typeof expiryDate === 'number') {
+// Excel date number
+const utcDays = Math.floor(expiryDate - 25569);
+parsedDate = new Date(utcDays * 86400 * 1000);
+} else {
+parsedDate = new Date(expiryDate);
+}
+if (isNaN(parsedDate.getTime())) {
+skipped++;
+setTimeout(() => processChunk(index + 1), 10);
+return;
+}
+// Format date as YYYY-MM-DD
+const formattedDate = parsedDate.toISOString().split('T')[0];
+// Check if already exists
+const isDuplicate = medicines.some(med =>
+med.name.toLowerCase() === medicineName.toLowerCase() &&
+med.expiryDate === formattedDate
+);
+if (!isDuplicate) {
+// Add medicine
+medicines.push({
+id: Date.now() + index,
+name: medicineName,
+expiryDate: formattedDate,
+quantity: row.quantity || row.Quantity || 1,
+batch: row.batch || row.Batch || '',
+addedDate: new Date().toISOString()
+});
+added++;
+} else {
+skipped++;
+}
+// Process next row
+setTimeout(() => processChunk(index + 1), 10);
+};
+// Start processing
+processChunk(0);
+} catch (error) {
+console.error('Excel import error:', error);
+uploadProgress.classList.add('hidden');
+showToast('Failed to process Excel file', 'error');
+}
+};
+reader.readAsArrayBuffer(file);
+}
+function createExcelTemplate() {
+const templateData = [
+{
+'Medicine Name': 'Paracetamol 500mg',
+'Expiry Date': '2024-12-31',
+'Quantity': 100,
+'Batch Number': 'BATCH-2024-001'
+},
+{
+'Medicine Name': 'Amoxicillin 250mg',
+'Expiry Date': '2024-06-30',
+'Quantity': 50,
+'Batch Number': 'BATCH-2024-002'
+}
+];
+const ws = XLSX.utils.json_to_sheet(templateData);
+const wb = XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(wb, ws, 'Medicines');
+// Add instructions sheet
+const instructions = [
+['INSTRUCTIONS:'],
+['1. Fill in medicine details in the "Medicines" sheet'],
+['2. Required columns: Medicine Name, Expiry Date'],
+['3. Expiry Date format: YYYY-MM-DD'],
+['4. Optional columns: Quantity, Batch Number'],
+['5. Save the file and upload it in the application']
+];
+const instructionWs = XLSX.utils.aoa_to_sheet(instructions);
+XLSX.utils.book_append_sheet(wb, instructionWs, 'Instructions');
+XLSX.writeFile(wb, 'pharmalogic-template.xlsx');
+}
+// ===== UI NAVIGATION =====
+function showSection(sectionId) {
+// Update active navigation item
+document.querySelectorAll('.top-nav-item').forEach(btn => {
+btn.classList.remove('active-nav-item');
+});
+if (sectionId === 'dashboard-section') {
+navDashboardBtn.classList.add('active-nav-item');
+} else if (sectionId === 'add-upload-section') {
+navAddUploadBtn.classList.add('active-nav-item');
+} else if (sectionId === 'settings-section') {
+navSettingsBtn.classList.add('active-nav-item');
+}
+
+// Hide all sections
+document.getElementById('dashboard-section').classList.add('hidden');
+document.getElementById('add-upload-section').classList.add('hidden');
+document.getElementById('settings-section').classList.add('hidden');
+
+// Show selected section
+document.getElementById(sectionId).classList.remove('hidden');
+currentSection = sectionId;
+
+// Close sidebar on mobile - REMOVED AS SIDEBAR IS GONE
+// if (window.innerWidth < 768) {
+//     closeSidebar();
+// }
+}
+
+// Removed sidebar functions openSidebar, closeSidebar
+// Removed sidebar toggle event listeners
+
+
+// ===== EVENT LISTENERS =====
+function initEventListeners() {
+// Login
+loginForm.addEventListener('submit', (e) => {
+e.preventDefault();
+const username = usernameInput.value.trim();
+const password = passwordInput.value;
+if (handleLogin(username, password)) {
+// Success
+} else {
+showToast('Invalid username or password', 'error');
+}
+});
+
+// Logout
+logoutBtn.addEventListener('click', handleLogout);
+
+// Theme toggle
+themeToggle.addEventListener('click', toggleTheme);
+
+// Top Navigation event listeners (Updated IDs)
+navDashboardBtn.addEventListener('click', () => showSection('dashboard-section'));
+navAddUploadBtn.addEventListener('click', () => showSection('add-upload-section'));
+navSettingsBtn.addEventListener('click', () => showSection('settings-section'));
+
+// Removed old menu toggle event listeners related to sidebar
+
+// Medicine form
+medicineForm.addEventListener('submit', (e) => {
+e.preventDefault();
+const name = medicineNameInput.value.trim();
+const expiryDate = expiryDateInput.value;
+const quantity = quantityInput.value;
+const batch = batchNumberInput.value.trim();
+if (addMedicine(name, expiryDate, quantity, batch)) {
+medicineForm.reset();
+// Set default date to tomorrow
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+expiryDateInput.valueAsDate = tomorrow;
+}
+});
+
+// Empty state add button
+emptyAddBtn.addEventListener('click', () => {
+showSection('add-upload-section');
+});
+
+// Search and filter
+searchInput.addEventListener('input', applyFilters);
+filterSelect.addEventListener('change', applyFilters);
+clearFiltersBtn.addEventListener('click', () => {
+searchInput.value = '';
+filterSelect.value = 'all';
+applyFilters();
+});
+
+// Total medicines card click
+totalMedsCard.addEventListener('click', () => {
+showSection('dashboard-section');
+searchInput.value = '';
+filterSelect.value = 'all';
+applyFilters();
+});
+
+// File upload
+browseBtn.addEventListener('click', () => {
+uploadExcelInput.click();
+});
+dropZone.addEventListener('click', () => {
+uploadExcelInput.click();
+});
+dropZone.addEventListener('dragover', (e) => {
+e.preventDefault();
+dropZone.classList.add('bg-gray-50');
+});
+dropZone.addEventListener('dragleave', () => {
+dropZone.classList.remove('bg-gray-50');
+});
+dropZone.addEventListener('drop', (e) => {
+e.preventDefault();
+dropZone.classList.remove('bg-gray-50');
+if (e.dataTransfer.files.length) {
+const file = e.dataTransfer.files[0];
+handleFileUpload(file);
+}
+});
+uploadExcelInput.addEventListener('change', (e) => {
+if (e.target.files.length) {
+const file = e.target.files[0];
+handleFileUpload(file);
+}
+});
+
+// Download template
+downloadTemplateBtn.addEventListener('click', (e) => {
+e.preventDefault();
+createExcelTemplate();
+});
+
+// Export/Import buttons
+exportJsonBtn.addEventListener('click', exportToJson);
+exportExcelBtn.addEventListener('click', exportToExcel);
+importDataBtn.addEventListener('click', () => {
+const input = document.createElement('input');
+input.type = 'file';
+input.accept = '.json,.xlsx,.xls,.csv';
+input.onchange = (e) => {
+if (e.target.files.length) {
+const file = e.target.files[0];
+if (file.name.endsWith('.json')) {
+importFromJson(file);
+} else {
+importFromExcel(file);
+}
+}
+};
+input.click();
+});
+
+// Delete all data
+deleteAllDataBtn.addEventListener('click', () => {
+if (medicines.length === 0) {
+showToast('No data to delete', 'warning');
+return;
+}
+if (confirm(`Are you sure you want to delete all ${medicines.length} medicines? This action cannot be undone.`)) {
+medicines = [];
+saveData();
+renderMedicines();
+showToast('All data has been deleted', 'success');
+}
+});
+
+// Prevent accidental close with unsaved changes
+window.addEventListener('beforeunload', (e) => {
+if (medicines.length > 0) {
+e.preventDefault();
+e.returnValue = '';
+}
+});
+
+// Initialize expiry date to tomorrow
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+expiryDateInput.valueAsDate = tomorrow;
+}
+
+function handleFileUpload(file) {
+const fileName = file.name.toLowerCase();
+if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls') || fileName.endsWith('.csv')) {
+importFromExcel(file);
+} else if (fileName.endsWith('.json')) {
+importFromJson(file);
+} else {
+showToast('Unsupported file format. Please upload Excel or JSON files.', 'error');
+}
+}
+
+// ===== INITIALIZATION =====
+function initApp() {
+// Initialize theme
+initTheme();
+
+// Initialize event listeners
+initEventListeners();
+
+// Check if user is already logged in
+if (loadUser() && checkUserExpiry()) {
+// Auto-login
+handleLogin(ADMIN_CREDENTIALS.username, ADMIN_CREDENTIALS.password);
+} else {
+// Show login modal
+loginModal.classList.remove('hidden');
+}
+
+// Load initial data
+loadData();
+
+// Show dashboard by default
+showSection('dashboard-section');
+}
+
+// Start the application when page loads
+window.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>
